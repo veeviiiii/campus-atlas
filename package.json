@@ -1,7 +1,7 @@
 {
   "name": "campus-atlas",
   "private": true,
-  "description": "Root wrapper so the website in web/ can be built from the repo root (Vercel reads vercel.json and the Node version here).",
+  "description": "Root wrapper: `npm run build` here builds the website in web/ (Vercel builds web/ directly).",
   "scripts": {
     "build": "cd web && npm ci && npm run build"
   },

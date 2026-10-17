@@ -151,11 +151,11 @@ npm run build      # static site in web/out
 
 ## Deploy (Vercel)
 
-The site is a static export (no server, no AI calls), so Vercel only serves files.
-[vercel.json](vercel.json) does the setup: it installs and builds `web/` from the repo root
-(the build reads `packs/`) and serves `web/out`. Import this repo at vercel.com/new and keep
-the Root Directory as the repo root; no environment variables are needed. Every push to `main`
-redeploys.
+The site is a static export (no server, no AI calls), so Vercel only serves files. Import this
+repo at vercel.com/new and choose **Import single project** next to `web` (Next.js): Root
+Directory `web`, default build settings, no environment variables. The build reads `packs/` from
+the repo root, which Vercel includes by default ("Include files outside the root directory").
+Every push to `main` redeploys.
 
 ## Repo layout
 

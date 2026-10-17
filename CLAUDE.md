@@ -179,7 +179,7 @@ Print "Repeat detection: found X of 19 expected" and list misses. Put the real n
 
 ## 9. Website (web/)
 Stack: Next.js (App Router) + TypeScript + Tailwind + Framer Motion, globe.gl (three.js),
-d3-geo-voronoi, KaTeX. Deploy on Vercel as a static export (vercel.json at the repo root).
+d3-geo-voronoi, KaTeX. Deploy on Vercel as a static export (project Root Directory: web).
 Bundle textures and fonts locally. Dark "space" theme. Readable on a projector.
 
 Screens:
