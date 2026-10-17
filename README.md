@@ -10,7 +10,7 @@ Sem. Lavender borders are blind spots: units the mid-sems never tested that stil
 It is powered by an open-weight model (Gemma 4), wrapped in our own **PYQ Trust Harness**, packaged as
 an open-standard **Agent Skill**, and released under Apache-2.0.
 
-> Live site: coming soon (Vercel)
+> Live site: **https://campus-atlas.vercel.app**
 
 ![The knowledge planet for DAVV M.Tech AI&DS Semester 1: subjects as continents, units as countries, red rings on repeated topics, lavender borders on blind spots](docs/screenshots/planet.jpg)
 
