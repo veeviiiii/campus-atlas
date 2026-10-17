@@ -1,0 +1,121 @@
+# Human ground truth for the Semester 1 papers (checked by eye against every page).
+# The AI proposes subject/exam from each page header; this manifest overrides it, and the
+# run report lists every disagreement.
+#
+# `notes` are human observations kept for the eval and the run report. The pipeline must
+# discover rotation, bleed-through and header problems itself, never read them from here.
+
+schema_version: "1.0"
+
+college:
+  id: davv-sdsf
+  name: School of Data Science & Forecasting, DAVV
+  city: Indore
+  # Takshashila Campus, DAVV (campus-level point, OpenStreetMap / Nominatim)
+  lat: 22.6880762
+  lng: 75.8749798
+
+course:
+  id: mtech-aids-dual
+  name: M.Tech (Dual Degree) AI & DS
+  semester: 1
+
+exams:
+  - {id: mst1, name: MST-1, date: "2025-10"}
+  - {id: mst2, name: MST-2, date: "2025-12"}
+  - {id: end, name: End Sem, date: "2026-01"}
+
+# Subjects are identified by normalized name + aliases, never by course code
+# (codes are unreliable: DS6A-101 appears on both Mathematics-I and the Programming End Sem).
+subjects:
+  - id: mathematics-1
+    name: Mathematics-I
+    aliases: [Mathematics]
+  - id: physics-1
+    name: Physics-I
+    aliases: [Physics, Applied physics]
+  - id: fundamentals-of-programming
+    name: Fundamentals of Programming
+    aliases: [Fundamental Of Programming language]
+  - id: descriptive-statistics
+    name: Descriptive Statistics
+    aliases: []
+  - id: intro-to-cs
+    name: Introduction to Computer Science
+    aliases: []
+  - id: fundamentals-of-electronics
+    name: Fundamentals of Electronics
+    aliases: []
+  - id: environmental-science
+    name: Environmental Science
+    aliases: []
+
+files:
+  - file: End_sem_pyq_sem1.pdf
+    exam: end
+    pages:
+      - page: 1
+        subject: fundamentals-of-programming
+        notes: Intro to CS line ("Explain DDL and DML") bleeds through at the bottom.
+      - page: 2
+        subject: intro-to-cs
+      - page: 3
+        subject: descriptive-statistics
+        notes: Header says "Semester-III" (misprint). Paper continues on page 4.
+      - page: 4
+        subject: descriptive-statistics
+        continues_previous: true
+      - page: 5
+        subject: physics-1
+      - page: 6
+        subject: fundamentals-of-electronics
+      - page: 7
+        subject: mathematics-1
+      - page: 8
+        subject: environmental-science
+
+  - file: MST2_PYQ.pdf
+    exam: mst2
+    pages:
+      - page: 1
+        subject: physics-1
+        notes: >-
+          Header says "Applied physics". Environmental Science Q4 (pyramid of energy) and an
+          Electronics fragment (NPN/PNP transistors) bleed through at the bottom.
+      - page: 2
+        subject: environmental-science
+        notes: Electronics fragments (NPN/PNP, LED colour) bleed through at the bottom.
+      - page: 3
+        subject: fundamentals-of-electronics
+      - page: 4
+        subject: intro-to-cs
+      - page: 5
+        subject: descriptive-statistics
+      - page: 6
+        subject: fundamentals-of-programming
+      - page: 7
+        subject: mathematics-1
+
+  - file: MST_1_PYQ_Sem_1.pdf
+    exam: mst1
+    pages:
+      - page: 1
+        subject: mathematics-1
+      - page: 2
+        subject: fundamentals-of-electronics
+      - page: 3
+        subject: physics-1
+        notes: >-
+          Header says "test 2"; treat as MST-1. A C++ MCQ fragment ("The extension of a C++
+          source file") bleeds through at the bottom.
+      - page: 4
+        subject: descriptive-statistics
+        notes: A C++ MCQ fragment bleeds through at the bottom.
+      - page: 5
+        subject: environmental-science
+        rotation: 180
+        notes: Photo is upside down.
+      - page: 6
+        subject: intro-to-cs
+      - page: 7
+        subject: fundamentals-of-programming

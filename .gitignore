@@ -1,0 +1,40 @@
+# Secrets
+.env
+.env.local
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+
+# Pipeline working files (rendered pages, caches)
+data/work/
+
+# Scanned papers stay local (35 MB); every page is in git as a photo in packs/<college>/pages/
+data/raw/**/*.pdf
+
+# Run reports: keep only the sample
+runs/*
+!runs/.gitkeep
+!runs/sample/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Vercel CLI link
+.vercel

@@ -1,0 +1,170 @@
+{
+  "schema_version": "1.0",
+  "mock": true,
+  "mock_note": "DEV ONLY. Placeholder pack so UI work never waits on the pipeline. Every name and question here is a placeholder, not real data. Never ship this as a real college.",
+  "college": {"id": "mock", "name": "Mock College (dev only)", "city": "Indore", "lat": 22.6880762, "lng": 75.8749798},
+  "course": {"id": "mock-course", "name": "Mock Course (dev only)", "semester": 1},
+  "sources": {
+    "exams": [
+      {"id": "mst1", "name": "MST-1", "date": "2025-10"},
+      {"id": "mst2", "name": "MST-2", "date": "2025-12"},
+      {"id": "end", "name": "End Sem", "date": "2026-01"}
+    ],
+    "syllabus": {"batch": "2024-29", "note": "old syllabus, used as a hint only"}
+  },
+  "subjects": [
+    {
+      "id": "mock-a",
+      "name": "Mock Subject A",
+      "aliases": ["Mock A"],
+      "codes_seen": ["MOCK-101"],
+      "units": [
+        {
+          "id": "a-u1",
+          "name": "Mock Unit A1",
+          "from_syllabus": true,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "a-t1",
+              "name": "Mock topic A1 (repeat)",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 25,
+              "questions": [
+                {"id": "a-mst2-q1", "exam": "mst2", "text": "Mock question: explain placeholder concept one with a graph.", "marks": 15, "has_table": false, "page_ref": "mock.pdf#p1", "repeat_of": [], "confidence": 0.95},
+                {"id": "a-end-q4", "exam": "end", "text": "Mock question: explain placeholder concept one with a graph.", "marks": 10, "has_table": false, "page_ref": "mock.pdf#p5", "repeat_of": [{"id": "a-mst2-q1", "type": "exact"}], "confidence": 0.93}
+              ],
+              "quiz": [
+                {"q": "Mock quiz question 1?", "options": ["Option A", "Option B", "Option C", "Option D"], "answer": 1, "why": "Placeholder explanation."},
+                {"q": "Mock quiz question 2?", "options": ["Option A", "Option B", "Option C", "Option D"], "answer": 0, "why": "Placeholder explanation."},
+                {"q": "Mock quiz question 3?", "options": ["Option A", "Option B", "Option C", "Option D"], "answer": 3, "why": "Placeholder explanation."}
+              ]
+            },
+            {
+              "id": "a-t2",
+              "name": "Mock topic A2 (two MSTs)",
+              "exams_count": 2,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {"id": "a-mst1-q2", "exam": "mst1", "text": "Mock question: write a short note on placeholder concept two.", "marks": 5, "has_table": false, "page_ref": "mock.pdf#p3", "repeat_of": [], "confidence": 0.9},
+                {"id": "a-mst2-q3", "exam": "mst2", "text": "Mock question: describe placeholder concept two in detail.", "marks": 5, "has_table": false, "page_ref": "mock.pdf#p1", "repeat_of": [{"id": "a-mst1-q2", "type": "same-topic"}], "confidence": 0.88}
+              ],
+              "quiz": []
+            },
+            {
+              "id": "a-t3",
+              "name": "Mock topic A3 (once)",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {"id": "a-mst1-q3", "exam": "mst1", "text": "Mock question: define placeholder concept three.", "marks": 5, "has_table": false, "page_ref": "mock.pdf#p3", "repeat_of": [], "confidence": 0.97}
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": ["Mock fog topic A1-x"]
+        },
+        {
+          "id": "a-u2",
+          "name": "Mock Unit A2 (blind spot)",
+          "from_syllabus": true,
+          "blind_spot": true,
+          "topics": [
+            {
+              "id": "a-t4",
+              "name": "Mock topic A4 (End Sem only)",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 20,
+              "questions": [
+                {"id": "a-end-q2", "exam": "end", "text": "Mock question with a formula: evaluate $\\int_0^1 x^2\\,dx$ and show that $\\sum_{n=1}^{\\infty} \\frac{1}{n^2}$ converges.", "marks": 10, "has_table": false, "page_ref": "mock.pdf#p5", "repeat_of": [], "confidence": 0.85},
+                {"id": "a-end-q5", "exam": "end", "text": "Mock question: explain placeholder concept four.", "marks": 10, "has_table": false, "page_ref": "mock.pdf#p5", "repeat_of": [], "confidence": 0.91}
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "a-u3",
+          "name": "Mock Unit A3 (never asked)",
+          "from_syllabus": true,
+          "blind_spot": false,
+          "topics": [],
+          "fog_topics": ["Mock fog topic A3-x", "Mock fog topic A3-y"]
+        }
+      ],
+      "off_syllabus": [
+        {"id": "a-end-q7", "exam": "end", "text": "Mock question that fits no syllabus unit.", "marks": 10, "has_table": false, "page_ref": "mock.pdf#p5", "repeat_of": [], "confidence": 0.8}
+      ]
+    },
+    {
+      "id": "mock-b",
+      "name": "Mock Subject B",
+      "aliases": [],
+      "codes_seen": ["MOCK-107"],
+      "units": [
+        {
+          "id": "b-u1",
+          "name": "Mock Unit B1",
+          "from_syllabus": true,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "b-t1",
+              "name": "Mock topic B1 (repeat with table)",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 10,
+              "questions": [
+                {"id": "b-mst1-q5", "exam": "mst1", "text": "Mock question: draw a placeholder diagram for the following data table.", "marks": 5, "has_table": true, "page_ref": "mock.pdf#p4", "repeat_of": [], "confidence": 0.9},
+                {"id": "b-end-q11", "exam": "end", "text": "Mock question: draw a placeholder diagram for the following data table.", "marks": 5, "has_table": true, "page_ref": "mock.pdf#p3", "repeat_of": [{"id": "b-mst1-q5", "type": "near"}], "confidence": 0.89}
+              ],
+              "quiz": []
+            },
+            {
+              "id": "b-t2",
+              "name": "Mock topic B2 (once)",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {"id": "b-mst2-q2", "exam": "mst2", "text": "Mock question: calculate a placeholder value from the given series.", "marks": 5, "has_table": true, "page_ref": "mock.pdf#p5", "repeat_of": [], "confidence": 0.92}
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "b-u2",
+          "name": "Mock Unit B2 (blind spot)",
+          "from_syllabus": true,
+          "blind_spot": true,
+          "topics": [
+            {
+              "id": "b-t3",
+              "name": "Mock topic B3 (End Sem only)",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 15,
+              "questions": [
+                {"id": "b-end-q13", "exam": "end", "text": "Mock question: compute placeholder indices for the following table.", "marks": 15, "has_table": true, "page_ref": "mock.pdf#p4", "repeat_of": [], "confidence": 0.86}
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": ["Mock fog topic B2-x"]
+        }
+      ],
+      "off_syllabus": []
+    }
+  ],
+  "unsure": [
+    {"page_ref": "mock.pdf#p2", "reason": "Mock unsure item: extraction failed validation twice.", "raw_text": "Mock partial question text..."}
+  ],
+  "stats": {"papers": 6, "questions": 12, "repeats": 3, "dropped_bleed_through": 1}
+}

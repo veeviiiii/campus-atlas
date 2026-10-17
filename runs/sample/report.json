@@ -1,0 +1,395 @@
+{
+  "subjects": [
+    "descriptive-statistics",
+    "environmental-science",
+    "fundamentals-of-electronics",
+    "fundamentals-of-programming",
+    "intro-to-cs",
+    "mathematics-1",
+    "physics-1"
+  ],
+  "started": "20261017-034223",
+  "pages": [
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p1",
+      "rotation": 0,
+      "header_subject": "FUNDAMENTALS OF PROGRAMMING",
+      "header_exam": "Semester End Examination",
+      "header_code": "DS6A-101"
+    },
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p2",
+      "rotation": 0,
+      "header_subject": "Introduction to Computer Science",
+      "header_exam": "Semester End Examination - December 2025",
+      "header_code": "DS6A-109"
+    },
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p3",
+      "rotation": 0,
+      "header_subject": "Descriptive Statistics",
+      "header_exam": "Semester End Examination - December 2025",
+      "header_code": "DS6A-107"
+    },
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p4",
+      "rotation": 0,
+      "header_subject": null,
+      "header_exam": null,
+      "header_code": null
+    },
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p5",
+      "rotation": 0,
+      "header_subject": "PHYSICS-1",
+      "header_exam": "Ist Semester End Examination - JANUARY 2026",
+      "header_code": "DS6A-103"
+    },
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p6",
+      "rotation": 0,
+      "header_subject": "Fundamentals of Electronics",
+      "header_exam": "Semester End Examination",
+      "header_code": "DS6A - 121"
+    },
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p7",
+      "rotation": 0,
+      "header_subject": "Mathematics - I",
+      "header_exam": "End Semester Examination",
+      "header_code": "DS6A-101"
+    },
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p8",
+      "rotation": 0,
+      "header_subject": "Environmental Science",
+      "header_exam": "End Semester Examination",
+      "header_code": "DS6A-131"
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p1",
+      "rotation": 0,
+      "header_subject": "Applied physics",
+      "header_exam": "Second Internal Test",
+      "header_code": null
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p2",
+      "rotation": 0,
+      "header_subject": "Environmental Science",
+      "header_exam": "Second Test",
+      "header_code": null
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p3",
+      "rotation": 0,
+      "header_subject": "Fundamentals of Electronics",
+      "header_exam": "Mid Semester -2 Test",
+      "header_code": "DS6A-121"
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p4",
+      "rotation": 0,
+      "header_subject": "Introduction to Computer Science",
+      "header_exam": "Test-2",
+      "header_code": null
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p5",
+      "rotation": 0,
+      "header_subject": "Descriptive Statistics",
+      "header_exam": null,
+      "header_code": null
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p6",
+      "rotation": 0,
+      "header_subject": "Fundamental Of Programming language",
+      "header_exam": "TEST-II",
+      "header_code": "DS6A-105"
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p7",
+      "rotation": 0,
+      "header_subject": "Mathematics- I",
+      "header_exam": "Test - II",
+      "header_code": "DS6A101"
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p1",
+      "rotation": 0,
+      "header_subject": "Mathematics- I",
+      "header_exam": "Test - I",
+      "header_code": "DS6A101"
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p2",
+      "rotation": 0,
+      "header_subject": "Fundamentals of Electronics",
+      "header_exam": "Mid Semester -1 Test",
+      "header_code": "DS6A-121"
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p3",
+      "rotation": 0,
+      "header_subject": "Physics",
+      "header_exam": "I Semester Examination (test 2)",
+      "header_code": null
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p4",
+      "rotation": 0,
+      "header_subject": "Descriptive Statistics",
+      "header_exam": "Test - 1",
+      "header_code": null
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p5",
+      "rotation": 180,
+      "header_subject": "Environmental science",
+      "header_exam": "MST-I",
+      "header_code": "DS6A-141"
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p6",
+      "rotation": 0,
+      "header_subject": "Introduction to Computer Science",
+      "header_exam": "Test-1",
+      "header_code": null
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p7",
+      "rotation": 0,
+      "header_subject": "Fundamental Of Programming language",
+      "header_exam": "TEST-I",
+      "header_code": "DS6A-105"
+    }
+  ],
+  "disagreements": [
+    {
+      "page_ref": "MST2_PYQ.pdf#p5",
+      "field": "exam",
+      "ai": "None -> None",
+      "manifest": "mst2"
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p3",
+      "field": "exam",
+      "ai": "'I Semester Examination (test 2)' -> mst2",
+      "manifest": "mst1"
+    }
+  ],
+  "dropped": [
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p1",
+      "text": "Explain ... with suitable examples.",
+      "likely_subject": null,
+      "reason": "The text is located below the visible bottom edge of the main exam paper."
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p1",
+      "text": "What is a pyramid of energy? Why is it always upright?",
+      "likely_subject": "Biology",
+      "reason": "The text is located below a visible edge of the top sheet of paper and uses a different numbering format ('Q4' instead of '1)') than the main paper."
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p1",
+      "text": "... diagrams of NPN and PNP transistors showing the direction of their currents.",
+      "likely_subject": "Electronics",
+      "reason": "The text is located below a clear horizontal edge and does not follow the numbering or layout of the main 20-mark test."
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p2",
+      "text": "...diagrams of NPN and PNP transistors showing the direction of their currents.",
+      "likely_subject": "Electronics",
+      "reason": "The text is located below a visible paper edge and uses a different numbering format (Q.4) than the main paper (Q4)."
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p2",
+      "text": "What determines the color of light emitted by a LED?",
+      "likely_subject": "Electronics",
+      "reason": "It appears below a line of text about transistors and has its own 'Q.4' numbering, separate from the main paper's Q4."
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p3",
+      "text": "The extension of a CTJ source...",
+      "likely_subject": "Electronics",
+      "reason": "The text starts with '3.' while the main paper already has a question 3, and it appears below the bottom edge of the main sheet."
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p4",
+      "text": "The extension of a C++ source file is.",
+      "likely_subject": "Computer Science",
+      "reason": "The text is located below the physical bottom edge of the main paper on a separate sheet."
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p6",
+      "text": "And also write an algorithm and draw a whether a number is positive, negative, or zero",
+      "likely_subject": "Computer Science",
+      "reason": "The text appears as a faint ghost image behind the main printed text, indicating it is on a separate sheet underneath."
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p6",
+      "text": "And write a C++ program to find the elements in an array using a function",
+      "likely_subject": "Computer Science",
+      "reason": "The text appears as a faint ghost image behind the main printed text, indicating it is on a separate sheet of paper underneath."
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p6",
+      "text": "program to make a calculator that performs operations",
+      "likely_subject": "Computer Science",
+      "reason": "The text appears as a faint ghost image behind the main printed text and does not follow the layout or numbering of the main paper."
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p6",
+      "text": "copying Statements in C++. And write the multiplication table for any given number",
+      "likely_subject": "Computer Science",
+      "reason": "The text appears as a faint ghost image behind the main text, indicating it is on a separate sheet of paper underneath."
+    }
+  ],
+  "unsure": [],
+  "retries": [],
+  "papers": [
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p1",
+      "subject": "fundamentals-of-programming",
+      "exam": "end",
+      "questions": 13
+    },
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p2",
+      "subject": "intro-to-cs",
+      "exam": "end",
+      "questions": 22
+    },
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p3, End_sem_pyq_sem1.pdf#p4",
+      "subject": "descriptive-statistics",
+      "exam": "end",
+      "questions": 20
+    },
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p5",
+      "subject": "physics-1",
+      "exam": "end",
+      "questions": 15
+    },
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p6",
+      "subject": "fundamentals-of-electronics",
+      "exam": "end",
+      "questions": 13
+    },
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p7",
+      "subject": "mathematics-1",
+      "exam": "end",
+      "questions": 16
+    },
+    {
+      "page_ref": "End_sem_pyq_sem1.pdf#p8",
+      "subject": "environmental-science",
+      "exam": "end",
+      "questions": 24
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p1",
+      "subject": "physics-1",
+      "exam": "mst2",
+      "questions": 2
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p2",
+      "subject": "environmental-science",
+      "exam": "mst2",
+      "questions": 4
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p3",
+      "subject": "fundamentals-of-electronics",
+      "exam": "mst2",
+      "questions": 12
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p4",
+      "subject": "intro-to-cs",
+      "exam": "mst2",
+      "questions": 5
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p5",
+      "subject": "descriptive-statistics",
+      "exam": "mst2",
+      "questions": 5
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p6",
+      "subject": "fundamentals-of-programming",
+      "exam": "mst2",
+      "questions": 4
+    },
+    {
+      "page_ref": "MST2_PYQ.pdf#p7",
+      "subject": "mathematics-1",
+      "exam": "mst2",
+      "questions": 5
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p1",
+      "subject": "mathematics-1",
+      "exam": "mst1",
+      "questions": 5
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p2",
+      "subject": "fundamentals-of-electronics",
+      "exam": "mst1",
+      "questions": 12
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p3",
+      "subject": "physics-1",
+      "exam": "mst1",
+      "questions": 3
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p4",
+      "subject": "descriptive-statistics",
+      "exam": "mst1",
+      "questions": 5
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p5",
+      "subject": "environmental-science",
+      "exam": "mst1",
+      "questions": 7
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p6",
+      "subject": "intro-to-cs",
+      "exam": "mst1",
+      "questions": 8
+    },
+    {
+      "page_ref": "MST_1_PYQ_Sem_1.pdf#p7",
+      "subject": "fundamentals-of-programming",
+      "exam": "mst1",
+      "questions": 4
+    }
+  ],
+  "model": {
+    "provider": "gemini",
+    "model": "gemma-4-31b-it"
+  },
+  "calls": {
+    "calls": 194,
+    "live_calls": 129,
+    "cached_calls": 65,
+    "failed_calls": 56,
+    "live_seconds": 5065.4,
+    "answers_by_model": {
+      "gemma-4-26b-a4b-it": 5,
+      "gemma-4-31b-it": 133
+    }
+  }
+}

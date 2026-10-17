@@ -1,0 +1,10 @@
+pymupdf
+pillow
+pydantic>=2
+pyyaml
+python-dotenv
+google-genai
+openai
+sentence-transformers
+python-docx
+numpy

@@ -1,0 +1,121 @@
+{
+  "note": "Manual check of the Sem 1 papers (CLAUDE.md section 6). A hit = the pack has a repeat_of link between an MST question and an End Sem question on this topic, matched by text, not question numbers. Optional must_contain: text both linked questions must contain (spaces, $ and case ignored), for items an embedding model cannot tell apart (e.g. two different curve equations).",
+  "expected": [
+    {
+      "n": 1,
+      "subject": "physics-1",
+      "mst_exam": "mst2",
+      "key_phrase": "damped oscillation (over-, under-, critically-damped motion)"
+    },
+    {
+      "n": 2,
+      "subject": "physics-1",
+      "mst_exam": "mst1",
+      "key_phrase": "E = K + m0c^2, explain and derive"
+    },
+    {
+      "n": 3,
+      "subject": "physics-1",
+      "mst_exam": "mst1",
+      "key_phrase": "Lorentz transformation and invariance of the wave equation"
+    },
+    {
+      "n": 4,
+      "subject": "physics-1",
+      "mst_exam": "mst1",
+      "key_phrase": "Michelson-Morley experiment"
+    },
+    {
+      "n": 5,
+      "subject": "descriptive-statistics",
+      "mst_exam": "mst2",
+      "key_phrase": "find Q1 and Q3 (same marks table)"
+    },
+    {
+      "n": 6,
+      "subject": "descriptive-statistics",
+      "mst_exam": "mst1",
+      "key_phrase": "sub-divided bar diagram (same Arts/Science/Commerce data)"
+    },
+    {
+      "n": 7,
+      "subject": "descriptive-statistics",
+      "mst_exam": "mst1",
+      "key_phrase": "what is Statistics, two authors' statements, applications, kinds of data"
+    },
+    {
+      "n": 8,
+      "subject": "mathematics-1",
+      "mst_exam": "mst1",
+      "key_phrase": "absolute convergence of 1 - 1/2^2 + 1/3^2 - 1/4^2 + ..."
+    },
+    {
+      "n": 9,
+      "subject": "mathematics-1",
+      "mst_exam": "mst2",
+      "key_phrase": "the curve y^2(2a - x) = x^3",
+      "expected_type": "same-topic",
+      "must_contain": "y^2(2a-x)=x^3"
+    },
+    {
+      "n": 10,
+      "subject": "intro-to-cs",
+      "mst_exam": "mst2",
+      "key_phrase": "process vs thread"
+    },
+    {
+      "n": 11,
+      "subject": "intro-to-cs",
+      "mst_exam": "mst2",
+      "key_phrase": "DDL and DML"
+    },
+    {
+      "n": 12,
+      "subject": "intro-to-cs",
+      "mst_exam": "mst2",
+      "key_phrase": "three-level DBMS architecture and data independence"
+    },
+    {
+      "n": 13,
+      "subject": "fundamentals-of-electronics",
+      "mst_exam": "mst2",
+      "key_phrase": "Zener diode vs PN junction diode"
+    },
+    {
+      "n": 14,
+      "subject": "fundamentals-of-electronics",
+      "mst_exam": "mst1",
+      "key_phrase": "intrinsic vs extrinsic semiconductors"
+    },
+    {
+      "n": 15,
+      "subject": "fundamentals-of-electronics",
+      "mst_exam": "mst1",
+      "key_phrase": "depletion region in a PN junction diode"
+    },
+    {
+      "n": 16,
+      "subject": "fundamentals-of-programming",
+      "mst_exam": "mst2",
+      "key_phrase": "binary search"
+    },
+    {
+      "n": 17,
+      "subject": "fundamentals-of-programming",
+      "mst_exam": "mst2",
+      "key_phrase": "swap two numbers using pointers"
+    },
+    {
+      "n": 18,
+      "subject": "fundamentals-of-programming",
+      "mst_exam": "mst1",
+      "key_phrase": "algorithm and flowchart"
+    },
+    {
+      "n": 19,
+      "subject": "environmental-science",
+      "mst_exam": "mst2",
+      "key_phrase": "biodiversity hotspots of India"
+    }
+  ]
+}

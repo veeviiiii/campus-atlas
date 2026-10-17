@@ -1,0 +1,32 @@
+import "server-only";
+
+import fs from "node:fs";
+import path from "node:path";
+
+import type { Pack, PackEntry } from "./types";
+
+// Packs live at the repo root (../packs from web/). Read once at build time.
+const PACKS_DIR = path.join(process.cwd(), "..", "packs");
+
+function findJson(dir: string): string[] {
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+    const p = path.join(dir, e.name);
+    return e.isDirectory() ? findJson(p) : e.name.endsWith(".json") ? [p] : [];
+  });
+}
+
+/**
+ * Real packs if any exist; otherwise the mock pack (flagged `mock: true`, shown with a banner)
+ * so the UI can be built before the pipeline finishes.
+ */
+export function loadPacks(): PackEntry[] {
+  const all = findJson(PACKS_DIR)
+    .sort()
+    .map((file) => ({
+      key: path.relative(PACKS_DIR, file).replace(/\\/g, "/").replace(/\.json$/, ""),
+      pack: JSON.parse(fs.readFileSync(file, "utf-8")) as Pack,
+    }));
+  const real = all.filter((e) => !e.pack.mock && !e.key.startsWith("_"));
+  return real.length > 0 ? real : all.filter((e) => e.pack.mock);
+}

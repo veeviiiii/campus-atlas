@@ -1,0 +1,43 @@
+{
+  "name": "campus-atlas-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "copy-pages": "node scripts/copy-pages.mjs",
+    "predev": "node scripts/copy-pages.mjs",
+    "dev": "next dev",
+    "prebuild": "node scripts/copy-pages.mjs",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "check": "npm run lint && npm run build"
+  },
+  "dependencies": {
+    "d3-geo": "^3.1.1",
+    "d3-geo-voronoi": "^2.1.0",
+    "globe.gl": "^2.46.2",
+    "katex": "^0.19.0",
+    "motion": "^14.3.0",
+    "next": "16.4.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "^0.0.1",
+    "three": "^0.186.1",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "@types/d3-geo": "^3.1.1",
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/three": "^0.186.0",
+    "@types/topojson-client": "^3.1.5",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
