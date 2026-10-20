@@ -1,22 +1,29 @@
 # Campus Atlas
 
-**See what your university actually asks.**
+**Every past paper for your university, by subject, exam and year, with the topics that keep coming back.**
 
-Every university teaches the same subjects, but each one asks different exam questions. Campus Atlas
-turns a college's past exam papers into an interactive 3D planet: subjects are continents, units are
-countries, topics are glowing cities. Red rings mark topics that came back from a mid-sem test in the End
-Sem. Lavender borders are blind spots: units the mid-sems never tested that still filled the End Sem.
+Starting with DAVV, Indore. Pick your course and semester, open a subject, and you get:
 
-It is powered by an open-weight model (Gemma 4), wrapped in our own **PYQ Trust Harness**, packaged as
-an open-standard **Agent Skill**, and released under Apache-2.0.
+- **Papers:** every MST-1, MST-2 and End Sem paper, question by question (maths and tables included),
+  each question linked to the photo of its original page.
+- **Likely topics:** the subject's topics ranked by how often and how heavily they were asked, each with
+  its reasons ("asked in MST-2 and End Sem", "came back word for word", "25 marks in total"). With one
+  year of papers this is a frequency score, not a prediction model; it gets more useful as older papers
+  are added.
+- **Coming next: a notes exchange.** Share notes or ask for them by topic. Topics are shared across
+  departments, so a request reaches anyone studying the same subject, whatever their branch.
+
+Made for freshers first, useful to every year. The papers are read by an open-weight model (Gemma 4)
+inside our own checking pipeline, the **PYQ Trust Harness**; an open-standard **Agent Skill** lets
+anyone add a course. Apache-2.0.
 
 > Live site: **https://campus-atlas.vercel.app**
 
-![The knowledge planet for DAVV M.Tech AI&DS Semester 1: subjects as continents, units as countries, red rings on repeated topics, lavender borders on blind spots](docs/screenshots/planet.jpg)
+![Home page: "your semester is a WORLD, go explore it", with the real topics drawn as squares on a planet](docs/screenshots/home.jpg)
 
-| Earth view | Topic panel |
-|---|---|
-| ![Earth view centred on India with the DAVV pin](docs/screenshots/earth.jpg) | ![Damped Oscillations: asked in MST-2, then word for word in the End Sem](docs/screenshots/topic-panel.jpg) |
+| Course page | Papers | Likely topics |
+|---|---|---|
+| ![The seven subjects of M.Tech AI&DS Semester 1, each with its papers and most-asked topic](docs/screenshots/course.jpg) | ![Physics-I End Sem, January 2026, question by question with repeat badges](docs/screenshots/papers.jpg) | ![Descriptive Statistics topics ranked by how often they were asked, with reasons](docs/screenshots/likely.jpg) |
 
 ## What it found (DAVV, M.Tech AI&DS, Semester 1)
 
@@ -35,7 +42,7 @@ hard-coded:
 
 - **Gemma 4** (open weights, Apache-2.0) does all the reading and judging: page orientation, header
   reading, question extraction (LaTeX for maths, markdown for tables), the bleed-through check,
-  grouping questions into units and topics, judging borderline repeats, and writing quizzes.
+  grouping questions into units and topics, and judging borderline repeats.
   We use `gemma-4-31b-it`, falling back to `gemma-4-26b-a4b-it` when the API is overloaded.
 - **An open embedding model** (`all-MiniLM-L6-v2`, runs locally) finds repeated questions.
 - **No proprietary API needed:** set `MODEL_PROVIDER=openai_compatible` and the same pipeline runs on
@@ -57,8 +64,7 @@ flowchart LR
   F --> G[7-8 units + topics<br/>every question placed once]
   G --> H[9 repeats<br/>embeddings + model judge]
   H --> I[10 scoring<br/>repeats, blind spots, marks]
-  I --> J[11 quizzes<br/>3 validated MCQs per topic]
-  J --> K[12 pack JSON<br/>+ run report]
+  I --> K[12 pack JSON<br/>+ run report]
 ```
 
 Things the harness had to handle in the real papers:
@@ -118,14 +124,16 @@ schema and common problems (rotated pages, bleed-through, old syllabus, API erro
 - **Anyone can add their college** by pull request, and every number on the map can be traced back to a
   photo of the original page.
 
-## Add your college
+## Add your papers
 
 See [CONTRIBUTING.md](CONTRIBUTING.md): drop the PDFs, write a short manifest, run the skill, open a PR
-with the pack.
+with the pack. Older years of an existing course are just as welcome: they make Likely topics better.
 
 ## Honest limits
 
 - **One year of papers** (2025-26, three exams). A topic asked once may still be important.
+- **Likely topics is a frequency score**, not a prediction model: it ranks what was asked most often and
+  most heavily. A real model needs 3+ years of papers and a test against a year it has not seen.
 - **No syllabus was used** for this pack: units and topics are grouped from the questions themselves.
   When a syllabus is used it is the 2024-29 batch's, which may be outdated, and the site labels it as old.
 - **AI extraction can be wrong.** Every question on the site links to a photo of its original page.
@@ -138,8 +146,7 @@ with the pack.
 python -m venv .venv
 .venv/Scripts/python -m pip install -r pipeline/requirements.txt   # macOS/Linux: .venv/bin/python
 cp .env.example .env                                                # choose a provider, add a key
-.venv/Scripts/python -m pipeline.build_pack --all                  # steps 1-10 and 12
-.venv/Scripts/python -m pipeline.build_pack --stage quiz           # step 11
+.venv/Scripts/python -m pipeline.build_pack --all                  # the whole harness
 .venv/Scripts/python -m pipeline.eval --write                  # stores the result in the pack for the site
 
 # website (Node 20+)

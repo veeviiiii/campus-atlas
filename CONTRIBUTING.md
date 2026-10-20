@@ -28,13 +28,12 @@ python -m venv .venv
 .venv/Scripts/python -m pip install -r pipeline/requirements.txt      # macOS/Linux: .venv/bin/python
 cp .env.example .env                                                   # then set your model provider
 .venv/Scripts/python skills/pyq-atlas/scripts/run_pipeline.py --manifest data/raw/<college>/<course>/sem<N>/manifest.yaml --all
-.venv/Scripts/python skills/pyq-atlas/scripts/run_pipeline.py --manifest data/raw/<college>/<course>/sem<N>/manifest.yaml --stage quiz
 ```
 
 ## 4. Check the result
 
 - Read `runs/<timestamp>/report.md`: dropped bleed-through, unsure items, disagreements with your manifest.
-- Open the website locally (`cd web && npm install && npm run dev`) and click through your planet.
+- Open the website locally (`cd web && npm install && npm run dev`) and check your course and subject pages.
 - AI extraction can be wrong. Spot-check a few questions against the original pages.
 
 ## 5. Open a pull request
