@@ -29,11 +29,12 @@ other departments" links; search across all questions.
 CUT (do not bring back without asking): quizzes (incl. the Mentee quiz builder), "mark as studied" /
 fog / progress, "Exam tomorrow" routes and arcs, the Constellation view, the study-space tabs, the
 made-up demo dataset, the language picker (its Hindi was an unreviewed partial AI translation),
-study sessions, the Earth globe. The 3D knowledge planet survives only as an
-optional "Map" tab on a course page; it is never the main way to navigate.
+study sessions, the Earth globe, the 3D globe ("Map" tab). The planet look survives as the home-page
+hero and as small spinning planets on the subject cards: decoration on a link, never a separate way
+to navigate.
 
 ## 3. Build order
-1. Simplify: remove the cut features; course page (subjects + optional Map) and subject page
+1. Simplify: remove the cut features; course page (subject cards with mini planets) and subject page
    (Papers, Likely topics). Static site. <- current
 2. More papers: several years per course in one pack (the schema today holds one year: exam ids
    mst1/mst2/end); collect older papers from seniors.
@@ -67,7 +68,7 @@ A. pipeline/ (Python 3.11, .venv): the PYQ Trust Harness. Raw PDFs + manifest ->
    (pipeline/eval/expected_repeats.json); current result 18 of 19, stored in the pack.
 B. skills/pyq-atlas/: Agent Skill (agentskills.io standard) wrapping the pipeline, so any
    skills-compatible agent can add a course. Must keep passing `skills-ref validate`.
-C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX, globe.gl for the Map tab).
+C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; planets are 2D canvas, no 3D library).
    Reads ONLY pack JSON at build time; no AI calls at runtime. Fonts are bundled in
    web/src/app/fonts (works offline). This Next.js has breaking changes: read
    web/node_modules/next/dist/docs before using an API you are unsure of.

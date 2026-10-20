@@ -23,7 +23,7 @@ anyone add a course. Apache-2.0.
 
 | Course page | Papers | Likely topics |
 |---|---|---|
-| ![The seven subjects of M.Tech AI&DS Semester 1, each with its papers and most-asked topic](docs/screenshots/course.jpg) | ![Physics-I End Sem, January 2026, question by question with repeat badges](docs/screenshots/papers.jpg) | ![Descriptive Statistics topics ranked by how often they were asked, with reasons](docs/screenshots/likely.jpg) |
+| ![The seven subjects of M.Tech AI&DS Semester 1, each card with a small planet of its topics, its papers and most-asked topic](docs/screenshots/course.jpg) | ![Physics-I End Sem, January 2026, question by question with repeat badges](docs/screenshots/papers.jpg) | ![Descriptive Statistics topics ranked by how often they were asked, with reasons](docs/screenshots/likely.jpg) |
 
 ## What it found (DAVV, M.Tech AI&DS, Semester 1)
 
