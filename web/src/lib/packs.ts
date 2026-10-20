@@ -25,8 +25,19 @@ export function loadPacks(): PackEntry[] {
     .sort()
     .map((file) => ({
       key: path.relative(PACKS_DIR, file).replace(/\\/g, "/").replace(/\.json$/, ""),
-      pack: JSON.parse(fs.readFileSync(file, "utf-8")) as Pack,
+      pack: withoutQuizzes(JSON.parse(fs.readFileSync(file, "utf-8")) as Pack),
     }));
   const real = all.filter((e) => !e.pack.mock && !e.key.startsWith("_"));
   return real.length > 0 ? real : all.filter((e) => e.pack.mock);
+}
+
+/** The site no longer shows quizzes; dropping them keeps every page's data small. */
+function withoutQuizzes(pack: Pack): Pack {
+  for (const s of pack.subjects) for (const u of s.units) for (const t of u.topics) t.quiz = [];
+  return pack;
+}
+
+/** The pack whose key is "<college>/<pack>", for a /c/<college>/<pack>/ page. */
+export function findEntry(college: string, pack: string): PackEntry | undefined {
+  return loadPacks().find((e) => e.key === `${college}/${pack}`);
 }
