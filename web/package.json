@@ -15,14 +15,12 @@
   "dependencies": {
     "d3-geo": "^3.1.1",
     "d3-geo-voronoi": "^2.1.0",
-    "globe.gl": "^2.46.2",
     "katex": "^0.19.0",
     "motion": "^14.3.0",
     "next": "16.4.2",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "server-only": "^0.0.1",
-    "three": "^0.186.1"
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
@@ -31,7 +29,6 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/three": "^0.186.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
     "tailwindcss": "^4",

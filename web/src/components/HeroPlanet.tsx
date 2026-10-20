@@ -2,10 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
+import { HEAT } from "@/lib/colors";
 import type { City } from "@/lib/planet";
-
-/** Heat colours shared with the 3D planet. */
-export const HEAT: Record<City["heat"], string> = { repeat: "#ff3b4e", multi: "#ff8a3d", once: "#ffc24a" };
 
 interface Props {
   cities: City[];
@@ -13,9 +11,8 @@ interface Props {
 }
 
 /**
- * The premade design's 2D canvas planet (same drawing code: gradient sphere, halo, latitude
- * lines, tilted orbit ring, glowing squares), now fed with the real topics at the same
- * positions they have on the 3D knowledge planet.
+ * The premade design's 2D canvas planet (gradient sphere, halo, latitude lines, tilted orbit
+ * ring, glowing squares), fed with the real topics: subjects cluster together, colour = heat.
  */
 export default function HeroPlanet({ cities, onPick }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -173,7 +170,7 @@ export default function HeroPlanet({ cities, onPick }: Props) {
 
   return (
     <div className="hero-planet">
-      <canvas ref={ref} aria-label="Preview planet of the real topics. Click a topic to open it in the explorer below." />
+      <canvas ref={ref} aria-label="Planet of the real topics. Click a topic to open its questions." />
     </div>
   );
 }

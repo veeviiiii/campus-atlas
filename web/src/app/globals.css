@@ -294,21 +294,6 @@ nav.top ul {
   max-width: 16ch;
 }
 
-/* the Map tab's globe */
-.vp {
-  position: relative;
-  background: radial-gradient(circle at 50% 50%, #17143a, var(--background) 70%);
-  border: 1px solid var(--border);
-  border-radius: 32px;
-  height: clamp(380px, 70svh, 680px);
-  width: 100%;
-  overflow: hidden;
-  isolation: isolate;
-}
-.vp canvas {
-  display: block;
-  cursor: grab;
-}
 .q {
   background: var(--card);
   border-radius: 20px;
@@ -531,54 +516,6 @@ footer {
   text-align: left;
 }
 
-/* planet labels and tooltips */
-.atlas-continent {
-  font-family: var(--font-plex-mono), monospace;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--lav);
-  text-shadow: 0 0 10px #000, 0 0 4px #000;
-  white-space: nowrap;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-}
-.atlas-tip {
-  max-width: 280px;
-  padding: 10px 14px;
-  border-radius: 18px;
-  background: rgba(19, 18, 26, 0.94);
-  border: 1px solid var(--border);
-  color: var(--foreground);
-  font-family: var(--font-inter), sans-serif;
-  font-size: 14px;
-  line-height: 1.35;
-}
-.atlas-tip-kicker {
-  font-family: var(--font-plex-mono), monospace;
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.atlas-tip-title {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin: 2px 0 4px;
-}
-.atlas-tip-blind {
-  color: var(--lav);
-  margin-top: 4px;
-}
-.atlas-tip-note {
-  color: var(--muted);
-  font-size: 12px;
-  margin-top: 4px;
-}
-
 /* ---- course and subject pages ------------------------------------------------------------- */
 .page {
   padding: 112px 5vw 60px;
@@ -702,17 +639,19 @@ footer {
 }
 .subj-card h3 {
   font-size: 24px;
-  padding-right: 20px;
+}
+.mini-planet {
+  display: block;
+  width: 132px;
+  height: 132px;
+  margin: -4px auto 2px;
+  transition: transform 0.3s;
+}
+.subj-card:hover .mini-planet {
+  transform: scale(1.08);
 }
 .subj-card .mono {
   color: var(--muted);
-}
-.subj-dot {
-  position: absolute;
-  right: 20px;
-  top: 22px;
-  width: 12px;
-  height: 12px;
 }
 .subj-top {
   font-size: 14px;
