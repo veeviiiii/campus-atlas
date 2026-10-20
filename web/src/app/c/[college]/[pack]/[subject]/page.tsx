@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { SiteFooter, SiteNav } from "@/components/Chrome";
+import { BackBar, SiteFooter, SiteNav } from "@/components/Chrome";
 import SubjectView from "@/components/SubjectView";
 import { findEntry, loadPacks } from "@/lib/packs";
 import { courseHref } from "@/lib/paths";
@@ -44,9 +43,7 @@ export default async function SubjectPage({ params }: { params: Promise<Params> 
     <>
       <SiteNav />
       <main className="page">
-        <div className="crumbs mono">
-          <Link href="/#browse">Past papers</Link> / <Link href={courseHref(entry.key)}>{p.course.name}, Semester {p.course.semester}</Link>
-        </div>
+        <BackBar href={courseHref(entry.key)} label="All subjects" where={`${p.course.name} · Semester ${p.course.semester}`} />
         <h1 className="page-title">{subject.name}</h1>
         <div className="mono" style={{ color: "var(--muted)" }}>
           {p.college.name} · {questions} questions

@@ -5,6 +5,18 @@ import { useEffect, useState } from "react";
 
 export const REPO_URL = "https://github.com/veeviiiii/campus-atlas";
 
+/** A "← back" button and where you are, at the top of every inner page. */
+export function BackBar({ href, label, where }: { href: string; label: string; where: string }) {
+  return (
+    <nav className="crumbs" aria-label="Back">
+      <Link className="back" href={href}>
+        ← {label}
+      </Link>
+      <span className="mono">{where}</span>
+    </nav>
+  );
+}
+
 /** Top bar shared by every page (blurs once the page scrolls). */
 export function SiteNav() {
   const [scrolled, setScrolled] = useState(false);

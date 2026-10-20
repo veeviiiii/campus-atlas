@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { SiteFooter, SiteNav } from "@/components/Chrome";
+import { BackBar, SiteFooter, SiteNav } from "@/components/Chrome";
 import CourseView from "@/components/CourseView";
 import { findEntry, loadPacks } from "@/lib/packs";
 import { examDate } from "@/lib/papers";
@@ -35,9 +34,7 @@ export default async function CoursePage({ params }: { params: Promise<Params> }
     <>
       <SiteNav />
       <main className="page">
-        <div className="crumbs mono">
-          <Link href="/#browse">Past papers</Link> / {p.college.name}
-        </div>
+        <BackBar href="/#browse" label="All courses" where={p.college.name} />
         <h1 className="page-title">
           {p.course.name} <em>Semester {p.course.semester}</em>
         </h1>
