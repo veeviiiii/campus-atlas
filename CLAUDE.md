@@ -1,5 +1,7 @@
 # CAMPUS ATLAS — PRODUCT BRIEF (CLAUDE.md)
 
+Same brief for every coding agent: AGENTS.md (Codex) mirrors this file. Change both together.
+
 ## 1. What we are building (one line)
 Every past paper and the best notes for our university (DAVV, Indore), organised by subject, with
 the topics most likely to come next. Mainly for freshers, useful to every year.
