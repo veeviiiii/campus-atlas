@@ -39,7 +39,8 @@ to navigate.
 2. More papers: several years per course in one pack (the schema today holds one year: exam ids
    mst1/mst2/end); collect older papers from seniors.
 3. Community: sign-in, PYQ uploads into a review queue (an admin approves, then the pipeline runs),
-   notes exchange. Planned stack: Supabase (Postgres + Storage + Auth) with the Next.js site on Vercel.
+   notes exchange. Until then, papers come in through a Google Form owned by the maintainer (link in
+   web/src/lib/site.ts, shown on /send/); the maintainer runs the pipeline on the uploads. Planned stack: Supabase (Postgres + Storage + Auth) with the Next.js site on Vercel.
 4. Backtested prediction once there are 3+ years.
 Ask before starting a new phase. Ask before adding a backend, auth or any paid service.
 
@@ -73,7 +74,7 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    web/src/app/fonts (works offline). This Next.js has breaking changes: read
    web/node_modules/next/dist/docs before using an API you are unsure of.
    Routes: / (home: hero, browse courses, how it works), /c/<college>/<pack>/ (course page),
-   /c/<college>/<pack>/<subject>/ (subject page). Deploy: Vercel, project Root Directory web (Next.js
+   /c/<college>/<pack>/<subject>/ (subject page), /send/ (send us your papers). Deploy: Vercel, project Root Directory web (Next.js
    preset; the build reads ../packs). Live: https://campus-atlas.vercel.app
    Design: keep the current look (dark theme, lime/violet palette, Space Grotesk / Inter / Plex Mono,
    pixel accents). Must stay readable on a phone.

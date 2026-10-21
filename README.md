@@ -126,8 +126,13 @@ schema and common problems (rotated pages, bleed-through, old syllabus, API erro
 
 ## Add your papers
 
-See [CONTRIBUTING.md](CONTRIBUTING.md): drop the PDFs, write a short manifest, run the skill, open a PR
-with the pack. Older years of an existing course are just as welcome: they make Likely topics better.
+- **Anyone:** photograph the papers and upload them on the site's
+  [Send us your papers](https://campus-atlas.vercel.app/send/) page (a Google Form). We run the
+  pipeline and publish them.
+- **Developers:** see [CONTRIBUTING.md](CONTRIBUTING.md): drop the PDFs, write a short manifest, run the
+  skill, open a PR with the pack.
+
+Older years of an existing course are just as welcome: they make Likely topics better.
 
 ## Honest limits
 
