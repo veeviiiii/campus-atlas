@@ -45,9 +45,7 @@ export function SiteNav() {
           <Link href="/#how">How it works</Link>
         </li>
         <li>
-          <a href={`${REPO_URL}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noreferrer">
-            Add papers ↗
-          </a>
+          <Link href="/send/">Send papers</Link>
         </li>
       </ul>
       <Link className="pill lime" href="/#browse">
@@ -69,9 +67,7 @@ export function SiteFooter() {
           <a href={REPO_URL} target="_blank" rel="noreferrer">
             GitHub ↗
           </a>
-          <a href={`${REPO_URL}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noreferrer">
-            Add your papers
-          </a>
+          <Link href="/send/">Send us your papers</Link>
           <a href={`${REPO_URL}/blob/main/LICENSE`} target="_blank" rel="noreferrer">
             Apache-2.0
           </a>
@@ -81,6 +77,7 @@ export function SiteFooter() {
         <Link href="/">Home</Link>
         <Link href="/#browse">Papers</Link>
         <Link href="/#how">How</Link>
+        <Link href="/send/">Send</Link>
       </div>
     </>
   );

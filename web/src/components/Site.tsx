@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
-import { REPO_URL, SiteFooter, SiteNav } from "./Chrome";
+import { SiteFooter, SiteNav } from "./Chrome";
 import HeroPlanet from "./HeroPlanet";
 import { examDate } from "@/lib/papers";
 import { courseHref, topicHref } from "@/lib/paths";
@@ -123,10 +123,10 @@ export default function Site({ entries }: { entries: PackEntry[] }) {
               </span>
             </Link>
           ))}
-          <a className="card add" href={`${REPO_URL}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noreferrer">
+          <Link className="card add" href="/send/">
             <h3>{cards.length ? "Your course isn't here yet?" : "No match yet."}</h3>
-            <span>Send us photos of your past papers and we&apos;ll add them ↗</span>
-          </a>
+            <span>Send us photos of your past papers and we&apos;ll add them →</span>
+          </Link>
         </div>
       </section>
 

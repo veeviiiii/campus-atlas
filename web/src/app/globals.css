@@ -613,6 +613,51 @@ footer {
   gap: 10px;
 }
 
+/* send-your-papers page */
+.send .lead {
+  font-size: 18px;
+  max-width: 62ch;
+  margin: 0;
+  color: var(--foreground);
+}
+.send-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin: 6px 0 10px;
+}
+.send-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 700px) {
+  .send-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.send-grid h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+.send-grid ul {
+  list-style: disc;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.send-grid li::marker {
+  color: var(--accent);
+}
+.send .note a,
+.paper ~ .note a {
+  color: var(--accent);
+}
+
 /* course page: subject cards */
 .subject-grid {
   display: grid;

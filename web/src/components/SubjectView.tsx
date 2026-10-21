@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import QuestionCard from "./QuestionCard";
@@ -103,6 +104,9 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
               </div>
             </details>
           ))}
+          <p className="note">
+            Have this subject&apos;s paper from another year? <Link href="/send/">Send it in →</Link>
+          </p>
         </div>
       ) : (
         <div className="stack">
