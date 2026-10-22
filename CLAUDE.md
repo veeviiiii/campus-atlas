@@ -35,9 +35,10 @@ to navigate.
 
 ## 3. Build order
 1. Simplify: remove the cut features; course page (subject cards with mini planets) and subject page
-   (Papers, Likely topics). Static site. <- current
-2. More papers: several years per course in one pack (the schema today holds one year: exam ids
-   mst1/mst2/end); collect older papers from seniors.
+   (Papers, Likely topics). Static site. Done.
+2. More papers: one pack holds every year of a course-semester (done: exam ids mst1/mst2/end for the
+   first year added, <kind>-<session> such as mst1-2024-25 for every other year; year chips on the
+   Papers tab); collect older papers from seniors. <- current
 3. Community: sign-in, PYQ uploads into a review queue (an admin approves, then the pipeline runs),
    notes exchange. Until then, papers come in through a Google Form owned by the maintainer (link in
    web/src/lib/site.ts, shown on /send/); the maintainer runs the pipeline on the uploads. Planned stack: Supabase (Postgres + Storage + Auth) with the Next.js site on Vercel.
@@ -79,8 +80,8 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    Design: keep the current look (dark theme, lime/violet palette, Space Grotesk / Inter / Plex Mono,
    pixel accents). Must stay readable on a phone.
 
-Pack schema (packs/<college>/<course>-sem<N>.json): college, course, sources.exams [{id, name,
-date}], subjects[] -> units[] (blind_spot) -> topics[] (exams_count, is_repeat, total_marks,
+Pack schema 1.1 (packs/<college>/<course>-sem<N>.json, all years): college, course, sources.exams
+[{id, name, date, session}], subjects[] -> units[] (blind_spot) -> topics[] (exams_count, is_repeat, total_marks,
 questions[] with id, exam, text, marks, has_table, table_markdown, sub_parts, page_ref,
 repeat_of [{id, type: exact|near|same-topic}], confidence), unsure[], stats, harness (models, eval).
 Full reference: skills/pyq-atlas/references/pack-schema.md. Page photos: packs/<college>/pages/*.jpg.
