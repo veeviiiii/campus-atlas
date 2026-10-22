@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from pipeline.manifest import PageInfo, Paper, exam_name, match_exam, match_subject, subject_name
+from pipeline.manifest import PageInfo, Paper, exam_kind, exam_name, match_exam, match_subject, subject_name
 from pipeline.providers import get_provider
 from pipeline.report import RunReport
 from pipeline.validate import Extraction, Header, Orientation, Question, ask, validate_items
@@ -86,7 +86,7 @@ def read_header(page: PageInfo, image: Path, m: dict, report: RunReport) -> Head
     if res.has_header:
         if ai_subject != page.subject:
             report.add("disagreements", page_ref=page.ref, field="subject", ai=f"{res.subject_name!r} -> {ai_subject}", manifest=page.subject)
-        if ai_exam != page.exam:
+        if ai_exam != exam_kind(page.exam):
             report.add("disagreements", page_ref=page.ref, field="exam", ai=f"{res.exam_title!r} -> {ai_exam}", manifest=page.exam)
     elif not page.continues_previous:
         report.add("disagreements", page_ref=page.ref, field="header", ai="no header found", manifest="first page of a paper")

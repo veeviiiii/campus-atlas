@@ -4,11 +4,12 @@ import json
 import re
 from pathlib import Path
 
-from pipeline.manifest import load_manifest, work_dir
+from pipeline.manifest import exam_kind, exam_order, load_manifest, sessions, work_dir
 from pipeline.match import group_subject
 from pipeline.providers import CALLS, ROOT, get_provider
-from pipeline.repeats import EXAM_ORDER, find_repeats
+from pipeline.repeats import find_repeats
 
+MIDS = {"mst1", "mst2"}
 
 
 def export_pages(src: Path, dest: Path, max_side: int = 1400) -> None:
@@ -44,24 +45,37 @@ def topic_marks(qs: list[dict]) -> float:
     return int(total) if float(total).is_integer() else round(total, 1)
 
 
+def came_back(exams: set[str], order: dict[str, int]) -> bool:
+    """An End Sem asked it after an earlier paper had: that year's mid-sems, or any earlier year."""
+    first = min(order[e] for e in exams)
+    return any(exam_kind(e) == "end" and order[e] > first for e in exams)
+
+
+def blind_spot(exams: set[str]) -> bool:
+    """Asked in an End Sem but never in a mid-sem, in any year."""
+    kinds = {exam_kind(e) for e in exams}
+    return "end" in kinds and not kinds & MIDS
+
+
 def build_subject(m: dict, sid: str, workers: int) -> tuple[dict, list[dict], dict]:
     ex = json.loads((work_dir(m) / "extracted" / f"{sid}.json").read_text(encoding="utf-8"))
     subj = next(s for s in m["subjects"] if s["id"] == sid)
     questions = [q for p in ex["papers"] for q in p["questions"]]
     unsure = [{**u, "subject": sid} for u in ex.get("unsure", [])]
+    order = exam_order(m)
     print(f"  {sid}: {len(questions)} questions", flush=True)
 
     by_id = {q["id"]: q for q in questions}
 
-    # steps 7-8: units and topics (bottom-up; no syllabus available for this batch)
-    grouping, missing, gerr = group_subject(subj["name"], questions)
+    # steps 7-8: units and topics (bottom-up; no syllabus available for this batch), all years together
+    grouping, missing, gerr = group_subject(subj["name"], questions, sessions(m, {q["exam"] for q in questions}))
     for qid in missing:
         q = by_id[qid]
         unsure.append({"subject": sid, "page_ref": q["page_ref"], "step": "group", "error": gerr or "not placed in any topic", "raw": q["text"]})
 
     # step 9: repeats (embeddings + LLM judge; the topic grouping is a second candidate signal)
     same_topic = {(a, b) for u in (grouping.units if grouping else []) for t in u.topics for a in t.question_ids for b in t.question_ids if a != b}
-    links, judged, rep_unsure = find_repeats(subj["name"], questions, workers, same_topic)
+    links, judged, rep_unsure = find_repeats(subj["name"], questions, order, workers, same_topic)
     unsure += [{**u, "subject": sid} for u in rep_unsure]
     for q in questions:
         q["repeat_of"] = []
@@ -76,13 +90,13 @@ def build_subject(m: dict, sid: str, workers: int) -> tuple[dict, list[dict], di
     for k, u in enumerate(grouping.units if grouping else [], start=1):
         topics = []
         for j, t in enumerate(u.topics, start=1):
-            qs = sorted((by_id[i] for i in t.question_ids), key=lambda q: (EXAM_ORDER[q["exam"]], q["id"]))
+            qs = sorted((by_id[i] for i in t.question_ids), key=lambda q: (order[q["exam"]], q["id"]))
             exams = {q["exam"] for q in qs}
             topics.append({
                 "id": f"{sid}-u{k}-t{j}",
                 "name": t.name,
                 "exams_count": len(exams),
-                "is_repeat": "end" in exams and bool(exams & {"mst1", "mst2"}),  # in an MST and the End Sem
+                "is_repeat": came_back(exams, order),
                 "total_marks": topic_marks(qs),
                 "questions": [out_q(q) for q in qs],
                 "quiz": [],
@@ -93,7 +107,7 @@ def build_subject(m: dict, sid: str, workers: int) -> tuple[dict, list[dict], di
             "id": f"{sid}-u{k}",
             "name": u.name,
             "from_syllabus": False,
-            "blind_spot": "end" in exams_in_unit and not exams_in_unit & {"mst1", "mst2"},
+            "blind_spot": blind_spot(exams_in_unit),
             "topics": topics,
             "fog_topics": [],
         })
@@ -131,10 +145,12 @@ def build_pack(manifest_path: Path, workers: int = 4) -> Path:
         papers += h["papers_with_questions"]
 
     all_q = [q for s in subjects for u in s["units"] for t in u["topics"] for q in t["questions"]]
-    exam_of = {q["id"]: q["exam"] for q in all_q}
+    # End Sem questions that came back from an earlier paper in the pack (repeat links always point back in time)
+    placed = {q["id"] for q in all_q}
+    back = [(q, r) for q in all_q for r in q["repeat_of"] if exam_kind(q["exam"]) == "end" and r["id"] in placed]
     p = get_provider()
     pack = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "college": m["college"],
         "course": m["course"],
         "sources": {
@@ -147,9 +163,9 @@ def build_pack(manifest_path: Path, workers: int = 4) -> Path:
         "stats": {
             "papers": papers,
             "questions": len(all_q),
-            # questions that came back (word for word or nearly) from an MST in the End Sem
-            "repeats": sum(1 for q in all_q for r in q["repeat_of"] if q["exam"] == "end" and exam_of.get(r["id"]) in ("mst1", "mst2") and r["type"] in ("exact", "near")),
-            "same_topic_links": sum(1 for q in all_q for r in q["repeat_of"] if q["exam"] == "end" and exam_of.get(r["id"]) in ("mst1", "mst2") and r["type"] == "same-topic"),
+            # questions that came back in an End Sem (word for word or nearly) from an earlier paper
+            "repeats": sum(1 for q, r in back if r["type"] in ("exact", "near")),
+            "same_topic_links": sum(1 for q, r in back if r["type"] == "same-topic"),
             "dropped_bleed_through": len(dropped),
         },
         "harness": {

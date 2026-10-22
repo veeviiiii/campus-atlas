@@ -5,7 +5,7 @@ license: Apache-2.0
 compatibility: Needs Python 3.11+, a clone of the campus-atlas repository, and either a Gemini API key (to call Gemma 4) or any OpenAI-compatible endpoint serving an open-weight vision model, such as Ollama.
 metadata:
   author: campus-atlas
-  version: "1.0"
+  version: "1.1"
 ---
 
 # pyq-atlas
@@ -42,6 +42,8 @@ with the error, and anything it cannot verify goes to an "unsure" list. Nothing 
    from the Google AI Studio model list), or `MODEL_PROVIDER=openai_compatible` with
    `OPENAI_BASE_URL` / `OPENAI_MODEL` (e.g. Ollama at `http://localhost:11434/v1`, `gemma4:e4b`).
 2. **Put the papers** in `data/raw/<college-id>/<course-id>/sem<N>/` and write `manifest.yaml` there.
+   Another year of the same course goes in the same folder and manifest (exam ids like `mst1-2024-25`),
+   so one pack holds every year; the papers already there are answered from the cache.
 3. **Try one subject first** and read its report:
    ```bash
    .venv/Scripts/python skills/pyq-atlas/scripts/run_pipeline.py --manifest data/raw/<college>/<course>/sem<N>/manifest.yaml --subjects <subject-id> --stage extract

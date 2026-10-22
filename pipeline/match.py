@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 from pipeline.providers import get_provider
 from pipeline.validate import ask
 
-GROUP_PROMPT = """These are all the questions asked in the "{subject}" exams (MST-1, MST-2 and End Sem) of one university semester.
+GROUP_PROMPT = """These are all the questions asked in the "{subject}" exams (MST-1, MST-2 and End Sem) of {scope}.
 Group them into the course's units (chapters) and, inside each unit, into short topics.
 
 Rules:
@@ -49,10 +49,15 @@ def question_line(q: dict) -> str:
     return f"[{q['id']}] ({q['exam']}) {text[:400]}"
 
 
-def group_subject(subject: str, questions: list[dict]) -> tuple[Grouping | None, list[str], str | None]:
-    """Return (grouping with every id placed at most once, ids that could not be placed, error)."""
+def group_subject(subject: str, questions: list[dict], sessions: list[str]) -> tuple[Grouping | None, list[str], str | None]:
+    """Return (grouping with every id placed at most once, ids that could not be placed, error).
+
+    All years of a subject are grouped together, so the same topic asked in different years lands
+    in one topic. With one year the prompt is word for word the one the cached answers were made with.
+    """
     ids = [q["id"] for q in questions]
-    prompt = GROUP_PROMPT.format(subject=subject, questions="\n".join(question_line(q) for q in questions))
+    scope = "one university semester" if len(sessions) < 2 else f"the same university semester in {len(sessions)} academic years ({', '.join(sessions)})"
+    prompt = GROUP_PROMPT.format(subject=subject, scope=scope, questions="\n".join(question_line(q) for q in questions))
 
     def check(g: Grouping) -> str | None:
         placed = [i for u in g.units for t in u.topics for i in t.question_ids]

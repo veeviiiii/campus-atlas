@@ -1,7 +1,7 @@
 """Harness step 9 (repeats): find questions that come back in a later exam.
 
 An open embedding model (sentence-transformers, runs locally) compares every question with the
-questions of LATER exams in the same subject:
+questions of LATER exams in the same subject (later in the same year, or any later year):
   cosine >= 0.85        -> repeat ("exact" if the wording is nearly identical, else "near")
   0.70 <= cosine < 0.85 -> the open LLM judges: exact / near / same-topic / different
 The link is stored on the later question: repeat_of = [{id, type, similarity}].
@@ -21,7 +21,6 @@ from pipeline.validate import ask
 
 HIGH, LOW = 0.85, 0.70
 SAME_TOPIC_LOW = 0.55  # pairs the topic grouping (step 8) put together are judged from this cosine
-EXAM_ORDER = {"mst1": 0, "mst2": 1, "end": 2}
 
 JUDGE_PROMPT = """Two exam questions from the "{subject}" course of the same university:
 A ({exam_a}): "{text_a}"
@@ -64,9 +63,12 @@ def facets(q: dict) -> list[str]:
 
 
 def find_repeats(
-    subject: str, questions: list[dict], workers: int = 4, same_topic: set[tuple[str, str]] | None = None
+    subject: str, questions: list[dict], order: dict[str, int], workers: int = 4, same_topic: set[tuple[str, str]] | None = None
 ) -> tuple[list[dict], list[dict], list[dict]]:
     """Return (links, judged pairs log, unsure items). Each link: {from, to, type, similarity}.
+
+    `order` maps exam id -> position in time (manifest.exam_order); links only go from a later exam
+    to an earlier one.
 
     `same_topic` holds (id, id) pairs that the topic grouping put in one topic. Two signals are
     better than one: such pairs are also sent to the judge from cosine SAME_TOPIC_LOW, because
@@ -86,7 +88,7 @@ def find_repeats(
     pairs = []  # (earlier index, later index, best facet similarity)
     for a, qa in enumerate(questions):
         for b, qb in enumerate(questions):
-            if EXAM_ORDER[qa["exam"]] >= EXAM_ORDER[qb["exam"]]:
+            if order[qa["exam"]] >= order[qb["exam"]]:
                 continue
             s = float(sims[np.ix_(owners_arr == a, owners_arr == b)].max())
             grouped = (qa["id"], qb["id"]) in same_topic or (qb["id"], qa["id"]) in same_topic

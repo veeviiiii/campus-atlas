@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "college": {
     "id": "davv-sdsf",
     "name": "School of Data Science & Forecasting, DAVV",
@@ -17,17 +17,20 @@
       {
         "id": "mst1",
         "name": "MST-1",
-        "date": "2025-10"
+        "date": "2025-10",
+        "session": "2025-26"
       },
       {
         "id": "mst2",
         "name": "MST-2",
-        "date": "2025-12"
+        "date": "2025-12",
+        "session": "2025-26"
       },
       {
         "id": "end",
         "name": "End Sem",
-        "date": "2026-01"
+        "date": "2026-01",
+        "session": "2025-26"
       }
     ],
     "syllabus": null,

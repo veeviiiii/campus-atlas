@@ -20,10 +20,12 @@ course:
   name: M.Tech (Dual Degree) AI & DS
   semester: 1
 
+# Every year of this course-semester goes in this one manifest. The first year added uses the ids
+# mst1 / mst2 / end; any other year adds its session, e.g. {id: mst1-2024-25, ..., session: "2024-25"}.
 exams:
-  - {id: mst1, name: MST-1, date: "2025-10"}
-  - {id: mst2, name: MST-2, date: "2025-12"}
-  - {id: end, name: End Sem, date: "2026-01"}
+  - {id: mst1, name: MST-1, date: "2025-10", session: "2025-26"}
+  - {id: mst2, name: MST-2, date: "2025-12", session: "2025-26"}
+  - {id: end, name: End Sem, date: "2026-01", session: "2025-26"}
 
 # Subjects are identified by normalized name + aliases, never by course code
 # (codes are unreliable: DS6A-101 appears on both Mathematics-I and the Programming End Sem).
