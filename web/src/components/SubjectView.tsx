@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import QuestionCard from "./QuestionCard";
-import { rankTopics, SCORE_RULE } from "@/lib/likely";
-import { cameBackMap, examDate, papersOf, placedQuestions, type Exam } from "@/lib/papers";
+import { rankTopics, scoreRule } from "@/lib/likely";
+import { cameBackMap, examDate, examLabels, inOrder, papersOf, placedQuestions, sessionOf, sessionsOf, type Exam } from "@/lib/papers";
 import { pageImageUrl, pageLabel } from "@/lib/paths";
 import type { Subject } from "@/lib/types";
 
@@ -17,18 +17,21 @@ interface Props {
   subject: Subject;
 }
 
-/** A subject's page: every paper in order (newest first), and its topics ranked by how often they were asked. */
+/** A subject's page: every paper in order (newest first, filter by year), and its topics ranked by how often they were asked. */
 export default function SubjectView({ collegeId, exams, subject }: Props) {
   const [tab, setTab] = useState<Tab>("papers");
+  const [year, setYear] = useState<string | null>(null); // null = all years
   const [openTopic, setOpenTopic] = useState<string | null>(null);
   const scrollTo = useRef<string | null>(null); // topic to bring into view once the Likely tab has rendered
 
   const papers = useMemo(() => papersOf(exams, subject), [exams, subject]);
+  const paperYears = useMemo(() => sessionsOf(papers.map((p) => p.exam)), [papers]);
+  const shown = year ? papers.filter((p) => sessionOf(p.exam) === year) : papers;
   const likely = useMemo(() => rankTopics(exams, subject), [exams, subject]);
-  const examName = useMemo(() => Object.fromEntries(exams.map((e) => [e.id, e.name])), [exams]);
+  const examName = useMemo(() => examLabels(exams), [exams]);
   const examOf = useMemo(() => new Map(placedQuestions(subject).map(({ q }) => [q.id, q.exam])), [subject]);
-  const cameBack = useMemo(() => cameBackMap(subject), [subject]);
-  const years = [...new Set(exams.map((e) => e.date.slice(0, 4)))].join("-");
+  const cameBack = useMemo(() => cameBackMap(exams, subject), [exams, subject]);
+  const sessions = sessionsOf(exams);
 
   function show(next: Tab, topicId: string | null = null) {
     setTab(next);
@@ -72,7 +75,16 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
             Questions are read from photos of the papers by an AI model and checked by our pipeline. If something looks off, open the
             original page.
           </p>
-          {papers.map((p, i) => (
+          {paperYears.length > 1 && (
+            <div className="year-chips" role="group" aria-label="Year">
+              {[null, ...paperYears].map((y) => (
+                <button key={y ?? "all"} type="button" className="chip" aria-pressed={year === y} onClick={() => setYear(y)}>
+                  {y ?? "All years"}
+                </button>
+              ))}
+            </div>
+          )}
+          {shown.map((p, i) => (
             <details key={p.exam.id} className="paper" open={i === 0}>
               <summary>
                 <span className="paper-title">
@@ -111,8 +123,12 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
       ) : (
         <div className="stack">
           <p className="note">
-            Ranked by how often and how heavily each topic was asked in {exams.map((e) => e.name).join(", ")} ({years}). It is a frequency
-            score from one year of papers, not a guarantee. {SCORE_RULE}
+            {sessions.length > 1
+              ? `Ranked by how often and how heavily each topic was asked in ${exams.length} exams from ${sessions[sessions.length - 1]} to ${sessions[0]}. It is a frequency score from ${sessions.length} years of papers, not a guarantee.`
+              : `Ranked by how often and how heavily each topic was asked in ${inOrder(exams)
+                  .map((e) => e.name)
+                  .join(", ")} (${sessions[0]}). It is a frequency score from one year of papers, not a guarantee.`}{" "}
+            {scoreRule(exams)}
           </p>
           <ol className="likely">
             {likely.map(({ topic, unit, score, reasons }) => (
@@ -130,7 +146,7 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
                       <b>{topic.name}</b>
                       <span className="mono">{unit.name}</span>
                     </span>
-                    <span className="score" title={SCORE_RULE}>
+                    <span className="score" title={scoreRule(exams)}>
                       <span className="track">
                         <i style={{ width: `${score}%` }} />
                       </span>
@@ -145,13 +161,13 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
                     </span>
                   </summary>
                   <div className="stack" style={{ marginTop: 12 }}>
-                    {exams.map((ex) => {
+                    {inOrder(exams).map((ex) => {
                       const qs = topic.questions.filter((q) => q.exam === ex.id);
                       if (!qs.length) return null;
                       return (
                         <section key={ex.id} className="stack">
                           <div className="mono" style={{ color: "var(--lav)" }}>
-                            {ex.name} · {examDate(ex.date)}
+                            {examName[ex.id]} · {examDate(ex.date)}
                           </div>
                           {qs.map((q) => (
                             <QuestionCard

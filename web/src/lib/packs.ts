@@ -6,7 +6,8 @@ import path from "node:path";
 import type { Pack, PackEntry } from "./types";
 
 // Packs live at the repo root (../packs from web/). Read once at build time.
-const PACKS_DIR = path.join(process.cwd(), "..", "packs");
+// PACKS_DIR points a local dev server at another folder of packs (e.g. a test fixture); the deploy never sets it.
+const PACKS_DIR = process.env.PACKS_DIR ? path.resolve(process.env.PACKS_DIR) : path.join(process.cwd(), "..", "packs");
 
 function findJson(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];

@@ -18,7 +18,7 @@ function extraParts(q: Question): string[] {
 interface Props {
   q: Question;
   collegeId: string;
-  examName: Record<string, string>; // exam id -> "MST-2"
+  examName: Record<string, string>; // exam id -> "MST-2" ("MST-2 2024-25" when the pack has several years)
   examOf: Map<string, string>; // question id -> exam id (for "Repeated from ...")
   cameBack?: { exam: string; type: string };
   number?: number; // position on the paper

@@ -69,7 +69,7 @@ export interface Pack {
   college: College;
   course: { id: string; name: string; semester: number };
   sources: {
-    exams: { id: string; name: string; date: string }[];
+    exams: { id: string; name: string; date: string; session?: string }[]; // session: "2025-26" (schema 1.1+)
     syllabus: { batch: string; note: string } | null;
     units_from?: string;
   };

@@ -3,7 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const packs = path.resolve("..", "packs");
+const packs = process.env.PACKS_DIR ? path.resolve(process.env.PACKS_DIR) : path.resolve("..", "packs"); // same override as src/lib/packs.ts
 const out = path.resolve("public", "pages");
 fs.rmSync(out, { recursive: true, force: true });
 

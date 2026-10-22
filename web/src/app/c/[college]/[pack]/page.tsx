@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { BackBar, SiteFooter, SiteNav } from "@/components/Chrome";
 import CourseView from "@/components/CourseView";
 import { findEntry, loadPacks } from "@/lib/packs";
-import { examDate } from "@/lib/papers";
+import { examDate, inOrder, sessionOf, sessionsOf } from "@/lib/papers";
 
 type Params = { college: string; pack: string };
 
@@ -29,6 +29,8 @@ export default async function CoursePage({ params }: { params: Promise<Params> }
   const entry = findEntry(college, pack);
   if (!entry) notFound();
   const p = entry.pack;
+  const exams = inOrder(p.sources.exams);
+  const sessions = sessionsOf(exams);
 
   return (
     <>
@@ -39,11 +41,21 @@ export default async function CoursePage({ params }: { params: Promise<Params> }
           {p.course.name} <em>Semester {p.course.semester}</em>
         </h1>
         <div className="exam-chips">
-          {p.sources.exams.map((e) => (
-            <span key={e.id} className="chip">
-              {e.name} · {examDate(e.date)}
-            </span>
-          ))}
+          {sessions.length > 1
+            ? sessions.map((s) => (
+                <span key={s} className="chip">
+                  {s} ·{" "}
+                  {exams
+                    .filter((e) => sessionOf(e) === s)
+                    .map((e) => e.name)
+                    .join(", ")}
+                </span>
+              ))
+            : exams.map((e) => (
+                <span key={e.id} className="chip">
+                  {e.name} · {examDate(e.date)}
+                </span>
+              ))}
           {p.mock && <span className="chip hot">Mock data · dev only</span>}
         </div>
         <CourseView entry={entry} />

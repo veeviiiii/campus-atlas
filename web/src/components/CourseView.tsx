@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import MiniPlanet from "./MiniPlanet";
 import { HEAT, SUBJECT_COLORS } from "@/lib/colors";
 import { rankTopics } from "@/lib/likely";
-import { examDate, papersOf } from "@/lib/papers";
+import { examDate, inOrder, papersOf, sessionsOf } from "@/lib/papers";
 import { subjectHref } from "@/lib/paths";
 import { heatOf } from "@/lib/planet";
 import type { PackEntry } from "@/lib/types";
@@ -15,6 +15,7 @@ import type { PackEntry } from "@/lib/types";
 export default function CourseView({ entry }: { entry: PackEntry }) {
   const { key, pack } = entry;
   const exams = pack.sources.exams;
+  const sessions = sessionsOf(exams);
 
   const subjects = useMemo(
     () =>
@@ -74,7 +75,12 @@ export default function CourseView({ entry }: { entry: PackEntry }) {
       </div>
 
       <p className="note">
-        Based on {pack.stats.papers} papers: {exams.map((e) => `${e.name} (${examDate(e.date)})`).join(", ")}.{" "}
+        Based on {pack.stats.papers} papers
+        {sessions.length > 1
+          ? ` from ${sessions.length} years (${[...sessions].reverse().join(", ")}).`
+          : `: ${inOrder(exams)
+              .map((e) => `${e.name} (${examDate(e.date)})`)
+              .join(", ")}.`}{" "}
         {pack.sources.syllabus
           ? `Units named with help from the ${pack.sources.syllabus.batch} syllabus (old).`
           : "No syllabus was used: units and topics are grouped from the questions themselves."}

@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 
 import { SiteFooter, SiteNav } from "./Chrome";
 import HeroPlanet from "./HeroPlanet";
-import { examDate } from "@/lib/papers";
+import { examsSummary } from "@/lib/papers";
 import { courseHref, topicHref } from "@/lib/paths";
 import { buildPlanet } from "@/lib/planet";
 import type { PackEntry } from "@/lib/types";
@@ -114,7 +114,7 @@ export default function Site({ entries }: { entries: PackEntry[] }) {
                 {e.pack.course.name} · Semester {e.pack.course.semester}
               </h3>
               <span className="mono">{e.pack.college.name}</span>
-              <span>{e.pack.sources.exams.map((x) => `${x.name} ${examDate(x.date)}`).join(" · ")}</span>
+              <span>{examsSummary(e.pack.sources.exams)}</span>
               <span className="mono">
                 {e.pack.subjects.length} subjects · {e.pack.stats.papers} papers · {e.pack.stats.questions} questions
               </span>
