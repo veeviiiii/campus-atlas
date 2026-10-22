@@ -30,7 +30,7 @@ export default function SendPage() {
                 Upload photos ↗
               </a>
               <span className="note">
-                Opens a Google Form. Google asks you to sign in to upload files, so we see your account name. We never publish it.
+                Opens a Google Form. Google asks you to sign in to upload files, so we see your Google account name and email. We never publish them.
               </span>
             </>
           ) : (
