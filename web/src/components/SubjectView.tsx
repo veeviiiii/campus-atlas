@@ -130,7 +130,7 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
                   .join(", ")} (${sessions[0]}). It is a frequency score from one year of papers, not a guarantee.`}{" "}
             {scoreRule(exams)}
           </p>
-          <ol className="likely">
+          <ol className="ranked">
             {likely.map(({ topic, unit, score, reasons }) => (
               <li key={topic.id}>
                 <details
@@ -142,7 +142,7 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
                   }}
                 >
                   <summary>
-                    <span className="likely-head">
+                    <span className="ranked-head">
                       <b>{topic.name}</b>
                       <span className="mono">{unit.name}</span>
                     </span>

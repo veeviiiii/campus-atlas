@@ -867,12 +867,12 @@ footer {
   padding: 6px 18px 18px;
 }
 .paper > summary,
-.likely summary {
+.ranked summary {
   cursor: pointer;
   list-style: none;
 }
 .paper > summary::-webkit-details-marker,
-.likely summary::-webkit-details-marker {
+.ranked summary::-webkit-details-marker {
   display: none;
 }
 .paper > summary {
@@ -943,8 +943,8 @@ footer {
   text-decoration: underline;
 }
 
-/* subject page: likely topics */
-.likely {
+/* subject page: likely topics. Not ".likely": the AdGuard Social filter hides that class on every site (it is a share-button widget). */
+.ranked {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -953,36 +953,36 @@ footer {
   flex-direction: column;
   gap: 8px;
 }
-.likely > li {
+.ranked > li {
   counter-increment: rank;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 14px 18px;
 }
-.likely details {
+.ranked details {
   scroll-margin-top: 20px;
 }
-.likely summary {
+.ranked summary {
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr) 150px;
   gap: 6px 12px;
   align-items: center;
 }
-.likely summary::before {
+.ranked summary::before {
   content: counter(rank, decimal-leading-zero);
   font: 500 13px var(--font-plex-mono), monospace;
   color: var(--muted);
 }
-.likely-head {
+.ranked-head {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
-.likely-head b {
+.ranked-head b {
   font: 600 19px/1.2 var(--font-space-grotesk), sans-serif;
 }
-.likely-head .mono {
+.ranked-head .mono {
   color: var(--muted);
 }
 .score {
@@ -1010,7 +1010,7 @@ footer {
 .reasons {
   grid-column: 2 / -1;
 }
-.likely details[open] > summary .likely-head b {
+.ranked details[open] > summary .ranked-head b {
   color: var(--accent);
 }
 
@@ -1018,7 +1018,7 @@ footer {
   .page {
     padding-top: 96px;
   }
-  .likely summary {
+  .ranked summary {
     grid-template-columns: 28px minmax(0, 1fr);
   }
   .score {
