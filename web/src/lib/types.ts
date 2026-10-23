@@ -89,3 +89,51 @@ export interface PackEntry {
   key: string; // e.g. "davv-sdsf/mtech-aids-dual-sem1"
   pack: Pack;
 }
+
+// Course catalogue (catalog/<university>.json): every programme, with or without papers yet.
+
+export interface Field {
+  id: string;
+  name: string; // "Engineering & Technology"
+  short: string; // "Engineering", for chips
+}
+
+export interface CatalogCourse {
+  id: string; // matches pack.course.id
+  name: string;
+  school: string;
+  school_short?: string;
+  college: string; // matches pack.college.id
+  field: string;
+  years: number;
+  honours_year?: boolean; // the last year is the optional Honours/Research year (NEP 2020)
+}
+
+export interface Catalog {
+  university: string;
+  source: string;
+  notes: string[];
+  fields: Field[];
+  courses: CatalogCourse[];
+}
+
+/** One semester of a course; `key` is set when a pack (papers) exists for it. */
+export interface SemesterSlot {
+  semester: number;
+  key?: string;
+  papers?: number;
+  mock?: boolean;
+}
+
+/** A course as the home page and the course page show it: catalogue facts plus which semesters have papers. */
+export interface CourseCard {
+  id: string;
+  name: string;
+  school: string;
+  schoolShort?: string;
+  field: string;
+  years: number | null; // null: not in the catalogue (a pack for a course the brochure doesn't list)
+  honoursYear: boolean;
+  semesters: SemesterSlot[]; // every semester of the course, or just the ones with papers when years is null
+  subjects: string[]; // subject names from its packs, for search
+}

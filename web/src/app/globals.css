@@ -446,6 +446,142 @@ nav.top ul {
   background: var(--accent);
   border-color: transparent;
 }
+.field-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -8px 0 24px;
+}
+.field-chips button {
+  border: 1px solid var(--taupe);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font: 600 14px var(--font-space-grotesk), sans-serif;
+  cursor: pointer;
+}
+.field-chips button span {
+  font: 500 12px var(--font-plex-mono), monospace;
+  opacity: 0.6;
+}
+.field-chips button[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.field-chips i,
+.field-tag i,
+.chip .dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: 1px;
+}
+.field-tag {
+  font: 600 11px var(--font-plex-mono), monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b5f7a;
+}
+.course-card h3 {
+  font-size: 22px;
+  line-height: 1.1;
+}
+.course-card .course-status {
+  margin-top: auto;
+  padding-top: 6px;
+  color: #3b7a00;
+}
+.course-card.empty .course-status {
+  color: #8a7f95;
+}
+.catalog-source {
+  font-size: 12px;
+  margin-top: 22px;
+  max-width: 80ch;
+}
+
+/* course page: years and semesters */
+.years {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 26px 0;
+}
+.year-row {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 14px;
+  align-items: center;
+}
+.year-row h2 {
+  font-size: 20px;
+  margin: 0;
+}
+.year-row h2 .mono {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.sem-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.sem-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  color: var(--muted);
+}
+.sem-tile b {
+  font: 700 19px var(--font-space-grotesk), sans-serif;
+}
+.sem-tile a {
+  color: var(--cyan);
+}
+.sem-tile.ready {
+  border: 1px solid rgba(215, 255, 82, 0.45);
+  background: var(--surface);
+  color: var(--foreground);
+}
+.sem-tile.ready .mono {
+  color: var(--accent);
+}
+.sem-tile.ready:hover,
+.sem-tile.ready:focus-visible {
+  border-color: var(--accent);
+}
+@media (max-width: 700px) {
+  .cards {
+    gap: 10px;
+  }
+  .course-card {
+    padding: 16px 18px;
+    border-radius: 22px;
+    gap: 4px;
+  }
+  .course-card .orb {
+    display: none; /* the field dot carries the colour; 30 cards stay a short scroll */
+  }
+  .course-card h3 {
+    font-size: 19px;
+  }
+  .year-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .sem-tile {
+    padding: 12px 14px;
+  }
+}
 
 footer {
   background: var(--background);

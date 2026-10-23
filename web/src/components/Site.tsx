@@ -6,22 +6,30 @@ import { useMemo, useState } from "react";
 
 import { SiteFooter, SiteNav } from "./Chrome";
 import HeroPlanet from "./HeroPlanet";
-import { examsSummary } from "@/lib/papers";
-import { courseHref, topicHref } from "@/lib/paths";
+import { FIELD_COLORS } from "@/lib/colors";
+import { programmeHref, topicHref } from "@/lib/paths";
 import { buildPlanet } from "@/lib/planet";
-import type { PackEntry } from "@/lib/types";
+import type { CourseCard, Field, PackEntry } from "@/lib/types";
 
-const ORBS = [
-  ["#7657ff", "#54e4ff"],
-  ["#ff786d", "#ffc24a"],
-  ["#4268ff", "#d7ff52"],
-  ["#f08bf0", "#7657ff"],
-];
+interface Props {
+  entries: PackEntry[];
+  courses: CourseCard[];
+  fields: Field[];
+  source: string;
+}
+
+/** "Sem 1 papers" / "Sem 1 and 3 papers" / "No papers yet". */
+function paperStatus(c: CourseCard): string {
+  const have = c.semesters.filter((s) => s.key).map((s) => s.semester);
+  if (!have.length) return "No papers yet";
+  return `Sem ${have.length > 1 ? `${have.slice(0, -1).join(", ")} and ${have[have.length - 1]}` : have[0]} papers →`;
+}
 
 /** Home: what this is in one line, then straight to the list of courses. */
-export default function Site({ entries }: { entries: PackEntry[] }) {
+export default function Site({ entries, courses, fields, source }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [field, setField] = useState<string | null>(null); // null = all fields
 
   const first = entries[0];
   const heroPlanet = useMemo(() => (first ? buildPlanet(first.pack) : null), [first]);
@@ -29,11 +37,17 @@ export default function Site({ entries }: { entries: PackEntry[] }) {
   const evalResult = p?.harness?.eval;
   const papers = entries.reduce((n, e) => n + e.pack.stats.papers, 0);
 
-  const cards = entries.filter((e) =>
-    `${e.pack.college.name} ${e.pack.college.city} ${e.pack.course.name} semester ${e.pack.course.semester} ${e.pack.subjects.map((s) => s.name).join(" ")}`
-      .toLowerCase()
-      .includes(query.trim().toLowerCase()),
+  const allFields = courses.some((c) => c.field === "other") ? [...fields, { id: "other", name: "Other courses", short: "Other" }] : fields;
+  const fieldName = Object.fromEntries(allFields.map((f) => [f.id, f.name]));
+  const q = query.trim().toLowerCase();
+  const matches = courses.filter((c) =>
+    `${c.name} ${c.school} ${c.schoolShort ?? ""} ${fieldName[c.field]} ${c.subjects.join(" ")}`.toLowerCase().includes(q),
   );
+  // Courses that have papers first; otherwise the catalogue's order (grouped by field).
+  const cards = (field ? matches.filter((c) => c.field === field) : matches)
+    .map((c, i) => ({ c, i, ready: c.semesters.some((s) => s.key) }))
+    .sort((x, y) => Number(y.ready) - Number(x.ready) || x.i - y.i)
+    .map(({ c }) => c);
 
   return (
     <>
@@ -99,35 +113,53 @@ export default function Site({ entries }: { entries: PackEntry[] }) {
           <br />
           course
         </div>
-        <h2 style={{ marginTop: 20 }}>Pick your course and semester.</h2>
+        <h2 style={{ marginTop: 20 }}>Pick your course, then your semester.</h2>
         <form className="search" role="search" onSubmit={(e) => e.preventDefault()}>
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Course, subject or department" aria-label="Search courses" />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Course, school or subject" aria-label="Search courses" />
           <button type="button" onClick={() => setQuery("")}>
             Clear
           </button>
         </form>
+        <div className="field-chips" role="group" aria-label="Field">
+          {[null, ...allFields.map((f) => f.id)].map((id) => {
+            const n = id ? matches.filter((c) => c.field === id).length : matches.length;
+            return (
+              <button key={id ?? "all"} type="button" aria-pressed={field === id} onClick={() => setField(id)}>
+                {id && <i style={{ background: FIELD_COLORS[id]?.[0] }} />}
+                {id ? allFields.find((f) => f.id === id)?.short : "All"} <span>{n}</span>
+              </button>
+            );
+          })}
+        </div>
         <div className="cards">
-          {cards.map((e, i) => (
-            <Link key={e.key} className="card" href={courseHref(e.key)}>
-              <div className="orb" style={{ background: `linear-gradient(135deg,${ORBS[i % ORBS.length][0]},${ORBS[i % ORBS.length][1]})` }} />
-              <h3>
-                {e.pack.course.name} · Semester {e.pack.course.semester}
-              </h3>
-              <span className="mono">{e.pack.college.name}</span>
-              <span>{examsSummary(e.pack.sources.exams)}</span>
-              <span className="mono">
-                {e.pack.subjects.length} subjects · {e.pack.stats.papers} papers · {e.pack.stats.questions} questions
-              </span>
-              <span className="mono" style={{ color: e.pack.mock ? "#a05a00" : "#3b7a00" }}>
-                {e.pack.mock ? "Mock data · dev only" : "Open →"}
-              </span>
-            </Link>
-          ))}
+          {cards.map((c) => {
+            const [a, b] = FIELD_COLORS[c.field] ?? FIELD_COLORS.other;
+            const ready = c.semesters.some((s) => s.key);
+            const mock = c.semesters.some((s) => s.mock);
+            return (
+              <Link key={c.id} className={`card course-card ${ready ? "" : "empty"}`} href={programmeHref(c.id)}>
+                <div className="orb" style={{ background: `linear-gradient(135deg,${a},${b})` }} />
+                <span className="field-tag">
+                  <i style={{ background: a }} />
+                  {fieldName[c.field]}
+                </span>
+                <h3>{c.name}</h3>
+                <span className="mono">{c.schoolShort ? `${c.school} (${c.schoolShort})` : c.school}</span>
+                {c.years && (
+                  <span className="mono">
+                    {c.years} years · {c.years * 2} semesters{c.honoursYear ? " · 4th year optional" : ""}
+                  </span>
+                )}
+                <span className="mono course-status">{mock ? "Mock data · dev only" : paperStatus(c)}</span>
+              </Link>
+            );
+          })}
           <Link className="card add" href="/send/">
-            <h3>{cards.length ? "Your course isn't here yet?" : "No match yet."}</h3>
+            <h3>{cards.length ? "Have papers for your course?" : "No match yet."}</h3>
             <span>Send us photos of your past papers and we&apos;ll add them →</span>
           </Link>
         </div>
+        <p className="mono catalog-source">Course list: {source}.</p>
       </section>
 
       {p && (

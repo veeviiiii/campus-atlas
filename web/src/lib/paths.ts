@@ -1,5 +1,8 @@
 // Links between pages. A pack key is "<college>/<course>-sem<N>", e.g. "davv-sdsf/mtech-aids-dual-sem1".
 
+/** A course's page: pick the year and semester. */
+export const programmeHref = (courseId: string) => `/course/${courseId}/`;
+/** One semester of a course (one pack): its subjects. */
 export const courseHref = (key: string) => `/c/${key}/`;
 export const subjectHref = (key: string, subjectId: string) => `/c/${key}/${subjectId}/`;
 export const topicHref = (key: string, subjectId: string, topicId: string) => `${subjectHref(key, subjectId)}#topic-${topicId}`;

@@ -1,0 +1,58 @@
+{
+  "university": "Devi Ahilya Vishwavidyalaya (DAVV), Indore",
+  "source": "DAVV, Guidelines for First Counselling, CUET (UG) 2026: Table 1, Programmes, Duration, Eligibility, Seats and Fee Structure (academic year 2026-27)",
+  "notes": [
+    "Every programme runs in semesters: two per year.",
+    "honours_year: the brochure lists the programme as 3 & 4 years; the fourth year is the Honours/Research year under NEP 2020.",
+    "college: the id that packs of this course use (packs/<college>/<course>-sem<N>.json)."
+  ],
+  "fields": [
+    {"id": "engineering", "name": "Engineering & Technology", "short": "Engineering"},
+    {"id": "computer-applications", "name": "Computer Applications", "short": "Computer Apps"},
+    {"id": "management", "name": "Management", "short": "Management"},
+    {"id": "commerce", "name": "Commerce", "short": "Commerce"},
+    {"id": "arts", "name": "Arts & Social Sciences", "short": "Arts & Social"},
+    {"id": "law", "name": "Law", "short": "Law"},
+    {"id": "pharmacy", "name": "Pharmacy", "short": "Pharmacy"},
+    {"id": "media", "name": "Media", "short": "Media"}
+  ],
+  "courses": [
+    {"id": "mtech-aids-dual", "name": "M.Tech. (B.Tech.+M.Tech.) AI & Data Science", "school": "School of Data Science and Forecasting", "college": "davv-sdsf", "field": "engineering", "years": 5},
+    {"id": "mtech-cs-dual", "name": "M.Tech. (B.Tech.+M.Tech.) Computer Science", "school": "International Institute of Professional Studies", "school_short": "IIPS", "college": "davv-iips", "field": "engineering", "years": 5},
+    {"id": "mtech-it-dual", "name": "M.Tech. (B.Tech.+M.Tech.) Information Technology", "school": "International Institute of Professional Studies", "school_short": "IIPS", "college": "davv-iips", "field": "engineering", "years": 5},
+    {"id": "mtech-cyber-security-dual", "name": "M.Tech. (B.Tech.+M.Tech.) Computer Science (Cyber Security)", "school": "School of Computer Science and Information Technology", "school_short": "SCSIT", "college": "davv-scsit", "field": "engineering", "years": 5},
+    {"id": "mtech-embedded-systems-dual", "name": "M.Tech. (B.Tech.+M.Tech.) Electronics (Embedded Systems)", "school": "School of Electronics", "college": "davv-electronics", "field": "engineering", "years": 5},
+    {"id": "mtech-energy-environment-dual", "name": "M.Tech. (B.Tech.+M.Tech.) Energy and Environmental Engineering", "school": "School of Energy and Environmental Studies", "college": "davv-energy", "field": "engineering", "years": 5},
+    {"id": "mtech-iot-dual", "name": "M.Tech. (B.Tech.+M.Tech.) Internet of Things", "school": "School of Instrumentation", "college": "davv-instrumentation", "field": "engineering", "years": 5},
+
+    {"id": "bca", "name": "B.C.A.", "school": "School of Computer Science and Information Technology", "school_short": "SCSIT", "college": "davv-scsit", "field": "computer-applications", "years": 4, "honours_year": true},
+    {"id": "mca-dual", "name": "M.C.A. (B.C.A.+M.C.A.)", "school": "International Institute of Professional Studies", "school_short": "IIPS", "college": "davv-iips", "field": "computer-applications", "years": 5},
+
+    {"id": "mba-ecommerce-dual", "name": "M.B.A. (B.B.A.+M.B.A.) E-Commerce", "school": "Institute of Management Studies", "school_short": "IMS", "college": "davv-ims", "field": "management", "years": 5},
+    {"id": "mba-hospital-administration-dual", "name": "M.B.A. (B.B.A.+M.B.A.) Hospital Administration", "school": "Institute of Management Studies", "school_short": "IMS", "college": "davv-ims", "field": "management", "years": 5},
+    {"id": "mba-management-science-dual", "name": "M.B.A. (B.B.A.+M.B.A.) Management Science", "school": "International Institute of Professional Studies", "school_short": "IIPS", "college": "davv-iips", "field": "management", "years": 5},
+    {"id": "mba-tourism-dual", "name": "M.B.A. (B.B.A.+M.B.A.) Tourism", "school": "School of Aviation, Tourism and Hospitality Management", "school_short": "SATHM", "college": "davv-sathm", "field": "management", "years": 5},
+    {"id": "mba-foreign-trade-dual", "name": "M.B.A. (B.B.A.+M.B.A.) Foreign Trade", "school": "School of Commerce", "college": "davv-commerce", "field": "management", "years": 5},
+    {"id": "bba-aviation", "name": "B.B.A. (Aviation)", "school": "School of Aviation, Tourism and Hospitality Management", "school_short": "SATHM", "college": "davv-sathm", "field": "management", "years": 4, "honours_year": true},
+    {"id": "bba-business-decisions", "name": "B.B.A. (Business Decisions) Hons.", "school": "School of Economics", "college": "davv-economics", "field": "management", "years": 4, "honours_year": true},
+
+    {"id": "bcom-iips", "name": "B.Com.", "school": "International Institute of Professional Studies", "school_short": "IIPS", "college": "davv-iips", "field": "commerce", "years": 4, "honours_year": true},
+    {"id": "bcom", "name": "B.Com.", "school": "School of Commerce", "college": "davv-commerce", "field": "commerce", "years": 4, "honours_year": true},
+    {"id": "bcom-logistics", "name": "B.Com. (Logistics)", "school": "School of Aviation, Tourism and Hospitality Management", "school_short": "SATHM", "college": "davv-sathm", "field": "commerce", "years": 4, "honours_year": true},
+    {"id": "bcom-retail-operations", "name": "B.Com. (Retail Operations)", "school": "School of Aviation, Tourism and Hospitality Management", "school_short": "SATHM", "college": "davv-sathm", "field": "commerce", "years": 4, "honours_year": true},
+
+    {"id": "ba-economics-hons", "name": "B.A. (Hons.) Economics", "school": "School of Economics", "college": "davv-economics", "field": "arts", "years": 4, "honours_year": true},
+    {"id": "ba-geography", "name": "B.A. (Geography)", "school": "School of Social Science", "school_short": "SOSS", "college": "davv-soss", "field": "arts", "years": 4, "honours_year": true},
+    {"id": "ba-history", "name": "B.A. (History)", "school": "School of Social Science", "school_short": "SOSS", "college": "davv-soss", "field": "arts", "years": 4, "honours_year": true},
+    {"id": "ba-political-science", "name": "B.A. (Political Science)", "school": "School of Social Science", "school_short": "SOSS", "college": "davv-soss", "field": "arts", "years": 4, "honours_year": true},
+    {"id": "ba-psychology", "name": "B.A. (Psychology)", "school": "School of Social Science", "school_short": "SOSS", "college": "davv-soss", "field": "arts", "years": 4, "honours_year": true},
+    {"id": "ba-sociology", "name": "B.A. (Sociology)", "school": "School of Social Science", "school_short": "SOSS", "college": "davv-soss", "field": "arts", "years": 4, "honours_year": true},
+    {"id": "bsw", "name": "B.S.W.", "school": "School of Social Science", "school_short": "SOSS", "college": "davv-soss", "field": "arts", "years": 3},
+
+    {"id": "ballb-hons", "name": "B.A. LL.B. (Hons.)", "school": "School of Law", "college": "davv-law", "field": "law", "years": 5},
+
+    {"id": "bpharm", "name": "B.Pharm.", "school": "School of Pharmacy", "college": "davv-pharmacy", "field": "pharmacy", "years": 4},
+
+    {"id": "msc-electronic-media-dual", "name": "M.Sc. (B.Sc.+M.Sc.) Electronic Media", "school": "Educational Multimedia Research Center", "school_short": "EMRC", "college": "davv-emrc", "field": "media", "years": 5}
+  ]
+}

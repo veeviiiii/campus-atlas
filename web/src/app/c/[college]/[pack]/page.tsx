@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 
 import { BackBar, SiteFooter, SiteNav } from "@/components/Chrome";
 import CourseView from "@/components/CourseView";
+import { courseOf } from "@/lib/catalog";
 import { findEntry, loadPacks } from "@/lib/packs";
+import { programmeHref } from "@/lib/paths";
 import { examDate, inOrder, sessionOf, sessionsOf } from "@/lib/papers";
 
 type Params = { college: string; pack: string };
@@ -29,6 +31,7 @@ export default async function CoursePage({ params }: { params: Promise<Params> }
   const entry = findEntry(college, pack);
   if (!entry) notFound();
   const p = entry.pack;
+  const course = courseOf(entry);
   const exams = inOrder(p.sources.exams);
   const sessions = sessionsOf(exams);
 
@@ -36,7 +39,11 @@ export default async function CoursePage({ params }: { params: Promise<Params> }
     <>
       <SiteNav />
       <main className="page">
-        <BackBar href="/#browse" label="All courses" where={p.college.name} />
+        {course ? (
+          <BackBar href={programmeHref(course.id)} label="All semesters" where={p.college.name} />
+        ) : (
+          <BackBar href="/#browse" label="All courses" where={p.college.name} />
+        )}
         <h1 className="page-title">
           {p.course.name} <em>Semester {p.course.semester}</em>
         </h1>
