@@ -34,8 +34,11 @@ export default function Site({ entries, courses, fields, source }: Props) {
   const first = entries[0];
   const heroPlanet = useMemo(() => (first ? buildPlanet(first.pack) : null), [first]);
   const p = first?.pack;
-  const evalResult = p?.harness?.eval;
-  const papers = entries.reduce((n, e) => n + e.pack.stats.papers, 0);
+  // "How it works" counts every course on the site; the eval exists only for the course it was made for.
+  const total = (k: "papers" | "questions" | "repeats" | "dropped_bleed_through") => entries.reduce((n, e) => n + e.pack.stats[k], 0);
+  const evalPack = entries.find((e) => e.pack.harness?.eval)?.pack;
+  const evalResult = evalPack?.harness?.eval;
+  const papers = total("papers");
 
   const allFields = courses.some((c) => c.field === "other") ? [...fields, { id: "other", name: "Other courses", short: "Other" }] : fields;
   const fieldName = Object.fromEntries(allFields.map((f) => [f.id, f.name]));
@@ -184,23 +187,23 @@ export default function Site({ entries, courses, fields, source }: Props) {
               <div className="mono" style={{ color: "var(--lav)" }}>
                 2 · Read and check
               </div>
-              <div className="big">{p.stats.questions} questions</div>
+              <div className="big">{total("questions")} questions</div>
               <h3>An open AI model reads them.</h3>
               <p style={{ color: "var(--muted)", margin: 0 }}>
                 Gemma 4, an open-weight model, reads every question, maths and tables included. Our pipeline checks each answer and drops
-                bits of other papers caught in the photo ({p.stats.dropped_bleed_through} here).
+                bits of other papers caught in the photo ({total("dropped_bleed_through")} so far).
               </p>
             </div>
             <div className="how-card">
               <div className="mono" style={{ color: "var(--lav)" }}>
                 3 · Rank
               </div>
-              <div className="big">{p.stats.repeats} repeats</div>
+              <div className="big">{total("repeats")} repeats</div>
               <h3>Topics that keep coming back go first.</h3>
               <p style={{ color: "var(--muted)", margin: 0 }}>
                 Questions are grouped into topics and ranked by how often and how heavily they were asked.
                 {evalResult &&
-                  ` Repeat finding was checked against ${evalResult.expected} repeats we found by hand: it caught ${evalResult.found}.`}
+                  ` Repeat finding was checked on ${evalPack?.course.name} against ${evalResult.expected} repeats we found by hand: it caught ${evalResult.found}.`}
               </p>
             </div>
           </div>
