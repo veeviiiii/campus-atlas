@@ -74,9 +74,11 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    Reads ONLY pack JSON at build time; no AI calls at runtime. Fonts are bundled in
    web/src/app/fonts (works offline). This Next.js has breaking changes: read
    web/node_modules/next/dist/docs before using an API you are unsure of.
-   Routes: / (home: hero, browse courses, how it works), /c/<college>/<pack>/ (course page),
-   /c/<college>/<pack>/<subject>/ (subject page), /send/ (send us your papers). Deploy: Vercel, project Root Directory web (Next.js
-   preset; the build reads ../packs). Live: https://campus-atlas.vercel.app
+   Routes: / (home: hero, the 30 DAVV courses as cards with field chips, how it works),
+   /course/<course>/ (pick year and semester; semesters without papers ask for them),
+   /c/<college>/<pack>/ (one semester: subject cards), /c/<college>/<pack>/<subject>/ (subject page),
+   /send/ (send us your papers). Deploy: Vercel, project Root Directory web (Next.js
+   preset; the build reads ../packs and ../catalog). Live: https://campus-atlas.vercel.app
    Design: keep the current look (dark theme, lime/violet palette, Space Grotesk / Inter / Plex Mono,
    pixel accents). Must stay readable on a phone.
 
@@ -87,12 +89,13 @@ repeat_of [{id, type: exact|near|same-topic}], confidence), unsure[], stats, har
 Full reference: skills/pyq-atlas/references/pack-schema.md. Page photos: packs/<college>/pages/*.jpg.
 
 ## 6. Repo layout
-data/raw/ (papers + manifest) · pipeline/ · packs/ · runs/sample/ · skills/pyq-atlas/ · web/ ·
+data/raw/ (papers + manifest) · pipeline/ · packs/ · catalog/ (course list) · runs/sample/ · skills/pyq-atlas/ · web/ ·
 README.md · CONTRIBUTING.md · LICENSE (Apache-2.0)
 
 ## 7. Rules for coding agents
 - Never hardcode findings or invent data, papers, colleges, numbers or answers. Everything shown
-  comes from a pack built by the pipeline.
+  comes from a pack built by the pipeline, except the course list: catalog/davv.json, copied from
+  DAVV's CUET (UG) 2026 counselling guidelines (names, schools, durations; the source is in the file).
 - Never call a frequency score "AI prediction" or "machine learning". Say what it is based on.
 - Every AI output is JSON validated by pydantic. Failures go to the unsure list, never silently dropped.
 - Keep it simple. A feature must be explainable in one sentence to a fresher, or it waits.

@@ -175,6 +175,7 @@ Every push to `main` redeploys.
 data/raw/      page manifest (human ground truth); the scanned PDFs stay local, every page is in packs/<college>/pages/
 pipeline/      PYQ Trust Harness (Python)
 packs/         college packs (JSON) + page photos; the only thing the website reads
+catalog/       DAVV course list (names, schools, durations) from the CUET (UG) 2026 counselling guidelines
 runs/sample/   run report of the full pipeline run
 skills/        pyq-atlas Agent Skill
 web/           Next.js website (static export)
