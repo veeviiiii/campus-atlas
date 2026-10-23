@@ -277,7 +277,35 @@ nav.top ul {
     transform: translateX(-50%);
   }
 }
+
+/* page change: the new page's content fades and rises in (components/PageEnter.tsx). The fixed top
+   and bottom navs are left out: a transform on them, or on a parent, would unpin them mid-animation. */
+.page-enter > :is(main, header, section, .mq),
+.fade-in {
+  animation: page-in 320ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+.page-enter > footer {
+  animation: page-fade 320ms ease-out backwards;
+}
+.page-enter > :is(section, .mq) {
+  animation-delay: 60ms;
+}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+@keyframes page-fade {
+  from {
+    opacity: 0;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
+  .page-enter > *,
+  .fade-in {
+    animation: none !important;
+  }
   .mq div {
     animation: none;
   }
@@ -965,7 +993,7 @@ footer {
 }
 .ranked summary {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) 150px;
+  grid-template-columns: 34px minmax(0, 1fr) 170px;
   gap: 6px 12px;
   align-items: center;
 }
@@ -986,26 +1014,38 @@ footer {
   color: var(--muted);
 }
 .score {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 8px;
+  gap: 4px 10px;
+}
+.score-label {
+  grid-column: 1 / -1;
+  font: 500 10px var(--font-plex-mono), monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .score .track {
-  width: 100px;
   height: 6px;
   border-radius: 6px;
   background: var(--card);
   overflow: hidden;
-  flex: none;
 }
 .score i {
   display: block;
   height: 100%;
   border-radius: 6px;
-  background: linear-gradient(90deg, var(--heat-once), var(--heat-repeat));
+  background: linear-gradient(90deg, var(--secondary), var(--cyan));
 }
-.score .mono {
+.score-num {
+  font: 700 17px var(--font-space-grotesk), sans-serif;
+  color: var(--cyan);
+}
+.score-num small {
+  font: 500 11px var(--font-plex-mono), monospace;
   color: var(--muted);
+  margin-left: 1px;
 }
 .reasons {
   grid-column: 2 / -1;

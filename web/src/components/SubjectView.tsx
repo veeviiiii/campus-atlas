@@ -70,7 +70,7 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
       </div>
 
       {tab === "papers" ? (
-        <div className="stack">
+        <div key="papers" className="stack fade-in">
           <p className="note">
             Questions are read from photos of the papers by an AI model and checked by our pipeline. If something looks off, open the
             original page.
@@ -121,7 +121,7 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
           </p>
         </div>
       ) : (
-        <div className="stack">
+        <div key="likely" className="stack fade-in">
           <p className="note">
             {sessions.length > 1
               ? `Ranked by how often and how heavily each topic was asked in ${exams.length} exams from ${sessions[sessions.length - 1]} to ${sessions[0]}. It is a frequency score from ${sessions.length} years of papers, not a guarantee.`
@@ -147,10 +147,14 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
                       <span className="mono">{unit.name}</span>
                     </span>
                     <span className="score" title={scoreRule(exams)}>
+                      <span className="score-label">Likely score</span>
                       <span className="track">
                         <i style={{ width: `${score}%` }} />
                       </span>
-                      <span className="mono">{score}</span>
+                      <span className="score-num">
+                        {score}
+                        <small>/100</small>
+                      </span>
                     </span>
                     <span className="reasons">
                       {reasons.map((r) => (

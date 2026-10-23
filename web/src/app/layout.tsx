@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+
+import PageEnter from "@/components/PageEnter";
 import "./globals.css";
 
 // Fonts are files in the repo (./fonts, SIL Open Font License), so dev and build work offline.
@@ -25,7 +27,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${inter.variable} ${display.variable} ${mono.variable} ${pixel.variable}`}>
-      <body>{children}</body>
+      <body>
+        <PageEnter>{children}</PageEnter>
+      </body>
     </html>
   );
 }
