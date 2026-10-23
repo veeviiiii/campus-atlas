@@ -131,6 +131,8 @@ schema and common problems (rotated pages, bleed-through, old syllabus, API erro
   pipeline and publish them.
 - **Developers:** see [CONTRIBUTING.md](CONTRIBUTING.md): drop the PDFs, write a short manifest, run the
   skill, open a PR with the pack.
+- **Maintainer, publishing form uploads:** [ADDING-PAPERS.md](ADDING-PAPERS.md), step by step. The
+  `pipeline.intake` helper turns photos into PDFs, writes the manifest skeleton and checks it, with no model calls.
 
 Older years of an existing course are just as welcome: they make Likely topics better.
 

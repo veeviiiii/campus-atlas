@@ -2,7 +2,8 @@
 
 Not a developer? Just photograph your papers and upload them on the
 [Send us your papers](https://campus-atlas.vercel.app/send/) page; we do the rest. This guide is for
-building a pack yourself.
+building a pack yourself. The maintainer's step-by-step for publishing form uploads is
+[ADDING-PAPERS.md](ADDING-PAPERS.md); its `pipeline.intake` helper works for you too.
 
 Campus Atlas grows one college at a time, by pull request. You need your course's past exam
 papers and about an hour. Everything runs on an open-weight model: Gemma 4 through the Gemini API,

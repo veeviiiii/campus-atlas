@@ -41,7 +41,8 @@ to navigate.
    Papers tab); collect older papers from seniors. <- current
 3. Community: sign-in, PYQ uploads into a review queue (an admin approves, then the pipeline runs),
    notes exchange. Until then, papers come in through a Google Form owned by the maintainer (link in
-   web/src/lib/site.ts, shown on /send/); the maintainer runs the pipeline on the uploads. Planned stack: Supabase (Postgres + Storage + Auth) with the Next.js site on Vercel.
+   web/src/lib/site.ts, shown on /send/); the maintainer runs the pipeline on the uploads
+   (ADDING-PAPERS.md; pipeline/intake.py makes PDFs from photos and writes and checks the manifest). Planned stack: Supabase (Postgres + Storage + Auth) with the Next.js site on Vercel.
 4. Backtested prediction once there are 3+ years.
 Ask before starting a new phase. Ask before adding a backend, auth or any paid service.
 
