@@ -278,22 +278,38 @@ nav.top ul {
   }
 }
 
-/* page change: the new page's content fades and rises in (components/PageEnter.tsx). The fixed top
-   and bottom navs are left out: a transform on them, or on a parent, would unpin them mid-animation. */
-.page-enter > :is(main, header, section, .mq),
-.fade-in {
-  animation: page-in 320ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+/* page change: the new page's content rises and fades in, one block after another
+   (components/PageEnter.tsx). The fixed top and bottom navs are left out: a transform on them, or on
+   a parent, would unpin them mid-animation. */
+.page-enter > main > *,
+.page-enter > :is(header, section, .mq) {
+  animation: page-in 750ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.page-enter > main > :nth-child(2) {
+  animation-delay: 80ms;
+}
+.page-enter > main > :nth-child(3) {
+  animation-delay: 160ms;
+}
+.page-enter > main > :nth-child(n + 4),
+.page-enter > section {
+  animation-delay: 240ms;
+}
+.page-enter > .mq {
+  animation-delay: 140ms;
 }
 .page-enter > footer {
-  animation: page-fade 320ms ease-out backwards;
+  animation: page-fade 750ms ease-out 300ms backwards;
 }
-.page-enter > :is(section, .mq) {
-  animation-delay: 60ms;
+/* a tab's content (Papers / Likely topics) fades without moving, so scrolling to a topic lands exactly */
+.page-enter > main > .fade-in,
+.fade-in {
+  animation: page-fade 450ms ease-out backwards;
 }
 @keyframes page-in {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(28px);
   }
 }
 @keyframes page-fade {
@@ -301,8 +317,22 @@ nav.top ul {
     opacity: 0;
   }
 }
+/* Reloading a subject page on #likely / #topic-…: the static HTML has the Papers tab open; the
+   page's inline script sets data-deep-tab so it stays hidden until React opens Likely topics. */
+html[data-deep-tab="likely"] [data-panel="papers"] {
+  display: none;
+}
+html[data-deep-tab="likely"] .tabs button:first-child {
+  color: var(--muted);
+  border-bottom-color: transparent;
+}
+html[data-deep-tab="likely"] .tabs button:last-child {
+  color: var(--foreground);
+  border-bottom-color: var(--accent);
+}
 @media (prefers-reduced-motion: reduce) {
   .page-enter > *,
+  .page-enter > main > *,
   .fade-in {
     animation: none !important;
   }

@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import QuestionCard from "./QuestionCard";
 import { rankTopics, scoreRule } from "@/lib/likely";
 import { cameBackMap, examDate, examLabels, inOrder, papersOf, placedQuestions, sessionOf, sessionsOf, type Exam } from "@/lib/papers";
 import { pageImageUrl, pageLabel } from "@/lib/paths";
+import { softScrollToElement } from "@/lib/scroll";
 import type { Subject } from "@/lib/types";
 
 type Tab = "papers" | "likely";
@@ -22,7 +23,8 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
   const [tab, setTab] = useState<Tab>("papers");
   const [year, setYear] = useState<string | null>(null); // null = all years
   const [openTopic, setOpenTopic] = useState<string | null>(null);
-  const scrollTo = useRef<string | null>(null); // topic to bring into view once the Likely tab has rendered
+  // Topic to bring into view once the Likely tab has rendered: softly after a click, at once for a link.
+  const scrollTo = useRef<{ id: string; soft: boolean } | null>(null);
 
   const papers = useMemo(() => papersOf(exams, subject), [exams, subject]);
   const paperYears = useMemo(() => sessionsOf(papers.map((p) => p.exam)), [papers]);
@@ -37,11 +39,12 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
     setTab(next);
     setOpenTopic(topicId);
     history.replaceState(null, "", topicId ? `#topic-${topicId}` : next === "likely" ? "#likely" : location.pathname);
-    scrollTo.current = topicId;
+    scrollTo.current = topicId ? { id: topicId, soft: true } : null;
   }
 
-  // Deep links: #likely, or #topic-<id> from the home page planet or the course map.
-  useEffect(() => {
+  // Deep links: #likely, or #topic-<id> from the home page planet. A layout effect, so the switch
+  // happens before the browser paints and the Papers tab never flashes.
+  useLayoutEffect(() => {
     const h = location.hash.slice(1);
     const topicId = h.startsWith("topic-") ? h.slice("topic-".length) : null;
     if (!topicId && h !== "likely") return;
@@ -49,13 +52,19 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
     setTab("likely");
     setOpenTopic(topicId);
     /* eslint-enable react-hooks/set-state-in-effect */
-    scrollTo.current = topicId;
+    scrollTo.current = topicId ? { id: topicId, soft: false } : null;
   }, []);
 
-  useEffect(() => {
-    if (tab !== "likely" || !scrollTo.current) return;
-    document.getElementById(`topic-${scrollTo.current}`)?.scrollIntoView({ block: "start", behavior: "instant" });
+  useLayoutEffect(() => {
+    if (tab !== "likely") return;
+    // On a reload the page's inline script hid the Papers tab until now (see the subject page).
+    document.documentElement.removeAttribute("data-deep-tab");
+    const target = scrollTo.current;
     scrollTo.current = null;
+    const el = target && document.getElementById(`topic-${target.id}`);
+    if (!el) return;
+    if (target.soft) softScrollToElement(el);
+    else el.scrollIntoView({ block: "start", behavior: "instant" });
   }, [tab, openTopic]);
 
   return (
@@ -70,7 +79,7 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
       </div>
 
       {tab === "papers" ? (
-        <div key="papers" className="stack fade-in">
+        <div key="papers" className="stack fade-in" data-panel="papers">
           <p className="note">
             Questions are read from photos of the papers by an AI model and checked by our pipeline. If something looks off, open the
             original page.
@@ -121,7 +130,7 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
           </p>
         </div>
       ) : (
-        <div key="likely" className="stack fade-in">
+        <div key="likely" className="stack fade-in" data-panel="likely">
           <p className="note">
             {sessions.length > 1
               ? `Ranked by how often and how heavily each topic was asked in ${exams.length} exams from ${sessions[sessions.length - 1]} to ${sessions[0]}. It is a frequency score from ${sessions.length} years of papers, not a guarantee.`

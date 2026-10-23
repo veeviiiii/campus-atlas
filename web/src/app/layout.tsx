@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 
 import PageEnter from "@/components/PageEnter";
+import SoftScroll from "@/components/SoftScroll";
 import "./globals.css";
 
 // Fonts are files in the repo (./fonts, SIL Open Font License), so dev and build work offline.
@@ -26,8 +27,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} ${display.variable} ${mono.variable} ${pixel.variable}`}>
+    // data-scroll-behavior: Next turns the CSS smooth scrolling off while it changes page, so a new page
+    // starts at the top instead of animating there. suppressHydrationWarning: the subject page's inline
+    // script may set data-deep-tab before React hydrates.
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+      className={`${inter.variable} ${display.variable} ${mono.variable} ${pixel.variable}`}
+    >
       <body>
+        <SoftScroll />
         <PageEnter>{children}</PageEnter>
       </body>
     </html>
