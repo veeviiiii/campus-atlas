@@ -4,13 +4,15 @@ import Link from "next/link";
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import QuestionCard from "./QuestionCard";
+import UnitMarks from "./UnitMarks";
 import { rankTopics, scoreRule } from "@/lib/likely";
+import { marksByUnit } from "@/lib/marks";
 import { cameBackMap, examDate, examLabels, inOrder, papersOf, placedQuestions, sessionOf, sessionsOf, type Exam } from "@/lib/papers";
 import { pageImageUrl, pageLabel } from "@/lib/paths";
 import { softScrollToElement } from "@/lib/scroll";
 import type { Subject } from "@/lib/types";
 
-type Tab = "papers" | "likely";
+type Tab = "papers" | "likely" | "marks";
 
 interface Props {
   collegeId: string;
@@ -18,7 +20,8 @@ interface Props {
   subject: Subject;
 }
 
-/** A subject's page: every paper in order (newest first, filter by year), and its topics ranked by how often they were asked. */
+/** A subject's page: every paper in order (newest first, filter by year), its topics ranked by how often
+ *  they were asked, and its marks by unit. */
 export default function SubjectView({ collegeId, exams, subject }: Props) {
   const [tab, setTab] = useState<Tab>("papers");
   const [year, setYear] = useState<string | null>(null); // null = all years
@@ -33,30 +36,31 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
   const examName = useMemo(() => examLabels(exams), [exams]);
   const examOf = useMemo(() => new Map(placedQuestions(subject).map(({ q }) => [q.id, q.exam])), [subject]);
   const cameBack = useMemo(() => cameBackMap(exams, subject), [exams, subject]);
+  const marks = useMemo(() => marksByUnit(exams, subject), [exams, subject]);
   const sessions = sessionsOf(exams);
 
   function show(next: Tab, topicId: string | null = null) {
     setTab(next);
     setOpenTopic(topicId);
-    history.replaceState(null, "", topicId ? `#topic-${topicId}` : next === "likely" ? "#likely" : location.pathname);
+    history.replaceState(null, "", topicId ? `#topic-${topicId}` : next === "papers" ? location.pathname : `#${next}`);
     scrollTo.current = topicId ? { id: topicId, soft: true } : null;
   }
 
-  // Deep links: #likely, or #topic-<id> from the home page planet. A layout effect, so the switch
-  // happens before the browser paints and the Papers tab never flashes.
+  // Deep links: #likely, #marks, or #topic-<id> from the home page planet and search. A layout effect,
+  // so the switch happens before the browser paints and the Papers tab never flashes.
   useLayoutEffect(() => {
     const h = location.hash.slice(1);
     const topicId = h.startsWith("topic-") ? h.slice("topic-".length) : null;
-    if (!topicId && h !== "likely") return;
+    if (!topicId && h !== "likely" && h !== "marks") return;
     /* eslint-disable react-hooks/set-state-in-effect -- the hash only exists in the browser, after hydration */
-    setTab("likely");
+    setTab(h === "marks" ? "marks" : "likely");
     setOpenTopic(topicId);
     /* eslint-enable react-hooks/set-state-in-effect */
     scrollTo.current = topicId ? { id: topicId, soft: false } : null;
   }, []);
 
   useLayoutEffect(() => {
-    if (tab !== "likely") return;
+    if (tab === "papers") return;
     // On a reload the page's inline script hid the Papers tab until now (see the subject page).
     document.documentElement.removeAttribute("data-deep-tab");
     const target = scrollTo.current;
@@ -76,9 +80,16 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
         <button role="tab" aria-selected={tab === "likely"} onClick={() => show("likely")}>
           Likely topics <span>{likely.length}</span>
         </button>
+        <button role="tab" aria-selected={tab === "marks"} onClick={() => show("marks")}>
+          Marks by unit
+        </button>
       </div>
 
-      {tab === "papers" ? (
+      {tab === "marks" ? (
+        <div key="marks" className="stack fade-in" data-panel="marks">
+          <UnitMarks table={marks} examName={examName} />
+        </div>
+      ) : tab === "papers" ? (
         <div key="papers" className="stack fade-in" data-panel="papers">
           <p className="note">
             Questions are read from photos of the papers by an AI model and checked by our pipeline. If something looks off, open the

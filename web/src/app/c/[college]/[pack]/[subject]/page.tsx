@@ -49,11 +49,11 @@ export default async function SubjectPage({ params }: { params: Promise<Params> 
           {p.college.name} · {questions} questions
           {aka.length > 0 && ` · also printed as ${aka.join(", ")}`}
         </div>
-        {/* Reloading on #likely or #topic-…: the static HTML has the Papers tab open. Hide it before the
-            first paint (CSS: html[data-deep-tab]) until React opens Likely topics, so it never flashes. */}
+        {/* Reloading on #likely, #topic-… or #marks: the static HTML has the Papers tab open. Hide it before
+            the first paint (CSS: html[data-deep-tab]) until React opens the other tab, so it never flashes. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `if(/^#(likely|topic-)/.test(location.hash))document.documentElement.setAttribute("data-deep-tab","likely")`,
+            __html: `var t=/^#(likely|topic-)/.test(location.hash)?"likely":location.hash==="#marks"?"marks":"";if(t)document.documentElement.setAttribute("data-deep-tab",t)`,
           }}
         />
         <SubjectView collegeId={p.college.id} exams={p.sources.exams} subject={subject} />

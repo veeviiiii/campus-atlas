@@ -317,16 +317,17 @@ nav.top ul {
     opacity: 0;
   }
 }
-/* Reloading a subject page on #likely / #topic-…: the static HTML has the Papers tab open; the
-   page's inline script sets data-deep-tab so it stays hidden until React opens Likely topics. */
-html[data-deep-tab="likely"] [data-panel="papers"] {
+/* Reloading a subject page on #likely / #topic-… / #marks: the static HTML has the Papers tab open;
+   the page's inline script sets data-deep-tab so it stays hidden until React opens the other tab. */
+html[data-deep-tab] [data-panel="papers"] {
   display: none;
 }
-html[data-deep-tab="likely"] .tabs button:first-child {
+html[data-deep-tab] .tabs button:first-child {
   color: var(--muted);
   border-bottom-color: transparent;
 }
-html[data-deep-tab="likely"] .tabs button:last-child {
+html[data-deep-tab="likely"] .tabs button:nth-child(2),
+html[data-deep-tab="marks"] .tabs button:nth-child(3) {
   color: var(--foreground);
   border-bottom-color: var(--accent);
 }
@@ -1058,6 +1059,116 @@ footer {
 }
 .more {
   align-self: flex-start;
+}
+
+/* subject page: marks by unit */
+.marks-insight {
+  margin: 0;
+  font: 600 19px/1.35 var(--font-space-grotesk), sans-serif;
+  max-width: 62ch;
+}
+.marks-insight + .marks-insight {
+  color: var(--lav);
+}
+.marks-wrap {
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  margin-top: 6px;
+}
+.marks {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.marks th,
+.marks td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+.marks thead th {
+  font: 500 11px var(--font-plex-mono), monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  vertical-align: bottom;
+}
+.marks thead th span {
+  display: block;
+  margin-top: 2px;
+  opacity: 0.7;
+}
+.marks th:first-child {
+  text-align: left;
+  white-space: normal;
+}
+.marks tbody th {
+  font: 600 16px/1.25 var(--font-space-grotesk), sans-serif;
+  min-width: 150px;
+}
+.marks tbody th .badge {
+  margin-left: 8px;
+  vertical-align: 2px;
+}
+.marks td {
+  font: 600 16px var(--font-space-grotesk), sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.marks td.none {
+  color: var(--muted);
+  font-weight: 400;
+}
+.marks td.total {
+  color: var(--cyan);
+}
+.marks tfoot th,
+.marks tfoot td {
+  border-bottom: 0;
+  color: var(--muted);
+  font: 500 13px var(--font-plex-mono), monospace;
+}
+.marks tfoot th {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+}
+/* the unit column stays put when a long table scrolls sideways */
+.marks th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+@media (max-width: 700px) {
+  .marks-insight {
+    font-size: 17px;
+  }
+  .marks th,
+  .marks td {
+    padding: 9px 5px;
+    font-size: 14px;
+  }
+  .marks td.total {
+    padding-right: 12px;
+  }
+  .marks thead th {
+    font-size: 10px;
+  }
+  .marks thead th span {
+    display: none; /* exam dates are on the Papers tab; the column names fit without them */
+  }
+  .marks tbody th {
+    min-width: 0;
+    padding-left: 12px;
+  }
+  .marks tbody th .badge {
+    display: block;
+    width: max-content;
+    margin: 4px 0 0;
+  }
 }
 
 /* subject page: likely topics. Not ".likely": the AdGuard Social filter hides that class on every site (it is a share-button widget). */
