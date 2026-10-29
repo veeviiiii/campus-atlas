@@ -141,6 +141,15 @@ nav.top ul {
     display: none;
   }
 }
+nav.top ul a {
+  white-space: nowrap;
+}
+/* small laptops and tablets: the four links need the room; "Past papers" goes where the button goes */
+@media (min-width: 821px) and (max-width: 960px) {
+  nav.top > .pill {
+    display: none;
+  }
+}
 /* phones: the bottom bar (.bn) does the navigating, the top bar keeps just the logo */
 @media (max-width: 600px) {
   nav.top > .pill {
