@@ -10,6 +10,10 @@ Starting with DAVV, Indore. Pick your course and semester, open a subject, and y
   its reasons ("asked in MST-2 and End Sem", "came back word for word", "25 marks in total"). With one
   year of papers this is a frequency score, not a prediction model; it gets more useful as older papers
   are added.
+- **Marks by unit:** how many marks each unit carried in each exam, and the units only the End Sem
+  asked about ("Optics and Lasers were never asked in the mid-sems, but carried 90 of 150 marks").
+- **Search** every question on the site by a word, a topic or a subject, and **print** any paper on
+  clean white pages.
 - **Coming next: a notes exchange.** Share notes or ask for them by topic. Topics are shared across
   departments, so a request reaches anyone studying the same subject, whatever their branch.
 
@@ -156,12 +160,18 @@ cp .env.example .env                                                # choose a p
 .venv/Scripts/python -m pipeline.build_pack --all                  # the whole harness
 .venv/Scripts/python -m pipeline.eval --write                  # stores the result in the pack for the site
 
-# website (Node 20+)
+.venv/Scripts/python -m unittest discover -s pipeline/tests -t .   # pipeline tests: no API key, no model calls
+
+# website (Node 22.18+)
 cd web
 npm install
 npm run dev        # http://localhost:3000
+npm test           # unit tests: papers, Likely score, marks by unit, search
 npm run build      # static site in web/out
 ```
+
+GitHub Actions runs both test suites, the lint and the build on every push to `main`
+([.github/workflows/check.yml](.github/workflows/check.yml)).
 
 ## Deploy (Vercel)
 
@@ -175,12 +185,12 @@ Every push to `main` redeploys.
 
 ```
 data/raw/      page manifest (human ground truth); the scanned PDFs stay local, every page is in packs/<college>/pages/
-pipeline/      PYQ Trust Harness (Python)
+pipeline/      PYQ Trust Harness (Python); tests in pipeline/tests
 packs/         college packs (JSON) + page photos; the only thing the website reads
 catalog/       DAVV course list (names, schools, durations) from the CUET (UG) 2026 counselling guidelines
 runs/sample/   run report of the full pipeline run
 skills/        pyq-atlas Agent Skill
-web/           Next.js website (static export)
+web/           Next.js website (static export); tests in web/tests
 ```
 
 ## License

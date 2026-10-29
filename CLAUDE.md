@@ -23,8 +23,9 @@ sentence. We are now turning it into a simple, useful product. When in doubt, cu
    topic. Topics are shared across departments, so a request reaches students in other departments
    who study the same subject. Requests + uploads + a "helpful" count. No chat, no feed, no DMs.
 
-Small extras that come free from the data (later): marks by unit per subject; "same subject in
-other departments" links; search across all questions.
+Small extras that come free from the data: marks by unit per subject (done: a tab on the subject
+page), search across all questions (done: /search/); later, "same subject in other departments" links
+(needs a second department's papers).
 
 CUT (do not bring back without asking): quizzes (incl. the Mentee quiz builder), "mark as studied" /
 fog / progress, "Exam tomorrow" routes and arcs, the Constellation view, the study-space tabs, the
@@ -77,11 +78,17 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    web/node_modules/next/dist/docs before using an API you are unsure of.
    Routes: / (home: hero, the 30 DAVV courses as cards with field chips, how it works),
    /course/<course>/ (pick year and semester; semesters without papers ask for them),
-   /c/<college>/<pack>/ (one semester: subject cards), /c/<college>/<pack>/<subject>/ (subject page),
-   /send/ (send us your papers). Deploy: Vercel, project Root Directory web (Next.js
+   /c/<college>/<pack>/ (one semester: subject cards), /c/<college>/<pack>/<subject>/ (subject page:
+   tabs Papers, Likely topics, Marks by unit; #likely, #topic-<id>, #marks open a tab; "Print this
+   paper"), /search/ (every question; matches in the browser on /search-index.json, built from the
+   packs), /send/ (send us your papers). Also built: /sitemap.xml, /robots.txt, /og.png (link
+   preview). Deploy: Vercel, project Root Directory web (Next.js
    preset; the build reads ../packs and ../catalog). Live: https://campus-atlas.vercel.app
    Design: keep the current look (dark theme, lime/violet palette, Space Grotesk / Inter / Plex Mono,
    pixel accents). Must stay readable on a phone.
+D. Tests (no API key, no model calls): `python -m unittest discover -s pipeline/tests -t .` and, in
+   web/, `npm test` (node --test on web/tests; Node 22.18+). `npm run check` = lint + tests + build.
+   .github/workflows/check.yml runs both on pushes to main and on pull requests.
 
 Pack schema 1.1 (packs/<college>/<course>-sem<N>.json, all years): college, course, sources.exams
 [{id, name, date, session}], subjects[] -> units[] (blind_spot) -> topics[] (exams_count, is_repeat, total_marks,
@@ -90,8 +97,8 @@ repeat_of [{id, type: exact|near|same-topic}], confidence), unsure[], stats, har
 Full reference: skills/pyq-atlas/references/pack-schema.md. Page photos: packs/<college>/pages/*.jpg.
 
 ## 6. Repo layout
-data/raw/ (papers + manifest) · pipeline/ · packs/ · catalog/ (course list) · runs/sample/ · skills/pyq-atlas/ · web/ ·
-README.md · CONTRIBUTING.md · LICENSE (Apache-2.0)
+data/raw/ (papers + manifest) · pipeline/ (+ tests/) · packs/ · catalog/ (course list) · runs/sample/ · skills/pyq-atlas/ ·
+web/ (+ tests/) · .github/workflows/ (CI) · README.md · CONTRIBUTING.md · ADDING-PAPERS.md · LICENSE (Apache-2.0)
 
 ## 7. Rules for Claude Code
 - Never hardcode findings or invent data, papers, colleges, numbers or answers. Everything shown

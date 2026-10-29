@@ -50,5 +50,6 @@ Include:
 
 ## Code contributions
 
-Small, focused pull requests are welcome. Run `npm run check` in `web/` before pushing.
+Small, focused pull requests are welcome. Before pushing, run `npm run check` in `web/` (lint, tests,
+build) and `.venv/Scripts/python -m unittest discover -s pipeline/tests -t .` from the repo root.
 All contributions are under the Apache-2.0 license.
