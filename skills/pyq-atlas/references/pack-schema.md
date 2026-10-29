@@ -8,8 +8,9 @@ One pack holds every year of one course-semester.
   "college": {"id": "davv-sdsf", "name": "...", "city": "Indore", "lat": 22.69, "lng": 75.87},
   "course": {"id": "mtech-aids-dual", "name": "...", "semester": 1},
   "sources": {
-    "exams": [                     // every exam of every year
+    "exams": [                     // every exam of every year; kinds mst1 / mst2 / mst3 / end
       {"id": "mst1", "name": "MST-1", "date": "2025-10", "session": "2025-26"},
+      {"id": "mst3-2024-25", "name": "MST-3", "date": "2024", "session": "2024-25"},  // no paper printed the month
       {"id": "end-2024-25", "name": "End Sem", "date": "2025-01", "session": "2024-25"}, ...],
     "syllabus": {"batch": "2024-29", "note": "old syllabus, used as a hint only"},  // or null
     "units_from": "..."            // how units were formed when there is no syllabus

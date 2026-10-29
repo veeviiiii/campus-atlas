@@ -43,7 +43,7 @@ export default function SendPage() {
           <section className="q">
             <h2>What to send</h2>
             <ul>
-              <li>Any MST-1, MST-2 or End Sem question paper, from any year and any department.</li>
+              <li>Any mid-sem (MST-1, 2 or 3) or End Sem question paper, from any year and any department.</li>
               <li>Every page of the paper. One paper per upload.</li>
               <li>On the form: department, course, semester, which exam, and the month and year it was held.</li>
             </ul>

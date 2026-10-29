@@ -25,6 +25,8 @@ class Sessions(unittest.TestCase):
         self.assertEqual(session_of("2026-01"), "2025-26")
         self.assertEqual(session_of("2025-06"), "2024-25")
         self.assertEqual(session_of("1999-07"), "1999-00")
+        with self.assertRaises(ValueError):  # no month: the manifest must give the session
+            session_of("2025")
 
     def test_exam_kind(self):
         self.assertEqual(exam_kind("mst1"), "mst1")
@@ -45,7 +47,7 @@ class CheckExams(unittest.TestCase):
         self.assertEqual(sessions(m, {"end"}), ["2025-26"])
 
     def test_refuses_ids_the_pack_builder_would_misread(self):
-        for bad in ("mst3", "end-2023-24", "final"):
+        for bad in ("mst4", "end-2023-24", "final"):
             with self.subTest(bad=bad), self.assertRaises(ValueError):
                 check_exams(manifest(exams=[{"id": bad, "name": "x", "date": "2026-01"}], files=[]))
 
@@ -68,6 +70,23 @@ class CheckExams(unittest.TestCase):
         )
         check_exams(m)
         self.assertEqual(exam_order(m), {"end-2024-25": 0, "mst2": 1, "end": 2})
+
+    def test_a_year_without_its_month_needs_the_session_and_sorts_by_kind(self):
+        with self.assertRaises(ValueError):
+            check_exams(manifest(exams=[{"id": "mst1", "name": "MST-1", "date": "2025"}], files=[]))
+        with self.assertRaises(ValueError):
+            check_exams(manifest(exams=[{"id": "mst1", "name": "MST-1", "date": "Oct 2025", "session": "2025-26"}], files=[]))
+        m = manifest(
+            exams=[
+                {"id": "end", "name": "End Sem", "date": "2025", "session": "2024-25"},
+                {"id": "mst3", "name": "MST-3", "date": "2025", "session": "2024-25"},
+                {"id": "mst1", "name": "MST-1", "date": "2025-02", "session": "2024-25"},
+                {"id": "mst1-2023-24", "name": "MST-1", "date": "2024", "session": "2023-24"},
+            ],
+            files=[],
+        )
+        check_exams(m)
+        self.assertEqual(exam_order(m), {"mst1-2023-24": 0, "mst1": 1, "mst3": 2, "end": 3})
 
 
 class Papers(unittest.TestCase):
@@ -104,6 +123,9 @@ class Matching(unittest.TestCase):
     def test_exam_titles(self):
         self.assertEqual(match_exam("Mid Semester -1 Test"), "mst1")
         self.assertEqual(match_exam("TEST-II"), "mst2")
+        self.assertEqual(match_exam("Internal Exam -III"), "mst3")
+        self.assertEqual(match_exam("Second Mid-Term Exam"), "mst2")
+        self.assertEqual(match_exam("First Class Test"), "mst1")
         self.assertEqual(match_exam("End Semester Examination"), "end")
         self.assertIsNone(match_exam("Quiz"))
 

@@ -4,7 +4,7 @@
 
 Starting with DAVV, Indore. Pick your course and semester, open a subject, and you get:
 
-- **Papers:** every MST-1, MST-2 and End Sem paper, question by question (maths and tables included),
+- **Papers:** every mid-sem (MST-1, 2, 3) and End Sem paper, question by question (maths and tables included),
   each question linked to the photo of its original page.
 - **Likely topics:** the subject's topics ranked by how often and how heavily they were asked, each with
   its reasons ("asked in MST-2 and End Sem", "came back word for word", "25 marks in total"). With one

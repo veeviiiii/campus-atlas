@@ -85,7 +85,8 @@ Run `new` again. It adds every PDF in the folder to the manifest, with one line 
 Then open `manifest.yaml` and replace every `TODO`:
 
 - **exams:** keep one line per exam you have papers for and delete the rest. `date` is the year and
-  month it was held (`"2025-10"`), `session` the academic year (`"2025-26"`).
+  month it was held (`"2025-10"`), or just the year (`"2025"`) when no paper prints the month;
+  `session` the academic year (`"2025-26"`). A third mid-sem is `mst3` (name `MST-3`).
 - **subjects:** one entry per subject. `id` is short and lowercase with hyphens (`data-structures`).
   `aliases` are other names printed on the papers for the same subject (`[DS, Data Structure]`).
   Use the subject names from the responses sheet and the paper headers.
@@ -184,7 +185,7 @@ Course list too. Without a catalogue entry the pack still works and shows under 
 |---|---|
 | `MODEL_ID is not set` / `GEMINI_API_KEY` | `.env` is missing or empty: copy `.env.example` to `.env` and fill it in. |
 | `429`, `RESOURCE_EXHAUSTED`, `503` | API limit or overload. The pipeline retries; if it gives up, run the same command later. |
-| `exam id ...: use mst1 / mst2 / end ...` | An exam id does not match its session; see step 5. |
+| `exam id ...: use mst1 / mst2 / mst3 / end ...` | An exam id does not match its session; see step 5. |
 | A question's text is wrong on the site | Do not edit the pack by hand (the next run overwrites it). Retake the photo, replace the PDF, run again. |
 | A page is upside down on the site | Add `rotation: 180` to that page in the manifest and run again. |
 | `ModuleNotFoundError` | The command did not use the project's Python: start it with `.venv/Scripts/python`. |

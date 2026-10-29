@@ -7,6 +7,7 @@ import { cameBackMap, examDate, examKind, examLabels, examsSummary, inOrder, pap
 test("exam dates and kinds", () => {
   assert.equal(examDate("2025-10"), "Oct 2025");
   assert.equal(examDate("someday"), "someday");
+  assert.equal(examDate("2025"), "2025"); // the paper printed no month
   assert.equal(examKind("end-2024-25"), "end");
   assert.equal(examKind("mst1"), "mst1");
 });
@@ -30,6 +31,16 @@ test("exams in the order they were held", () => {
   assert.deepEqual(
     inOrder(sameMonth).map((e) => e.id),
     ["mst2", "end"],
+  );
+  const yearOnly = [
+    { id: "end", name: "End Sem", date: "2025", session: "2024-25" },
+    { id: "mst3", name: "MST-3", date: "2025", session: "2024-25" },
+    { id: "mst1", name: "MST-1", date: "2025-02", session: "2024-25" },
+    { id: "end-2023-24", name: "End Sem", date: "2024-05", session: "2023-24" },
+  ];
+  assert.deepEqual(
+    inOrder(yearOnly).map((e) => e.id),
+    ["end-2023-24", "mst1", "mst3", "end"],
   );
 });
 

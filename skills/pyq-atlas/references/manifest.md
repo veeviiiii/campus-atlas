@@ -28,10 +28,13 @@ files:
 ```
 
 Rules:
-- Exam ids: `mst1`, `mst2` and `end` for the first year you add; every other year adds its session,
+- Exam ids: `mst1`, `mst2`, `mst3` (a third mid-sem) and `end` for the first year you add; every other year adds its session,
   e.g. `mst1-2024-25`. Never rename the first year's ids: question ids, cached model answers and
   links depend on them. A year with no MST-2 paper simply leaves it out.
-- `session` is the academic session (July to June), e.g. `"2024-25"`. If left out it is worked out from `date`.
+- `date` is the year and month (`"2025-10"`), or just the year (`"2025"`) when no paper prints the month.
+  Exams are ordered by session, then MST-1, MST-2, MST-3, End Sem.
+- `session` is the academic session (July to June), e.g. `"2024-25"`. If left out it is worked out from
+  `date`, so a year-only date needs it.
 - File names must be unique: page photos are named after them in `packs/<college>/pages/`, which all
   courses of the college share. Name new files after the course, year and exam, e.g. `btech-cse-sem3_2024-25_end.pdf`.
 - Every page of every PDF appears once. `page` starts at 1.

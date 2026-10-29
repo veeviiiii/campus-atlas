@@ -9,7 +9,7 @@ from pipeline.match import group_subject
 from pipeline.providers import CALLS, ROOT, get_provider
 from pipeline.repeats import find_repeats
 
-MIDS = {"mst1", "mst2"}
+MIDS = {"mst1", "mst2", "mst3"}
 
 
 def export_pages(src: Path, dest: Path, max_side: int = 1400) -> None:

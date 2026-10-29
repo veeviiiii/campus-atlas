@@ -6,9 +6,9 @@ import type { Pack, Question, Subject, Topic, Unit } from "./types";
 export type Exam = Pack["sources"]["exams"][number];
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const KINDS = ["mst1", "mst2", "end"]; // exam ids are a kind, or "<kind>-<session>" for another year
+const KINDS = ["mst1", "mst2", "mst3", "end"]; // exam ids are a kind, or "<kind>-<session>" for another year
 
-/** "2025-10" -> "Oct 2025" (falls back to the raw value). */
+/** "2025-10" -> "Oct 2025" (falls back to the raw value: "2025" when the paper prints no month). */
 export function examDate(date: string): string {
   const [y, m] = date.split("-").map(Number);
   return y && m ? `${MONTHS[m - 1]} ${y}` : date;
@@ -32,10 +32,10 @@ export function sessionsOf(exams: Exam[]): string[] {
   return [...new Set(exams.map(sessionOf))].sort().reverse();
 }
 
-/** Oldest first; within a month MST-1, MST-2, End Sem. */
+/** Oldest first: by session, then MST-1, MST-2, MST-3, End Sem (a date may be only the year). */
 export function inOrder(exams: Exam[]): Exam[] {
   const kind = (e: Exam) => KINDS.indexOf(examKind(e.id));
-  return [...exams].sort((a, b) => a.date.localeCompare(b.date) || kind(a) - kind(b));
+  return [...exams].sort((a, b) => sessionOf(a).localeCompare(sessionOf(b)) || kind(a) - kind(b) || a.date.localeCompare(b.date));
 }
 
 /** Exam id -> "MST-2", or "MST-2 2024-25" when the pack has several years. */
