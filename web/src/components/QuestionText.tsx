@@ -3,15 +3,17 @@
 import katex from "katex";
 import "katex/dist/katex.min.css";
 
-/** Question text with $...$ (inline) and $$...$$ (display) maths rendered by KaTeX (bundled locally). */
-export function MathText({ text }: { text: string }) {
+/** Question text with $...$ (inline) and $$...$$ (display) maths rendered by KaTeX (bundled locally).
+ *  `highlight` (search) marks matching words in the plain text; maths is left as it is. */
+export function MathText({ text, highlight }: { text: string; highlight?: RegExp }) {
   const parts = text.split(/(\$\$[^$]+\$\$|\$[^$]+\$)/g);
   return (
     <>
       {parts.map((p, i) => {
         const display = p.startsWith("$$") && p.endsWith("$$") && p.length > 4;
         const inline = !display && p.startsWith("$") && p.endsWith("$") && p.length > 2;
-        if (!display && !inline) return <span key={i}>{p.trim() === "" ? " " : p}</span>;
+        if (!display && !inline)
+          return <span key={i}>{p.trim() === "" ? " " : highlight ? p.split(highlight).map((w, j) => (j % 2 ? <mark key={j}>{w}</mark> : w)) : p}</span>;
         const tex = display ? p.slice(2, -2) : p.slice(1, -1);
         return (
           <span

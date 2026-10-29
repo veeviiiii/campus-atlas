@@ -42,6 +42,9 @@ export function SiteNav() {
           <Link href="/#browse">Past papers</Link>
         </li>
         <li>
+          <Link href="/search/">Search</Link>
+        </li>
+        <li>
           <Link href="/#how">How it works</Link>
         </li>
         <li>
@@ -76,7 +79,7 @@ export function SiteFooter() {
       <div className="bn">
         <Link href="/">Home</Link>
         <Link href="/#browse">Papers</Link>
-        <Link href="/#how">How</Link>
+        <Link href="/search/">Search</Link>
         <Link href="/send/">Send</Link>
       </div>
     </>

@@ -1,3 +1,6 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
+
 import { MarkdownTable, MathText } from "./QuestionText";
 import { pageImageUrl } from "@/lib/paths";
 import type { Question } from "@/lib/types";
@@ -22,14 +25,17 @@ interface Props {
   examOf: Map<string, string>; // question id -> exam id (for "Repeated from ...")
   cameBack?: { exam: string; type: string };
   number?: number; // position on the paper
-  topic?: { name: string; onOpen: () => void };
+  topic?: { name: string; onOpen?: () => void; href?: string }; // a button on the subject page, a link elsewhere
+  head?: ReactNode; // where the question is from (search results)
+  highlight?: RegExp; // words to <mark> (search results)
 }
 
 /** One question as the student sees it: text (maths, tables), marks, repeat badges, original page. */
-export default function QuestionCard({ q, collegeId, examName, examOf, cameBack, number, topic }: Props) {
+export default function QuestionCard({ q, collegeId, examName, examOf, cameBack, number, topic, head, highlight }: Props) {
   const parts = extraParts(q);
   return (
     <div className="q">
+      {head && <div className="mono qhead">{head}</div>}
       {(q.repeat_of.length > 0 || cameBack) && (
         <div className="badges">
           {q.repeat_of.map((r) => (
@@ -46,13 +52,13 @@ export default function QuestionCard({ q, collegeId, examName, examOf, cameBack,
       )}
       <p style={{ margin: 0 }}>
         {number != null && <b className="qno">Q{number}.</b>}
-        <MathText text={q.text} />
+        <MathText text={q.text} highlight={highlight} />
       </p>
       {parts.length > 0 && (
         <ul className="parts">
           {parts.map((s, i) => (
             <li key={i}>
-              <MathText text={s} />
+              <MathText text={s} highlight={highlight} />
             </li>
           ))}
         </ul>
@@ -60,7 +66,12 @@ export default function QuestionCard({ q, collegeId, examName, examOf, cameBack,
       {q.has_table && q.table_markdown && <MarkdownTable md={q.table_markdown} />}
       <div className="mono qmeta">
         {q.marks != null && <span>{q.marks} marks</span>}
-        {topic && (
+        {topic?.href && (
+          <Link className="linkish" href={topic.href}>
+            Topic: {topic.name}
+          </Link>
+        )}
+        {topic && !topic.href && (
           <button type="button" className="linkish" onClick={topic.onOpen}>
             Topic: {topic.name}
           </button>

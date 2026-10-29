@@ -1000,6 +1000,65 @@ footer {
 .linkish:hover {
   text-decoration: underline;
 }
+.qmeta a.linkish {
+  color: var(--accent);
+}
+
+/* search page (and the home page's link to it) */
+.search-questions {
+  margin: -14px 0 22px;
+  font-weight: 600;
+}
+.search-questions a {
+  color: #3b7a00;
+  border-bottom: 1px solid currentColor;
+}
+.qsearch {
+  margin: 6px 0 4px;
+  max-width: 720px;
+  background: var(--card);
+  border-color: var(--border);
+}
+.qsearch:focus-within {
+  border-color: var(--accent);
+}
+.qsearch input {
+  color: var(--foreground);
+  padding: 8px 0;
+}
+.qsearch input::placeholder {
+  color: var(--muted);
+}
+.qsearch button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.year-chips .chip span {
+  font-size: 12px;
+  opacity: 0.6;
+}
+.qhead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+.qhead a {
+  color: var(--lav);
+}
+.qhead a:hover {
+  text-decoration: underline;
+}
+.q mark {
+  background: rgba(215, 255, 82, 0.22);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 1px;
+}
+.more {
+  align-self: flex-start;
+}
 
 /* subject page: likely topics. Not ".likely": the AdGuard Social filter hides that class on every site (it is a share-button widget). */
 .ranked {

@@ -123,6 +123,11 @@ export default function Site({ entries, courses, fields, source }: Props) {
             Clear
           </button>
         </form>
+        {q && (
+          <p className="search-questions">
+            <Link href={`/search/?q=${encodeURIComponent(query.trim())}`}>Search the questions for “{query.trim()}” →</Link>
+          </p>
+        )}
         <div className="field-chips" role="group" aria-label="Field">
           {[null, ...allFields.map((f) => f.id)].map((id) => {
             const n = id ? matches.filter((c) => c.field === id).length : matches.length;
