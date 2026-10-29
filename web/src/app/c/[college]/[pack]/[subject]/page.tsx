@@ -68,6 +68,10 @@ export default async function SubjectPage({ params }: { params: Promise<Params> 
           }}
         />
         <SubjectView collegeId={p.college.id} exams={p.sources.exams} subject={subject} />
+        <p className="print-only">
+          From Campus Atlas, campus-atlas.vercel.app · {p.course.name}, Semester {p.course.semester}. The questions were read from
+          photos of the papers by an AI model and checked by our pipeline; if something looks off, open the original page on the site.
+        </p>
       </main>
       <SiteFooter />
     </>

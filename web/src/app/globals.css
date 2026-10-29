@@ -1254,6 +1254,84 @@ footer {
   color: var(--accent);
 }
 
+/* printing (Ctrl+P, or "Print this paper"): black on white, no navigation or buttons, open papers only.
+   "Print this paper" sets html[data-print] and marks its paper, so only that one prints. */
+.print-only {
+  display: none;
+}
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  :root {
+    color-scheme: light;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  body,
+  body * {
+    color: #000 !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  nav.top,
+  .bn,
+  footer,
+  .crumbs,
+  .tabs,
+  .year-chips,
+  .note,
+  .paper-pages,
+  .qmeta a,
+  .qmeta button,
+  .paper:not([open]),
+  html[data-print] .paper:not([data-printing]) {
+    display: none !important;
+  }
+  .print-only {
+    display: block;
+    margin-top: 18px;
+    font-size: 11px;
+  }
+  .page {
+    padding: 0;
+    max-width: none;
+  }
+  .page-title {
+    font-size: 30px;
+  }
+  .paper,
+  .ranked > li,
+  .marks-wrap,
+  .q {
+    background: none !important;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+  .paper[open] .paper-title::before {
+    content: none;
+  }
+  .q {
+    padding: 8px 0;
+    border-bottom: 1px solid #ccc;
+    break-inside: avoid;
+  }
+  .badge,
+  .chip {
+    background: none !important;
+    border-color: #999 !important;
+  }
+  .q th,
+  .q td,
+  .marks th,
+  .marks td {
+    border-color: #999;
+  }
+}
+
 @media (max-width: 700px) {
   .page {
     padding-top: 96px;

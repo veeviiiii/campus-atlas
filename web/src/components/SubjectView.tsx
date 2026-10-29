@@ -14,6 +14,22 @@ import type { Subject } from "@/lib/types";
 
 type Tab = "papers" | "likely" | "marks";
 
+/** Print one paper on its own: open it, mark it, and let the print styles (globals.css) hide the rest. */
+function printPaper(button: HTMLElement) {
+  const paper = button.closest("details");
+  if (!paper) return;
+  paper.open = true;
+  paper.setAttribute("data-printing", "");
+  document.documentElement.setAttribute("data-print", "paper");
+  const done = () => {
+    paper.removeAttribute("data-printing");
+    document.documentElement.removeAttribute("data-print");
+    removeEventListener("afterprint", done);
+  };
+  addEventListener("afterprint", done);
+  print();
+}
+
 interface Props {
   collegeId: string;
   exams: Exam[];
@@ -119,6 +135,9 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
                     {pageLabel(ref)} ↗
                   </a>
                 ))}
+                <button type="button" className="linkish" onClick={(e) => printPaper(e.currentTarget)}>
+                  Print this paper
+                </button>
               </div>
               <div className="stack">
                 {p.questions.map(({ q, topic }, n) => (
