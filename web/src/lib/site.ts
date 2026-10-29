@@ -6,3 +6,6 @@
  * Empty = the form isn't set up yet, and the /send/ page says so instead of showing a dead button.
  */
 export const SEND_PAPERS_FORM = "https://docs.google.com/forms/d/e/1FAIpQLSfKr1h-mxqs5jD4KJK3hhxCLtRWEUa29SlXgjdU9nhrFiNVYg/viewform";
+
+/** Where the site is published; absolute links in metadata, the sitemap and robots.txt start here. */
+export const SITE_URL = "https://campus-atlas.vercel.app";

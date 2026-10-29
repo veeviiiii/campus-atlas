@@ -6,6 +6,7 @@ import { SEND_PAPERS_FORM } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Send us your papers · Campus Atlas",
   description: "Photograph past exam papers from any DAVV course and send them in. We read them, check them and publish them for everyone.",
+  alternates: { canonical: "/send/" },
 };
 
 /** How students send in papers: one upload form, plus what to send and what happens next. */

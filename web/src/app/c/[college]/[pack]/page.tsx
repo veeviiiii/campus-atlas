@@ -5,8 +5,8 @@ import { BackBar, SiteFooter, SiteNav } from "@/components/Chrome";
 import CourseView from "@/components/CourseView";
 import { courseOf } from "@/lib/catalog";
 import { findEntry, loadPacks } from "@/lib/packs";
-import { programmeHref } from "@/lib/paths";
-import { examDate, inOrder, sessionOf, sessionsOf } from "@/lib/papers";
+import { courseHref, programmeHref } from "@/lib/paths";
+import { examDate, examsSummary, inOrder, sessionOf, sessionsOf } from "@/lib/papers";
 
 type Params = { college: string; pack: string };
 
@@ -23,7 +23,13 @@ export function generateStaticParams(): Params[] {
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { college, pack } = await params;
   const e = findEntry(college, pack);
-  return { title: e ? `${e.pack.course.name}, Semester ${e.pack.course.semester} · Campus Atlas` : "Campus Atlas" };
+  if (!e) return { title: "Campus Atlas" };
+  const p = e.pack;
+  return {
+    title: `${p.course.name}, Semester ${p.course.semester} past papers · Campus Atlas`,
+    description: `Past papers of ${p.course.name}, Semester ${p.course.semester}, ${p.college.name}, Indore: ${p.stats.papers} papers (${examsSummary(p.sources.exams)}) in ${p.subjects.length} subjects, ${p.subjects.map((s) => s.name).join(", ")}.`,
+    alternates: { canonical: courseHref(e.key) },
+  };
 }
 
 export default async function CoursePage({ params }: { params: Promise<Params> }) {

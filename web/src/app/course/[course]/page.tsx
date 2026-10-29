@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { BackBar, SiteFooter, SiteNav } from "@/components/Chrome";
 import { courseCards, loadCatalog } from "@/lib/catalog";
 import { FIELD_COLORS } from "@/lib/colors";
-import { courseHref } from "@/lib/paths";
+import { courseHref, programmeHref } from "@/lib/paths";
 
 type Params = { course: string };
 
@@ -22,6 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return {
     title: c ? `${c.name} past papers · Campus Atlas` : "Campus Atlas",
     description: c ? `Past exam papers of ${c.name}, ${c.school}, DAVV Indore, by semester.` : undefined,
+    alternates: c ? { canonical: programmeHref(c.id) } : undefined,
   };
 }
 

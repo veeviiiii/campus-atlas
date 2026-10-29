@@ -6,6 +6,7 @@ import SearchView from "@/components/SearchView";
 export const metadata: Metadata = {
   title: "Search past paper questions · Campus Atlas",
   description: "Search every question from DAVV, Indore past papers on Campus Atlas: by word, topic or subject, with the exam and a photo of the page.",
+  alternates: { canonical: "/search/" },
 };
 
 /** Search every question on the site (the matching runs in the browser, on a static index). */

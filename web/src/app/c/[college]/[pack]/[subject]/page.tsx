@@ -4,7 +4,9 @@ import { notFound } from "next/navigation";
 import { BackBar, SiteFooter, SiteNav } from "@/components/Chrome";
 import SubjectView from "@/components/SubjectView";
 import { findEntry, loadPacks } from "@/lib/packs";
-import { courseHref } from "@/lib/paths";
+import type { Subject } from "@/lib/types";
+import { examsSummary } from "@/lib/papers";
+import { courseHref, subjectHref } from "@/lib/paths";
 
 type Params = { college: string; pack: string; subject: string };
 
@@ -24,10 +26,19 @@ function find(params: Params) {
   return entry && subject ? { entry, subject } : null;
 }
 
+function questionCount(subject: Subject): number {
+  return subject.units.reduce((n, u) => n + u.topics.reduce((m, t) => m + t.questions.length, 0), 0);
+}
+
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const found = find(await params);
+  if (!found) return { title: "Campus Atlas" };
+  const { entry, subject } = found;
+  const p = entry.pack;
   return {
-    title: found ? `${found.subject.name} past papers · ${found.entry.pack.course.name} · Campus Atlas` : "Campus Atlas",
+    title: `${subject.name} past papers · ${p.course.name} · Campus Atlas`,
+    description: `${subject.name} past papers of ${p.course.name}, Semester ${p.course.semester}, ${p.college.name}, Indore: ${questionCount(subject)} questions (${examsSummary(p.sources.exams)}), the topics asked most and the marks by unit.`,
+    alternates: { canonical: subjectHref(entry.key, subject.id) },
   };
 }
 
@@ -36,7 +47,7 @@ export default async function SubjectPage({ params }: { params: Promise<Params> 
   if (!found) notFound();
   const { entry, subject } = found;
   const p = entry.pack;
-  const questions = subject.units.reduce((n, u) => n + u.topics.reduce((m, t) => m + t.questions.length, 0), 0);
+  const questions = questionCount(subject);
   const aka = subject.aliases.filter((a) => a !== subject.name);
 
   return (
