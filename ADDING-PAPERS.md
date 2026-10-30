@@ -26,7 +26,8 @@ All commands run in a terminal (PowerShell or Git Bash) opened in the repository
 | 8 | Read the run report, look at the site locally | `npm run dev` |
 | 9 | Publish | `git add`, `git commit`, `git push` |
 
-`intake` never calls the AI model and costs nothing. Only step 7 uses the API.
+`intake` never calls the AI model and costs nothing. Only step 7 uses the API (and the desk's
+**Read pages**, if you press it).
 
 **Steps 2 to 7 in one page:** the [intake desk](#using-the-desk) does them for a whole folder (mixed
 semesters, two papers per photo, sideways pages, names to black out) without editing any file by hand.
@@ -39,8 +40,10 @@ The commands in steps 3 to 6 still work for a single paper.
 ```
 
 It opens http://127.0.0.1:8790 in the browser (start it without a folder to pick one on the page).
-It runs only on this laptop: no sign-in, nothing uploaded, no API key needed. Every page of every PDF
-and photo in the folder (subfolders too) is a card. Click one, then:
+It runs only on this laptop: no sign-in, and nothing leaves it except the pages you ask the model to
+read. Every page of every PDF and photo in the folder (subfolders too) is a card. Give it a PDF
+instead of a folder (or pick one under **Open**) to work on that file alone; its work is then saved
+next to it as `<file>.desk-decisions.json`. Click a card, then:
 
 - **Turn** it upright: ↺ / ↻ (or `R`).
 - **Split** a photo of two papers: **Top / bottom** or **Left / right**, then drag the dashed line.
@@ -57,9 +60,37 @@ and photo in the folder (subfolders too) is a card. Click one, then:
   set it once.
 - **Continues the previous page** (`C`) for a paper's second page: it takes that paper's subject and exam.
 
-Keys: `←` `→` move, `U` use, `S` skip, `H` held back, `C` continues, `R` turn, `Del` removes the
-selected black-out box. Everything is saved as you go to `desk-decisions.json` in the folder of
-sources: close the page whenever you like and open the folder again to carry on.
+Keys: `←` `→` move, `A` accept the suggestion and go on, `U` use, `S` skip, `H` held back,
+`C` continues, `R` turn, `Del` removes the selected black-out box. Everything is saved as you go to
+`desk-decisions.json` in the folder of sources: close the page whenever you like and open the folder
+again to carry on.
+
+**Read pages** (model) asks the model to read every page you have not decided yet: which way up it is,
+one paper or two, whether it is a question paper at all, and what its header prints (exam, subject,
+course, semester, date). The desk turns that into suggested fields with the pipeline's own matching
+(subjects by name and the manifest's aliases, never by course code) and marks the card ✦ with a dashed
+border. A paper that prints no year is suggested as held back "no year" (likewise "no test number",
+"no subject"); a page with no printed header continues the paper before it; a paper that prints no
+course takes the course and semester of the page before it.
+
+- **Nothing counts until you accept it.** Look at the picture, then **Accept** (`A` accepts and moves
+  on), or set the fields yourself. Shift-click a range and **Accept** to take several at once. A subject
+  the semester does not have yet comes with **+ Add "…" as a subject**.
+- One model call per page (two when a page comes in sideways: it is read again upright), a few at a
+  time in the background; **Stop reading** stops it. Answers are cached in `data/work/cache`, so
+  reading again costs nothing. **Read again** on a page reads it as it is now (turned or split as you
+  set it). A page the model could not read says why.
+- It needs `GEMINI_API_KEY` in `.env` (everything else works without it). It uses `DESK_MODEL_ID` from
+  `.env` when set, otherwise `MODEL_ID`. A faster model helps on big folders: `gemma-4-26b-a4b-it`, or a
+  Gemini Flash id from the AI Studio model list (not open weights; check its price and free limits).
+  Packs are always built with `MODEL_ID`.
+- Pages are sent as they are: black out names first if you don't want them sent.
+
+**Copies:** when a folder opens, the desk compares a small picture fingerprint of every page (no model,
+no cost) and suggests **Skip: duplicate** for a page that is the same scan or photo as an earlier page
+of the folder, or as a page already in `data/raw/`, even turned or saved again as JPEG. Two different
+photos of one paper don't match by picture; once they have a subject and exam, Write warns that the
+manifest already has that subject in that exam.
 
 **Write PDFs and manifests** first lists what it will write and anything to fix (a page with no
 subject, a date outside its session, a subject the manifest already has in that exam). Then it:
@@ -79,10 +110,6 @@ the desk's own lines in the manifest (the next write would put them back).
 
 **Run the pipeline** (on a manifest that is ready) runs step 7, shows its log as it goes and, at the
 end, the run report's **Unsure** list. Carry on from step 8.
-
-Optional: start it with `--suggest` for a **Read the header (model)** button that asks the model to
-read a page's printed header and suggests the subject and exam (one model call per page, cached in
-`data/work/cache`). It is only a suggestion: check it against the picture.
 
 ## 1. Download the uploads
 
