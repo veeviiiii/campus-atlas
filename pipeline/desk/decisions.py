@@ -1,9 +1,11 @@
-"""What the maintainer decided for every page, saved as desk-decisions.json next to the sources.
+"""What the maintainer decided for every page, saved as desk-decisions.json next to the sources
+("<file>.desk-decisions.json" when one file is open on its own).
 
 The desk page sends the whole state after every change; the server checks it here and writes it
 atomically, so closing the page loses nothing and opening the folder again restores the work.
 `written` is the server's own record of what the desk put into which manifest (so writing again
-replaces its own entries and never touches anything else); the page never changes it.
+replaces its own entries and never touches anything else); the page never changes it. `reads` is
+what the model read on each page ("Read pages"): raw material for suggestions, never a decision.
 """
 
 import json
@@ -56,6 +58,7 @@ class Desk:
     subjects: dict[str, list[dict]] = field(default_factory=dict)  # "<course>/<sem>" -> new subjects [{id, name, aliases}]
     exam_dates: dict[str, str] = field(default_factory=dict)  # exam_key() -> "2024-12" or "2024"
     written: dict[str, dict] = field(default_factory=dict)  # manifest path in the repo -> {files, exams, subjects}
+    reads: dict[str, dict] = field(default_factory=dict)  # "<source>#<page>" -> the model's reading (reader.py)
 
     def page(self, key: str) -> Page:
         return self.pages.get(key) or Page()
@@ -113,6 +116,7 @@ def from_dict(d: dict) -> Desk:
         desk.subjects[str(key)] = [{"id": str(s["id"]), "name": str(s["name"]), "aliases": [str(a) for a in s.get("aliases", [])]} for s in subs]
     desk.exam_dates = {str(k): str(v) for k, v in (d.get("exam_dates") or {}).items()}
     desk.written = {str(k): {n: list(v.get(n, [])) for n in ("files", "exams", "subjects")} for k, v in (d.get("written") or {}).items()}
+    desk.reads = {str(k): dict(v) for k, v in (d.get("reads") or {}).items() if isinstance(v, dict)}
     return desk
 
 
@@ -120,14 +124,19 @@ def to_dict(desk: Desk) -> dict:
     return asdict(desk)
 
 
-def load(folder: Path) -> Desk:
-    path = folder / FILE
+def state_file(folder: Path, only: str = "") -> Path:
+    """desk-decisions.json in the folder, or "<file>.desk-decisions.json" when only that file is open."""
+    return folder / (f"{only}.{FILE}" if only else FILE)
+
+
+def load(folder: Path, only: str = "") -> Desk:
+    path = state_file(folder, only)
     return from_dict(json.loads(path.read_text(encoding="utf-8"))) if path.exists() else Desk()
 
 
-def save(folder: Path, desk: Desk) -> Path:
-    """Write desk-decisions.json; a crash mid-write leaves the previous file whole."""
-    path = folder / FILE
+def save(folder: Path, desk: Desk, only: str = "") -> Path:
+    """Write the decisions; a crash mid-write leaves the previous file whole."""
+    path = state_file(folder, only)
     tmp = path.with_name(path.name + ".tmp")
     tmp.write_text(json.dumps(to_dict(desk), indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     os.replace(tmp, path)

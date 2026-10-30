@@ -1,4 +1,5 @@
-"""The sources in a folder: PDFs (every page) and photos (one page each), in subfolders too.
+"""The sources in a folder: PDFs (every page) and photos (one page each), in subfolders too; or one
+file on its own.
 
 A source page is named by the file's path inside the folder and its page number: "Sem-5 Test Papers.pdf#3".
 """
@@ -22,12 +23,18 @@ class Source:
     pages: int
 
 
-def list_sources(folder: Path) -> tuple[list[Source], list[str]]:
-    """The sources, and the PDFs that would not open (a broken download; the desk page names them)."""
+def is_source(p: Path) -> bool:
+    return p.is_file() and (p.suffix.lower() == ".pdf" or p.suffix.lower() in PHOTOS) and not p.name.startswith(".")
+
+
+def list_sources(folder: Path, only: str = "") -> tuple[list[Source], list[str]]:
+    """The sources (just `only`, a file in the folder, when given), and the PDFs that would not open
+    (a broken download; the desk page names them)."""
     out, broken = [], []
-    for p in sorted(folder.rglob("*"), key=lambda p: p.relative_to(folder).as_posix().lower()):
+    files = [folder / only] if only else sorted(folder.rglob("*"), key=lambda p: p.relative_to(folder).as_posix().lower())
+    for p in files:
         suffix = p.suffix.lower()
-        if not p.is_file() or (suffix != ".pdf" and suffix not in PHOTOS) or p.name.startswith("."):
+        if not is_source(p):
             continue
         rel = p.relative_to(folder).as_posix()
         if suffix == ".pdf":

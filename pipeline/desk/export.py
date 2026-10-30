@@ -259,7 +259,7 @@ def describe(d, names: dict[str, str]) -> str:
     return ", ".join(x for x in (names.get(d.subject, d.subject), exam) if x)
 
 
-def make_plan(folder: Path, desk: Desk, sources: list[Source]) -> Plan:
+def make_plan(folder: Path, desk: Desk, sources: list[Source], only: str = "") -> Plan:
     plan = Plan()
     targets: dict[tuple[str, int], Target] = {}
 
@@ -315,7 +315,7 @@ def make_plan(folder: Path, desk: Desk, sources: list[Source]) -> Plan:
                 plan.problem("warnings", f"{rel}: could not read its course and semester, so the desk left it alone")
 
     for t in targets.values():
-        _fill(t, desk, plan, folder.name)
+        _fill(t, desk, plan, only or folder.name)
     plan.targets = sorted(targets.values(), key=lambda t: (t.course["id"], t.semester))
     if plan.undecided:
         plan.problem("warnings", f"{plan.undecided} page(s) not decided yet (use, skip or held back): they are not written anywhere")
@@ -417,13 +417,14 @@ def check(path: Path) -> tuple[bool, str]:
     return ok, out.getvalue().replace(intake.ROOT.as_posix() + "/", "")
 
 
-def write(folder: Path, desk: Desk, sources: list[Source], log=lambda msg: None) -> tuple[Plan, list[dict]]:
+def write(folder: Path, desk: Desk, sources: list[Source], log=lambda msg: None, only: str = "") -> tuple[Plan, list[dict]]:
     """Write every PDF and manifest of the plan, save the desk, run intake check. Nothing is written
-    when the plan has errors. Returns the plan and, per manifest, {manifest, ok, check}."""
-    plan = make_plan(folder, desk, sources)
+    when the plan has errors. Returns the plan and, per manifest, {manifest, ok, check}.
+    `only`: one file of the folder is open on its own (its own decisions file and name)."""
+    plan = make_plan(folder, desk, sources, only)
     if plan.errors:
         return plan, []
-    desk_name = folder.name
+    desk_name = only or folder.name
     results = []
     for t in plan.targets:
         t.path.parent.mkdir(parents=True, exist_ok=True)
@@ -449,7 +450,7 @@ def write(folder: Path, desk: Desk, sources: list[Source], log=lambda msg: None)
         yaml.safe_load(text)  # never leave a manifest the pipeline cannot read
         _write_text(t.path, text)
         desk.written[t.rel] = {"files": [f["file"] for f in t.files], "exams": [e["id"] for e in t.exams], "subjects": [s["id"] for s in t.subjects]}
-        save(folder, desk)  # after each manifest, so a crash midway still knows what the desk wrote
+        save(folder, desk, only)  # after each manifest, so a crash midway still knows what the desk wrote
     for t in plan.targets:
         ok, printed = check(t.path)
         results.append({"manifest": t.rel, "ok": ok, "check": printed})

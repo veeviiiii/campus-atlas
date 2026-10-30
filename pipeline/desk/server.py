@@ -1,9 +1,11 @@
 """The desk's web page and its JSON API, on 127.0.0.1 only (Python's http.server, no framework).
 
-One folder of sources is open at a time. The page holds the decisions and sends them after every
-change (PUT /api/state); everything that reads or writes files happens here.
+One folder of sources (or one file) is open at a time. The page holds the decisions and sends them
+after every change (PUT /api/state); everything that reads or writes files happens here, and so do
+the model readings ("Read pages", in the background) and the picture matches.
 """
 
+import copy
 import io
 import json
 import os
@@ -21,13 +23,13 @@ import yaml
 from PIL import Image
 
 from pipeline import intake
-from pipeline.desk import decisions, export
+from pipeline.desk import decisions, dupes, export, reader, suggest
 from pipeline.desk.geometry import render_part
-from pipeline.desk.sources import PREVIEW_SIDE, list_sources, load_page, page_key
+from pipeline.desk.sources import PREVIEW_SIDE, is_source, list_sources, load_page, page_key
 from pipeline.manifest import EXAM_KINDS
 
 STATIC = Path(__file__).resolve().parent / "static"
-RECENT = "data/work/desk/recent.json"  # folders opened before, newest first
+RECENT = "data/work/desk/recent.json"  # folders and files opened before, newest first
 TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8"}
 
 
@@ -66,57 +68,82 @@ class Run:
 
 
 class App:
-    def __init__(self, suggest: bool = False):
-        self.suggest = suggest
+    def __init__(self):
         self.lock = threading.RLock()
         self.folder: Path | None = None
+        self.only = ""  # one file of the folder open on its own, or "" for the whole folder
         self.sources = []
         self.broken: list[str] = []
         self.desk = decisions.Desk()
         self.previews: OrderedDict = OrderedDict()  # (src, page) -> preview image
         self.run: Run | None = None
+        self.gen = 0  # which open this is: readings that finish after another open are dropped
+        self.reader: reader.Reader | None = None
+        self.dupes: dict[str, dict] = {}
+        self.dupes_ready = False
 
     # ------------------------------------------------------------ folder and state
 
-    def open(self, folder: Path) -> None:
-        if not folder.is_dir():
-            raise ValueError(f"{folder} is not a folder")
-        sources, broken = list_sources(folder)
+    def open(self, path: Path) -> None:
+        """Open a folder of sources, or one PDF or photo on its own (its decisions go next to it)."""
+        if path.is_file():
+            if not is_source(path):
+                raise ValueError(f"{path.name} is not a PDF or a photo (.jpg / .png / .webp)")
+            folder, only = path.parent, path.name
+        elif path.is_dir():
+            folder, only = path, ""
+        else:
+            raise ValueError(f"{path} is not a folder or a file")
+        sources, broken = list_sources(folder, only)
         if not sources:
-            raise ValueError(f"no PDFs or photos (.jpg / .png / .webp) in {folder}")
-        desk = decisions.load(folder)
+            raise ValueError(f"{path.name} would not open as a PDF" if only else f"no PDFs or photos (.jpg / .png / .webp) in {folder}")
+        desk = decisions.load(folder, only)
         with self.lock:
-            self.folder, self.sources, self.broken, self.desk = folder.resolve(), sources, broken, desk
+            if self.reader:
+                self.reader.stop()
+            self.gen += 1
+            self.folder, self.only, self.sources, self.broken, self.desk = folder.resolve(), only, sources, broken, desk
             self.previews.clear()
+            self.reader, self.dupes, self.dupes_ready = None, {}, False
+        threading.Thread(target=self.find_dupes, args=(self.gen,), daemon=True).start()
+        opened = str(self.folder / only) if only else str(self.folder)
         recent = self.recent()
-        path = intake.ROOT / RECENT
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps([str(self.folder)] + [r for r in recent if r != str(self.folder)][:7], indent=1), encoding="utf-8")
+        rp = intake.ROOT / RECENT
+        rp.parent.mkdir(parents=True, exist_ok=True)
+        rp.write_text(json.dumps([opened] + [r for r in recent if r != opened][:7], indent=1), encoding="utf-8")
 
     def recent(self) -> list[str]:
         path = intake.ROOT / RECENT
         try:
-            return [r for r in json.loads(path.read_text(encoding="utf-8")) if Path(r).is_dir()]
+            return [r for r in json.loads(path.read_text(encoding="utf-8")) if Path(r).exists()]
         except (OSError, ValueError):
             return []
 
+    def keys(self) -> list[str]:
+        return [page_key(s.id, n) for s in self.sources for n in range(1, s.pages + 1)]
+
+    def courses(self) -> list[dict]:
+        return json.loads(intake.CATALOG.read_text(encoding="utf-8"))["courses"]
+
     def folder_info(self) -> dict:
-        catalog = json.loads(intake.CATALOG.read_text(encoding="utf-8"))
         state = decisions.to_dict(self.desk)
         state.pop("written")
+        state.pop("reads")
         return {
-            "folder": str(self.folder), "name": self.folder.name,
+            "folder": str(self.folder / self.only) if self.only else str(self.folder), "name": self.only or self.folder.name,
+            "only": self.only, "state_file": decisions.state_file(self.folder, self.only).name,
             "sources": [{"id": s.id, "kind": s.kind, "pages": s.pages} for s in self.sources], "broken": self.broken,
-            "state": state, "suggest": self.suggest,
-            "courses": [{"id": c["id"], "name": c["name"], "school": c["school"], "semesters": c["years"] * 2} for c in catalog["courses"]],
+            "state": state, "reader": {"model": reader.model_name(), "problem": reader.problem()},
+            "courses": [{"id": c["id"], "name": c["name"], "school": c["school"], "semesters": c["years"] * 2} for c in self.courses()],
             "kinds": [{"id": k, "name": export.KIND_NAMES[k]} for k in EXAM_KINDS],
             "skip_reasons": list(decisions.SKIP_REASONS), "held_reasons": list(decisions.HELD_REASONS),
         }
 
     def save_state(self, d: dict) -> None:
         with self.lock:
-            desk = decisions.from_dict({**d, "written": self.desk.written})  # the page never changes `written`
-            decisions.save(self.folder, desk)
+            # The page never changes `written` (what the desk wrote) or `reads` (what the model read).
+            desk = decisions.from_dict({**d, "written": self.desk.written, "reads": self.desk.reads})
+            decisions.save(self.folder, desk, self.only)
             self.desk = desk
 
     def manifest_info(self, course: str, sem: int) -> dict:
@@ -149,30 +176,74 @@ class App:
                 self.previews.popitem(last=False)
         return img
 
-    # ------------------------------------------------------------ model suggestion (optional)
+    # ------------------------------------------------------------ reading pages (model) and picture matches
 
-    def suggest_header(self, body: dict) -> dict:
-        """Read one part's printed header with the pipeline's header step. Cached in data/work/cache;
-        only a suggestion: the page shows it and the maintainer decides."""
-        from pipeline.extract import HEADER_PROMPT
-        from pipeline.manifest import match_exam, match_subject
-        from pipeline.providers import get_provider
-        from pipeline.validate import Header, ask
-
-        pg, part = self.desk.page(page_key(body["src"], int(body["page"]))), int(body.get("part", 0))
-        img = render_part(load_page(self.folder, body["src"], int(body["page"])), pg.boxes, pg.rotation, pg.split, pg.at, part, pg.parts[part].rotation)
+    def find_dupes(self, gen: int) -> None:
+        with self.lock:
+            folder, sources = self.folder, list(self.sources)
+            mine = {((intake.ROOT / rel).parent / f).resolve() for rel, w in self.desk.written.items() for f in w["files"]}
         try:
-            res, err, _ = ask(get_provider(), HEADER_PROMPT, [img], Header, "header")
-        except Exception as e:  # no .env, no key, no network: the desk works on without it
-            return {"error": f"{type(e).__name__}: {e}"}
-        if res is None:
-            return {"error": err or "no answer"}
-        out = {"header": res.model_dump(), "kind": match_exam(res.exam_title), "subject": None}
-        if body.get("course") and body.get("semester"):
-            info = self.manifest_info(body["course"], int(body["semester"]))
-            subs = info["subjects"] + self.desk.subjects.get(f"{body['course']}/{body['semester']}", [])
-            out["subject"] = match_subject({"subjects": subs}, res.subject_name) if subs else None
-        return out
+            found = dupes.find(folder, sources, mine)
+        except Exception as e:  # the desk works on without them
+            print(f"picture matches failed: {type(e).__name__}: {e}", flush=True)
+            found = {}
+        with self.lock:
+            if gen == self.gen:
+                self.dupes, self.dupes_ready = found, True
+
+    def start_reading(self, keys: list[str] | None) -> dict:
+        """Queue pages for the model: the given ones (read again), or every undecided page that has no
+        good reading yet and is not a copy of another page."""
+        if reader.problem():
+            raise ValueError(f"cannot read pages: {reader.problem()}")
+        prov = reader.provider()
+        with self.lock:
+            if keys is None:
+                keys = [k for k in self.keys() if all(p.status == "todo" for p in self.desk.page(k).parts)
+                        and (k not in self.desk.reads or self.desk.reads[k].get("error")) and k not in self.dupes]
+            else:
+                known = set(self.keys())
+                keys = [k for k in keys if k in known]
+            gen = self.gen
+            if self.reader is None:
+                self.reader = reader.Reader(lambda key: self.read_one(gen, key, prov), lambda key, r: self.store(gen, key, r))
+            r = self.reader
+        return {"queued": r.add(keys), "model": prov.model}
+
+    def read_one(self, gen: int, key: str, prov) -> dict:
+        with self.lock:
+            if gen != self.gen:
+                return {"error": "another folder was opened"}
+            folder, pg = self.folder, copy.deepcopy(self.desk.page(key))
+        src, n = key.rsplit("#", 1)
+        return reader.read_page(folder, src, int(n), pg, prov)
+
+    def store(self, gen: int, key: str, reading: dict) -> None:
+        with self.lock:
+            if gen != self.gen:
+                return
+            self.desk.reads[key] = reading
+            decisions.save(self.folder, self.desk, self.only)
+
+    def subjects_for(self, course: str, sem: int) -> list[dict]:
+        try:
+            subs = self.manifest_info(course, sem)["subjects"]
+        except ValueError:
+            subs = []
+        return subs + self.desk.subjects.get(f"{course}/{sem}", [])
+
+    def read_status(self) -> dict:
+        with self.lock:
+            status = self.reader.status() if self.reader else {"running": False, "total": 0, "done": 0, "failed": 0, "reading": [], "stopped": ""}
+            cache: dict = {}
+
+            def subjects_for(c: str, sem: int) -> list[dict]:
+                if (c, sem) not in cache:
+                    cache[(c, sem)] = self.subjects_for(c, sem)
+                return cache[(c, sem)]
+
+            sugs = suggest.suggestions(self.desk, self.keys(), self.courses(), subjects_for, self.dupes)
+            return {**status, "dupes_ready": self.dupes_ready, "suggestions": sugs}
 
 
 def make_handler(app: App, port: int):
@@ -243,7 +314,7 @@ def make_handler(app: App, port: int):
             if m == ("GET", "/api/browse"):
                 return self.json(browse(q.get("path", "")))
             if m == ("POST", "/api/open"):
-                app.open(Path(self.body()["folder"]).expanduser())
+                app.open(Path(self.body()["folder"].strip().strip('"')).expanduser())
                 return self.json(app.folder_info())
             if app.folder is None:
                 raise ValueError("open a folder first")
@@ -263,12 +334,20 @@ def make_handler(app: App, port: int):
             if m == ("PUT", "/api/state"):
                 app.save_state(self.body())
                 return self.json({"saved": time.strftime("%H:%M:%S")})
+            if m == ("GET", "/api/read"):
+                return self.json(app.read_status())
+            if m == ("POST", "/api/read"):
+                return self.json(app.start_reading(self.body().get("pages")))
+            if m == ("POST", "/api/read/stop"):
+                if app.reader:
+                    app.reader.stop("stopped")
+                return self.json(app.read_status())
             if m == ("POST", "/api/plan"):
                 with app.lock:
-                    return self.json(export.summary(export.make_plan(app.folder, app.desk, app.sources)))
+                    return self.json(export.summary(export.make_plan(app.folder, app.desk, app.sources, app.only)))
             if m == ("POST", "/api/write"):
                 with app.lock:
-                    plan, results = export.write(app.folder, app.desk, app.sources, log=lambda s: print(s, flush=True))
+                    plan, results = export.write(app.folder, app.desk, app.sources, log=lambda s: print(s, flush=True), only=app.only)
                 return self.json({"plan": export.summary(plan), "results": results})
             if m == ("POST", "/api/run"):
                 rel = self.body()["manifest"]
@@ -287,37 +366,36 @@ def make_handler(app: App, port: int):
                 done = r.code is not None
                 return self.json({"manifest": r.manifest, "lines": lines, "next": start + len(lines), "done": done, "code": r.code,
                                   "report": r.report() if done else None})
-            if m == ("POST", "/api/suggest") and app.suggest:
-                return self.json(app.suggest_header(self.body()))
             self.json({"error": f"no {self.command} {path}"}, 404)
 
     return Handler
 
 
 def browse(path: str) -> dict:
-    """Folders inside `path` (the drives, on Windows, when it is empty), with how many sources each holds."""
+    """Folders and source files inside `path` (the drives, on Windows, when it is empty)."""
     if not path:
         if os.name == "nt":
             drives = [f"{d}:\\" for d in string.ascii_uppercase if Path(f"{d}:\\").exists()]
-            return {"path": "", "parent": None, "dirs": [{"name": d, "path": d} for d in drives], "here": 0}
+            return {"path": "", "parent": None, "dirs": [{"name": d, "path": d} for d in drives], "files": [], "here": 0}
         path = "/"
     p = Path(path).expanduser()
     if not p.is_dir():
         raise ValueError(f"{path} is not a folder")
-    dirs = []
+    dirs, files = [], []
     try:
         for d in sorted(p.iterdir(), key=lambda d: d.name.lower()):
             if d.is_dir() and not d.name.startswith((".", "$")):
                 dirs.append({"name": d.name, "path": str(d)})
+            elif is_source(d):
+                files.append({"name": d.name, "path": str(d)})
     except PermissionError:
         pass
-    here = sum(1 for f in p.iterdir() if f.is_file() and (f.suffix.lower() == ".pdf" or f.suffix.lower() in intake.PHOTOS))
     parent = str(p.parent) if p.parent != p else ("" if os.name == "nt" else None)
-    return {"path": str(p), "parent": parent, "dirs": dirs, "here": here}
+    return {"path": str(p), "parent": parent, "dirs": dirs, "files": files, "here": len(files)}
 
 
-def serve(folder: Path | None, port: int, suggest: bool, open_browser: bool) -> None:
-    app = App(suggest)
+def serve(folder: Path | None, port: int, open_browser: bool) -> None:
+    app = App()
     if folder:
         try:
             app.open(folder)
@@ -334,9 +412,9 @@ def serve(folder: Path | None, port: int, suggest: bool, open_browser: bool) -> 
     url = f"http://127.0.0.1:{p}/"
     print(f"Intake desk: {url}  (Ctrl+C to stop)", flush=True)
     if folder:
-        print(f"  folder: {app.folder} ({sum(s.pages for s in app.sources)} pages in {len(app.sources)} files)")
-    if suggest:
-        print("  --suggest: the page can ask the model to read a header (cached in data/work/cache)")
+        print(f"  {'file' if app.only else 'folder'}: {app.folder / app.only if app.only else app.folder} ({sum(s.pages for s in app.sources)} pages in {len(app.sources)} files)")
+    can = reader.problem()
+    print(f"  Read pages: {reader.model_name() or '-'}" + (f" (cannot read yet: {can})" if can else " (only when you press the button; answers cached in data/work/cache)"))
     if open_browser:
         import webbrowser
         webbrowser.open(url)
