@@ -30,7 +30,14 @@ class RunReport:
 
     def write(self, root: Path) -> Path:
         run_dir = root / "runs" / self.started
-        run_dir.mkdir(parents=True, exist_ok=True)
+        n = 1
+        while True:  # two runs started in the same second (one per semester, in parallel) get their own folders
+            try:
+                run_dir.mkdir(parents=True)
+                break
+            except FileExistsError:
+                n += 1
+                run_dir = root / "runs" / f"{self.started}-{n}"
         p = get_provider()
         calls = CALLS.summary()
         for kind in ("pages", "disagreements", "dropped", "unsure", "retries", "papers"):
