@@ -12,8 +12,10 @@
   <span id="folder-name" class="muted"></span>
   <span id="progress" class="pill"></span>
   <span class="grow"></span>
+  <span id="read-progress" class="pill"></span>
   <span id="saved" class="muted small"></span>
-  <button id="btn-open" type="button">Open folder</button>
+  <button id="btn-open" type="button">Open</button>
+  <button id="btn-read" type="button" disabled title="Ask the model to read every undecided page and suggest its fields">Read pages</button>
   <button id="btn-write" type="button" class="primary" disabled>Write PDFs and manifests</button>
 </header>
 
@@ -24,11 +26,12 @@
 
 <dialog id="opener">
   <form method="dialog" class="sheet">
-    <h2>Open a folder of papers</h2>
-    <p class="muted small">PDFs and photos (.jpg, .png, .webp), in subfolders too. The desk saves its work to
-      <code>desk-decisions.json</code> in that folder, so opening it again picks up where you left off.</p>
+    <h2>Open a folder of papers, or one PDF</h2>
+    <p class="muted small">A folder: every PDF and photo (.jpg, .png, .webp) in it, in subfolders too, with the work saved to
+      <code>desk-decisions.json</code> in that folder. One file: the work is saved next to it as
+      <code>&lt;file&gt;.desk-decisions.json</code>. Opening it again picks up where you left off.</p>
     <div class="row">
-      <input id="open-path" type="text" placeholder="E:\uploads\M.Tech Int AIDS 5 year" spellcheck="false">
+      <input id="open-path" type="text" placeholder="E:\uploads\M.Tech Int AIDS 5 year  or  E:\Downloads\papers.pdf" spellcheck="false">
       <button id="open-go" type="button" class="primary">Open</button>
     </div>
     <p id="open-error" class="error small"></p>

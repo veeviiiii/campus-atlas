@@ -23,7 +23,9 @@ const S = {
   images: {}, // page key -> Image for the editor (a few, newest last)
   problems: {}, // piece id -> message, from the last plan
   newSubject: false,
-  suggestion: null,
+  sugs: {}, // page key -> what the model read and the picture matches suggest (GET /api/read); never a decision
+  read: null, // the reading job: running, done, total, failed, reading, stopped
+  readTimer: null,
   cards: {},
   saveTimer: null,
   dirty: false,
@@ -156,6 +158,7 @@ async function save() {
     const r = await api("PUT", "/api/state", S.state);
     $("#saved").textContent = `Saved ${r.saved}`;
     $("#saved").className = "muted small";
+    if (Object.keys(S.sugs).length && !S.readTimer) fetchRead(); // a decided page can change what the next page is suggested
   } catch (e) {
     S.dirty = true;
     $("#saved").textContent = `Not saved: ${e.message}`;
@@ -189,11 +192,26 @@ function chip(p) {
   return (p.raw.continues ? "↳ " : "") + (where || "use");
 }
 
+/** The suggestion for a part, while its page is undecided: { s, text } or null. */
+function suggested(p) {
+  const sug = S.sugs[p.key];
+  if (!sug || !undecided(p.key)) return null;
+  if (S.read && S.read.reading.includes(p.key)) return { s: null, text: "reading…" };
+  if (sug.parts.length !== pageOf(p.key).parts.length) return { s: sug.parts[p.part] || null, text: `${sug.parts.length} papers on this page` };
+  const s = sug.parts[p.part];
+  if (!s || (s.status === "todo" && sug.error)) return { s: null, text: "could not read it" };
+  if (s.status === "todo") return null;
+  return { s, text: s.continues ? "↳ continues the page before" : chip({ d: s, raw: { continues: false } }) };
+}
+const undecided = (key) => pageOf(key).parts.every((x) => x.status === "todo");
+
 function tileHTML(key, i) {
   const p = S.byId[`${key}:${i}`];
   const bad = S.problems[p.id];
-  const cls = ["tile", p.d.status, S.sel.includes(p.id) ? "sel" : "", bad ? "bad" : ""].join(" ");
-  return `<button type="button" class="${cls}" data-id="${esc(p.id)}" title="${esc(bad || label(p))}"><img loading="lazy" alt="" src="${thumbURL(key, i, 240)}"><span class="chip">${esc(bad ? "⚠ " + chip(p) : chip(p))}</span></button>`;
+  const sug = p.d.status === "todo" && !bad ? suggested(p) : null;
+  const cls = ["tile", p.d.status, S.sel.includes(p.id) ? "sel" : "", bad ? "bad" : "", sug ? "sug" : ""].join(" ");
+  const text = bad ? "⚠ " + chip(p) : sug ? "✦ " + sug.text : chip(p);
+  return `<button type="button" class="${cls}" data-id="${esc(p.id)}" title="${esc(bad || label(p))}"><img loading="lazy" alt="" src="${thumbURL(key, i, 240)}"><span class="chip">${esc(text)}</span></button>`;
 }
 
 function cardHTML(key) {
@@ -228,7 +246,8 @@ function refresh(editor = true) {
   }
   const count = (st) => S.pieces.filter((p) => p.d.status === st).length;
   const todo = count("todo");
-  $("#progress").textContent = `${S.pieces.length - todo} of ${S.pieces.length} decided · ${count("use")} to write · ${count("held")} held back · ${count("skip")} skipped`;
+  const waiting = waitingPages().length;
+  $("#progress").textContent = `${S.pieces.length - todo} of ${S.pieces.length} decided · ${count("use")} to write · ${count("held")} held back · ${count("skip")} skipped` + (waiting ? ` · ${waiting} page${waiting > 1 ? "s" : ""} suggested, waiting for you` : "");
   if (editor) typing() ? updateDerived() : renderEditor();
 }
 
@@ -244,7 +263,6 @@ function select(ids, anchor) {
   if (anchor !== undefined) S.anchor = anchor;
   S.box = null;
   S.newSubject = false;
-  S.suggestion = null;
   refresh();
   const first = S.sel[0] && document.querySelector(`.tile[data-id="${CSS.escape(S.sel[0])}"]`);
   if (first) first.scrollIntoView({ block: "nearest" });
@@ -286,12 +304,12 @@ function renderEditor() {
   const keys = [...new Set(ps.map((p) => p.key))];
   const one = keys.length === 1 ? keys[0] : null;
   const focus = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.f : null;
-  ed.innerHTML = `<div class="editor">${one ? pageToolsHTML(one, ps) : `<div class="title">${ps.length} parts selected</div>`}${fieldsHTML(ps)}${keysHelp()}</div>`;
+  ed.innerHTML = `<div class="editor">${one ? pageToolsHTML(one, ps) : `<div class="title">${ps.length} parts selected</div>`}${suggestionHTML(keys)}${fieldsHTML(ps)}${keysHelp()}</div>`;
   if (one) drawCanvas(one, true);
   if (focus) { const el = ed.querySelector(`[data-f="${focus}"]`); if (el && el.tagName !== "SELECT") { el.focus(); if (el.setSelectionRange && el.value) el.setSelectionRange(el.value.length, el.value.length); } }
 }
 
-const keysHelp = () => `<p class="muted small">Keys: <kbd>←</kbd> <kbd>→</kbd> previous / next · <kbd>U</kbd> use · <kbd>S</kbd> skip · <kbd>H</kbd> held back · <kbd>C</kbd> continues · <kbd>R</kbd> turn right · <kbd>Del</kbd> remove the selected black-out box</p>`;
+const keysHelp = () => `<p class="muted small">Keys: <kbd>←</kbd> <kbd>→</kbd> previous / next · <kbd>A</kbd> accept the suggestion and go on · <kbd>U</kbd> use · <kbd>S</kbd> skip · <kbd>H</kbd> held back · <kbd>C</kbd> continues · <kbd>R</kbd> turn right · <kbd>Del</kbd> remove the selected black-out box</p>`;
 
 function pageToolsHTML(key, ps) {
   const pg = pageOf(key), [src, n] = splitKey(key);
@@ -368,9 +386,7 @@ function fieldsHTML(ps) {
     <datalist id="sessions">${sessions.map((s) => `<option value="${esc(s)}">`).join("")}</datalist>
     <div class="row">
       <button type="button" class="small" data-act="same-as-previous" ${dis}>Same course, semester and exam as the page before</button>
-      ${S.info.suggest && ps.length === 1 ? `<button type="button" class="small" data-act="suggest">Read the header (model)</button>` : ""}
-    </div>
-    ${suggestionHTML()}`;
+    </div>`;
 }
 
 function statusHTML(ps) {
@@ -426,17 +442,143 @@ function newSubjectHTML() {
   </div>`;
 }
 
-function suggestionHTML() {
-  const s = S.suggestion;
-  if (!s) return "";
-  if (s.loading) return `<div class="suggest">Asking the model…</div>`;
-  if (s.error) return `<div class="suggest error">${esc(s.error)}</div>`;
-  const h = s.header;
-  return `<div class="suggest">The printed header says: ${["exam_title", "subject_name", "date", "semester", "course_code"].filter((k) => h[k]).map((k) => `<b>${esc(h[k])}</b>`).join(" · ") || "nothing readable"}.
-    ${s.kind ? `<button type="button" class="small" data-act="apply-kind" data-kind="${esc(s.kind)}">Exam: ${esc(kindName(s.kind))}</button>` : ""}
-    ${s.subject ? `<button type="button" class="small" data-act="apply-subject" data-subject="${esc(s.subject)}">Subject: ${esc(s.subject)}</button>` : ""}
-    <span class="muted">A suggestion only: check it against the picture.</span></div>`;
+// ------------------------------------------------------------------ suggestions (the model's reading, picture matches)
+
+const TURN_WORDS = { 90: "turn it right", 180: "turn it upside down", 270: "turn it left" };
+const SIDE_WORDS = { h: ["top", "bottom"], v: ["left", "right"] };
+const acceptable = (key) => !!S.sugs[key] && S.sugs[key].parts.some((s) => s.status !== "todo");
+/** Undecided pages with a suggestion that can be accepted. */
+const waitingPages = () => (S.info ? pageKeys().filter((k) => undecided(k) && acceptable(k)) : []);
+
+function sugLine(s) {
+  if (s.status === "skip") return `Skip: ${esc(s.reason)}`;
+  if (s.continues) return "Continues the paper before it";
+  if (s.status === "todo") return "Nothing to suggest";
+  const bits = [course(s.course) ? course(s.course).name : "", s.semester ? `Semester ${s.semester}` : "", s.subject ? subjectName(s.course, s.semester, s.subject) : "",
+    kindName(s.kind), s.session, s.date ? `date ${s.date}` : ""].filter(Boolean).map(esc).join(" · ");
+  return s.status === "held" ? `Held back: ${esc(s.reason)}${bits ? ` · ${bits}` : ""}` : `Use · ${bits}`;
 }
+
+function suggestionHTML(keys) {
+  const canRead = !S.info.reader.problem;
+  if (keys.length > 1) {
+    const ready = keys.filter((k) => undecided(k) && acceptable(k));
+    return ready.length ? `<div class="suggest"><div class="row"><span>✦ ${ready.length} of the selected pages have a suggestion.</span><span class="grow"></span>
+      <button type="button" class="small primary" data-act="accept">Accept ${ready.length}</button></div>
+      <p class="muted small">Look at each picture first: the model can misread.</p></div>` : "";
+  }
+  const key = keys[0], sug = S.sugs[key];
+  if (S.read && S.read.reading.includes(key)) return `<div class="suggest muted">✦ The model is reading this page…</div>`;
+  if (!sug) return canRead ? `<div class="row"><button type="button" class="small" data-act="read-again">✦ Read this page (model)</button></div>` : "";
+  const open = undecided(key), pg = pageOf(key);
+  const page = [];
+  if (sug.rotation !== pg.rotation) page.push(TURN_WORDS[(sug.rotation - pg.rotation + 360) % 360]);
+  if (sug.split && sug.split !== pg.split) page.push(`two papers, ${SIDE_WORDS[sug.split].join(" and ")}`);
+  const parts = sug.parts.map((s, i) => {
+    const side = sug.split ? `<b>${SIDE_WORDS[sug.split][i]}:</b> ` : "";
+    const printed = s.printed ? `<div class="small">Printed: <i>${esc(s.printed)}</i></div>` : "";
+    const notes = s.notes.length ? `<div class="small muted">${s.notes.map(esc).join(" · ")}</div>` : "";
+    const err = s.error && sug.parts.length > 1 ? `<div class="small error">${esc(s.error)}</div>` : "";
+    const add = open && s.new_subject && s.course && s.semester ? `<button type="button" class="small" data-act="add-suggested-subject" data-part="${i}">+ Add “${esc(s.new_subject)}” as a subject</button>` : "";
+    return `<li>${side}${sugLine(s)}${printed}${notes}${err}${add}</li>`;
+  }).join("");
+  const other = sug.duplicate && S.byId[`${sug.duplicate.of}:0`] ? `<button type="button" class="small" data-goto-page="${esc(sug.duplicate.of)}">Show the other copy</button>` : "";
+  const who = sug.model ? `the model (<code>${esc(sug.model)}</code>)` : "a picture match";
+  return `<div class="suggest ${open ? "" : "done"}">
+    <div class="row"><b>✦ Suggested by ${who}</b><span class="grow"></span>
+      ${open && acceptable(key) ? `<button type="button" class="small primary" data-act="accept">Accept (A)</button>` : ""}
+      ${canRead ? `<button type="button" class="small" data-act="read-again">Read again</button>` : ""}</div>
+    ${sug.error && !acceptable(key) ? `<p class="error small">Could not read it: ${esc(sug.error)}</p>` : ""}
+    ${page.length ? `<div class="small">Page: ${page.map(esc).join(" · ")}</div>` : ""}
+    <ul>${parts}</ul>${other}
+    <p class="muted small">${open ? "Only a suggestion: check it against the picture. Nothing counts until you accept it." : "You decided this page already; this is only for comparison."}</p>
+  </div>`;
+}
+
+/** Take the suggestions of these pages as decisions (only pages not decided yet). Returns how many. */
+function acceptPages(keys) {
+  let n = 0;
+  for (const key of keys) {
+    const sug = S.sugs[key];
+    if (!undecided(key) || !acceptable(key)) continue;
+    const pg = editPage(key);
+    pg.rotation = sug.rotation;
+    if (sug.split !== pg.split) { pg.split = sug.split; pg.at = 0.5; }
+    pg.parts = sug.parts.map((s, i) => ({ ...blankPart(), note: (pg.parts[i] || {}).note || "", status: s.status, reason: s.reason, continues: s.continues,
+      course: s.course, semester: s.semester, subject: s.subject, kind: s.kind, session: s.session, rotation: s.rotation }));
+    for (const s of sug.parts) {
+      if (s.date && s.course && s.semester && s.kind && validSession(s.session) && !S.state.exam_dates[examKey(s)] && !examInManifest(s.course, s.semester, s.session, s.kind)) {
+        S.state.exam_dates[examKey(s)] = s.date;
+      }
+    }
+    n++;
+  }
+  if (n) changed();
+  return n;
+}
+
+function acceptAndGoOn() {
+  const keys = [...new Set(selected().map((p) => p.key))];
+  if (!acceptPages(keys)) return;
+  const last = S.pieces.findIndex((p) => p.key === keys[keys.length - 1]);
+  const next = S.pieces.slice(last + 1).find((p) => undecided(p.key) && acceptable(p.key)) || S.pieces.slice(last + 1).find((p) => p.d.status === "todo");
+  if (next) select([next.id], next.id);
+}
+
+async function fetchRead() {
+  clearTimeout(S.readTimer);
+  S.readTimer = null;
+  let r;
+  try {
+    r = await api("GET", "/api/read");
+  } catch (e) {
+    $("#read-progress").textContent = `Suggestions: ${e.message}`;
+    return;
+  }
+  S.read = r;
+  S.sugs = r.suggestions;
+  for (const sug of Object.values(S.sugs)) for (const s of sug.parts) ensureManifest(s.course, s.semester);
+  showReadProgress();
+  refresh();
+  if (r.running || !r.dupes_ready) S.readTimer = setTimeout(fetchRead, 1500);
+}
+
+function showReadProgress() {
+  const r = S.read, el = $("#read-progress"), btn = $("#btn-read");
+  if (!r) return;
+  const failed = r.failed ? ` · ${r.failed} could not be read` : "";
+  if (r.running) el.textContent = `Reading ${r.done} of ${r.total} pages…${failed}`;
+  else if (r.stopped) el.textContent = r.stopped === "stopped" ? `Reading stopped after ${r.done} pages` : `Reading stopped: ${r.stopped}`;
+  else if (r.total) el.textContent = `Read ${r.done} pages${failed}`;
+  else el.textContent = r.dupes_ready ? "" : "Comparing pages…";
+  btn.textContent = r.running ? "Stop reading" : "Read pages";
+  btn.disabled = false;
+}
+
+async function startReading(pages) {
+  try {
+    const r = await api("POST", "/api/read", pages ? { pages } : {});
+    if (!pages && !r.queued) alert("Every undecided page has been read already (use “Read again” on a page to read it again).");
+  } catch (e) {
+    return alert(e.message);
+  }
+  fetchRead();
+}
+
+$("#btn-read").addEventListener("click", async () => {
+  if (S.read && S.read.running) {
+    S.read = await api("POST", "/api/read/stop");
+    S.sugs = S.read.suggestions;
+    return showReadProgress();
+  }
+  const r = S.info.reader;
+  if (r.problem) return alert(`The desk cannot read pages yet: ${r.problem}.\n\nEverything else works without it.`);
+  const n = pageKeys().filter((k) => undecided(k) && !(S.sugs[k] && !S.sugs[k].error)).length;
+  if (!n) return alert("Every undecided page has a suggestion already (use “Read again” on a page to read it again).");
+  await save();
+  if (!confirm(`Read the ${n} undecided page${n > 1 ? "s" : ""} with ${r.model}?\n\nAbout one model call per page (two for a page that comes in sideways). Answers are cached in data/work/cache, so pages read before cost nothing.\n\nThe pages are sent as they are now: names and roll numbers you have not blacked out yet are sent too.\n\nWhat the model reads is only a suggestion: you accept or change each page.`)) return;
+  startReading(null);
+});
 
 function validSession(s) {
   return /^\d{4}-\d{2}$/.test(s) && Number(s.slice(5)) === (Number(s.slice(0, 4)) + 1) % 100;
@@ -505,20 +647,26 @@ $("#editor").addEventListener("click", async (e) => {
   if (act === "cancel-subject") { S.newSubject = false; return renderEditor(); }
   if (act === "add-subject") return addSubject();
   if (act === "same-as-previous") return sameAsPrevious();
-  if (act === "apply-kind") return setField("kind", b.dataset.kind);
-  if (act === "apply-subject") return setField("subject", b.dataset.subject);
-  if (act === "suggest") {
-    const p = ps[0], [src, n] = splitKey(p.key);
+  if (act === "accept") return acceptAndGoOn();
+  if (act === "read-again") {
     await save();
-    S.suggestion = { loading: true };
-    renderEditor();
-    try {
-      S.suggestion = await api("POST", "/api/suggest", { src, page: n, part: p.part, course: p.d.course, semester: p.d.semester });
-    } catch (err) {
-      S.suggestion = { error: err.message };
-    }
-    renderEditor();
+    return startReading([...new Set(ps.map((p) => p.key))]);
   }
+  if (act === "add-suggested-subject") {
+    const name = S.sugs[key].parts[Number(b.dataset.part)].new_subject;
+    acceptPages([key]);
+    select([`${key}:${b.dataset.part}`], `${key}:${b.dataset.part}`);
+    S.newSubject = true;
+    renderEditor();
+    $("#ns-name").value = name;
+    $("#ns-id").value = slug(name);
+    return $("#ns-aliases").focus();
+  }
+});
+
+$("#editor").addEventListener("click", (e) => {
+  const go = e.target.closest("[data-goto-page]");
+  if (go) select([`${go.dataset.gotoPage}:0`], `${go.dataset.gotoPage}:0`);
 });
 
 function turnPage(key, deg) {
@@ -698,6 +846,7 @@ document.addEventListener("keydown", (e) => {
   if (k === "arrowright" || k === "arrowdown" || k === "j") { e.preventDefault(); return step(1); }
   if (k === "arrowleft" || k === "arrowup" || k === "k") { e.preventDefault(); return step(-1); }
   if (!ps.length) return;
+  if (k === "a") return acceptAndGoOn();
   if (k === "u" || k === "s" || k === "h") {
     for (const p of ps) if (!(p.raw.continues && p.follows)) editPage(p.key).parts[p.part].status = { u: "use", s: "skip", h: "held" }[k];
     return changed();
@@ -723,8 +872,9 @@ async function browse(path) {
   try {
     const r = await api("GET", `/api/browse?path=${encodeURIComponent(path)}`);
     const up = r.parent !== null && r.parent !== undefined ? `<button type="button" data-browse="${esc(r.parent)}">↑ ${esc(r.parent || "Drives")}</button>` : "";
-    const here = r.path && r.here ? `<button type="button" data-open="${esc(r.path)}" class="ok">Open ${esc(r.path)} (${r.here} PDF${r.here > 1 ? "s" : ""} / photos here)</button>` : "";
-    $("#open-browse").innerHTML = `${up}${here}${r.dirs.map((d) => `<button type="button" data-browse="${esc(d.path)}">📁 ${esc(d.name)}</button>`).join("")}`;
+    const here = r.path && r.here ? `<button type="button" data-open="${esc(r.path)}" class="ok">Open the whole folder ${esc(r.path)} (${r.here} PDF${r.here > 1 ? "s" : ""} / photos here)</button>` : "";
+    $("#open-browse").innerHTML = `${up}${here}${r.dirs.map((d) => `<button type="button" data-browse="${esc(d.path)}">📁 ${esc(d.name)}</button>`).join("")}`
+      + r.files.map((f) => `<button type="button" data-open="${esc(f.path)}">📄 ${esc(f.name)} <span class="muted small">(only this file)</span></button>`).join("");
     if (r.path) $("#open-path").value = r.path;
   } catch (e) {
     $("#open-error").textContent = e.message;
@@ -759,6 +909,9 @@ function load(info) {
   S.images = {};
   S.sel = [];
   S.box = null;
+  S.sugs = {};
+  S.read = null;
+  $("#read-progress").textContent = "";
   resolve();
   for (const p of S.pieces) ensureManifest(p.d.course, p.d.semester);
   document.title = `${info.name} · Intake desk`;
@@ -768,6 +921,7 @@ function load(info) {
   renderGrid();
   const first = S.pieces.find((p) => p.d.status === "todo") || S.pieces[0];
   select(first ? [first.id] : [], first ? first.id : null);
+  fetchRead();
 }
 
 // ------------------------------------------------------------------ writing and running

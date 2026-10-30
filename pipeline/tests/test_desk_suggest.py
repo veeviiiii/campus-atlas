@@ -39,8 +39,8 @@ def reading(*parts, split: str = "", rotation: int = 0, error: str = "") -> dict
 
 class Parsing(unittest.TestCase):
     def test_semesters(self):
-        cases = {"Semester-III": 3, "III Sem": 3, "5th Semester": 5, "Sem. V": 5, "VII": 7, "B.Tech. VII Sem": 7, "semester 10": 10,
-                 "Mid Semester Test": None, "": None, None: None}
+        cases = {"Semester-III": 3, "III Sem": 3, "5th Semester": 5, "Fifth Semester": 5, "Sem. V": 5, "VII": 7, "B.Tech. VII Sem": 7,
+                 "semester 10": 10, "Mid Semester Test": None, "Second Mid-Sem Exam": None, "": None, None: None}
         self.assertEqual({k: suggest.parse_semester(k) for k in cases}, cases)
 
     def test_dates_and_sessions(self):

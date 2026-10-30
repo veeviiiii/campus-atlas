@@ -69,6 +69,9 @@ h3 { font-size: 13px; margin: 18px 0 6px; color: var(--muted); text-transform: u
 .tile.held .chip { background: #ffc24a22; color: var(--warn); }
 .tile.todo .chip { color: var(--muted); }
 .tile.bad .chip { background: #ff786d22; color: var(--bad); }
+.tile.sug { border-style: dashed; border-color: #c4b5fd66; }
+.tile.sug.sel { border-color: var(--lav); }
+.tile.sug .chip { background: #7657ff22; color: var(--lav); font-style: italic; }
 
 .editor { padding: 14px 16px 40px; display: flex; flex-direction: column; gap: 10px; }
 .editor .title { font-weight: 600; }
@@ -85,7 +88,12 @@ h3 { font-size: 13px; margin: 18px 0 6px; color: var(--muted); text-transform: u
 .status { display: flex; gap: 6px; }
 .status button { flex: 1; }
 .newsub { border: 1px dashed var(--border); border-radius: 8px; padding: 8px; display: grid; gap: 6px; }
-.suggest { border: 1px solid var(--primary); border-radius: 8px; padding: 8px; font-size: 12px; }
+.suggest { border: 1px dashed var(--lav); border-radius: 8px; padding: 8px 10px; font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
+.suggest ul { margin: 2px 0; padding-left: 18px; }
+.suggest li { margin: 4px 0; }
+.suggest li button { margin-top: 4px; }
+.suggest p { margin: 0; }
+.suggest.done { border-color: var(--border); opacity: 0.75; }
 textarea { resize: vertical; min-height: 34px; }
 kbd { font-family: var(--mono); font-size: 11px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; }
 

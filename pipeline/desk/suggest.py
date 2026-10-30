@@ -13,6 +13,7 @@ from pipeline.desk.decisions import Desk, pieces
 from pipeline.manifest import match_exam, match_subject, session_of
 
 ROMAN = {"i": 1, "ii": 2, "iii": 3, "iv": 4, "v": 5, "vi": 6, "vii": 7, "viii": 8, "ix": 9, "x": 10}
+WORDS = {"first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5, "sixth": 6, "seventh": 7, "eighth": 8, "ninth": 9, "tenth": 10}
 MONTHS = {"jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6, "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12}
 # Short forms printed on papers -> the words in the course list (catalog/davv.json).
 COURSE_WORDS = {"ai": "artificial intelligence", "ds": "data science", "aids": "artificial intelligence data science",
@@ -25,6 +26,8 @@ SKIP_FOR = {"answer sheet": "answer sheet"}  # any other kind that is not a ques
 
 
 def _number(tok: str) -> int | None:
+    if tok in WORDS:
+        return WORDS[tok]
     tok = re.sub(r"(st|nd|rd|th)$", "", tok)
     if tok.isdigit():
         return int(tok) if 1 <= int(tok) <= 12 else None
@@ -32,7 +35,7 @@ def _number(tok: str) -> int | None:
 
 
 def parse_semester(text: str | None) -> int | None:
-    """'Semester-III', 'III Sem', '5th Semester', 'Sem. V', 'VII' -> the number."""
+    """'Semester-III', 'III Sem', '5th Semester', 'Fifth Semester', 'Sem. V', 'VII' -> the number."""
     if not text:
         return None
     toks = re.findall(r"[a-z0-9]+", text.lower())
