@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intake desk · Campus Atlas</title>
+<link rel="stylesheet" href="/desk.css">
+</head>
+<body>
+<header class="bar">
+  <strong class="brand">Intake desk</strong>
+  <span id="folder-name" class="muted"></span>
+  <span id="progress" class="pill"></span>
+  <span class="grow"></span>
+  <span id="saved" class="muted small"></span>
+  <button id="btn-open" type="button">Open folder</button>
+  <button id="btn-write" type="button" class="primary" disabled>Write PDFs and manifests</button>
+</header>
+
+<main id="desk">
+  <section id="grid" aria-label="Pages"></section>
+  <aside id="editor" aria-label="Selected page"><p class="muted pad">Open a folder of papers to start.</p></aside>
+</main>
+
+<dialog id="opener">
+  <form method="dialog" class="sheet">
+    <h2>Open a folder of papers</h2>
+    <p class="muted small">PDFs and photos (.jpg, .png, .webp), in subfolders too. The desk saves its work to
+      <code>desk-decisions.json</code> in that folder, so opening it again picks up where you left off.</p>
+    <div class="row">
+      <input id="open-path" type="text" placeholder="E:\uploads\M.Tech Int AIDS 5 year" spellcheck="false">
+      <button id="open-go" type="button" class="primary">Open</button>
+    </div>
+    <p id="open-error" class="error small"></p>
+    <div id="open-recent"></div>
+    <h3>Browse</h3>
+    <div id="open-browse" class="browse"></div>
+    <div class="row end"><button value="cancel">Close</button></div>
+  </form>
+</dialog>
+
+<dialog id="sheet">
+  <div class="sheet wide">
+    <div class="row"><h2 id="sheet-title">Write PDFs and manifests</h2><span class="grow"></span><button id="sheet-close" type="button">Close</button></div>
+    <div id="sheet-body"></div>
+  </div>
+</dialog>
+
+<script src="/desk.js"></script>
+</body>
+</html>

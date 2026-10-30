@@ -12,6 +12,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["--yes", "serve@14.2.6", "web/out", "-l", "8765"],
       "port": 8765
+    },
+    {
+      "name": "desk",
+      "runtimeExecutable": ".venv/Scripts/python",
+      "runtimeArgs": ["-m", "pipeline.desk", "--no-browser"],
+      "port": 8790
     }
   ]
 }

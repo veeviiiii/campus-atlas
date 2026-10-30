@@ -1,0 +1,63 @@
+"""The sources in a folder: PDFs (every page) and photos (one page each), in subfolders too.
+
+A source page is named by the file's path inside the folder and its page number: "Sem-5 Test Papers.pdf#3".
+"""
+
+from dataclasses import dataclass
+from pathlib import Path
+
+import pymupdf
+from PIL import Image, ImageOps
+
+from pipeline.intake import PHOTOS
+from pipeline.render import DEFAULT_DPI
+
+PREVIEW_SIDE = 1400  # px, longest side of the picture the desk page edits on
+
+
+@dataclass
+class Source:
+    id: str  # path inside the folder, with forward slashes
+    kind: str  # "pdf" or "photo"
+    pages: int
+
+
+def list_sources(folder: Path) -> tuple[list[Source], list[str]]:
+    """The sources, and the PDFs that would not open (a broken download; the desk page names them)."""
+    out, broken = [], []
+    for p in sorted(folder.rglob("*"), key=lambda p: p.relative_to(folder).as_posix().lower()):
+        suffix = p.suffix.lower()
+        if not p.is_file() or (suffix != ".pdf" and suffix not in PHOTOS) or p.name.startswith("."):
+            continue
+        rel = p.relative_to(folder).as_posix()
+        if suffix == ".pdf":
+            try:
+                with pymupdf.open(p) as doc:
+                    out.append(Source(rel, "pdf", doc.page_count))
+            except Exception:
+                broken.append(rel)
+        else:
+            out.append(Source(rel, "photo", 1))
+    return out, broken
+
+
+def page_key(src: str, page: int) -> str:
+    return f"{src}#{page}"
+
+
+def load_page(folder: Path, src: str, page: int, max_side: int | None = None) -> Image.Image:
+    """One source page as an RGB image: a PDF page at 200 dpi (as the pipeline renders), a photo turned
+    upright by its EXIF tag (as intake photos does). max_side: a smaller picture for the desk page."""
+    path = folder / src
+    if path.suffix.lower() == ".pdf":
+        with pymupdf.open(path) as doc:
+            pg = doc[page - 1]
+            dpi = DEFAULT_DPI
+            if max_side:
+                dpi = min(DEFAULT_DPI, max(20, int(72 * max_side / max(pg.rect.width, pg.rect.height))))
+            pix = pg.get_pixmap(dpi=dpi, alpha=False)
+            return Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+    img = ImageOps.exif_transpose(Image.open(path)).convert("RGB")
+    if max_side:
+        img.thumbnail((max_side, max_side))
+    return img
