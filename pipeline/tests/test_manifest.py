@@ -126,6 +126,8 @@ class Matching(unittest.TestCase):
         self.assertEqual(match_exam("Internal Exam -III"), "mst3")
         self.assertEqual(match_exam("Second Mid-Term Exam"), "mst2")
         self.assertEqual(match_exam("First Class Test"), "mst1")
+        self.assertEqual(match_exam("2nd Term exam"), "mst2")
+        self.assertEqual(match_exam("3rd Semester Class Test 1"), "mst1")
         self.assertEqual(match_exam("End Semester Examination"), "end")
         self.assertIsNone(match_exam("Quiz"))
 
