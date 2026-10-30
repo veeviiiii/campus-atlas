@@ -1,0 +1,175 @@
+{
+  "schema_version": "1.1",
+  "college": {
+    "id": "davv-sdsf",
+    "name": "School of Data Science & Forecasting, DAVV",
+    "city": "Indore",
+    "lat": 22.6880762,
+    "lng": 75.8749798
+  },
+  "course": {
+    "id": "mtech-aids-dual",
+    "name": "M.Tech (Dual Degree) AI & DS",
+    "semester": 2
+  },
+  "sources": {
+    "exams": [
+      {
+        "id": "mst1",
+        "name": "MST-1",
+        "date": "2023",
+        "session": "2022-23"
+      }
+    ],
+    "syllabus": null,
+    "units_from": "questions (no syllabus was available; units and topics are derived bottom-up)"
+  },
+  "subjects": [
+    {
+      "id": "physics-2",
+      "name": "Physics-II",
+      "aliases": [
+        "Physics II"
+      ],
+      "codes_seen": [],
+      "units": [
+        {
+          "id": "physics-2-u1",
+          "name": "Wave Mechanics",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "physics-2-u1-t1",
+              "name": "Wave Packets and Velocities",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "physics-2-mst1-q3",
+                  "exam": "mst1",
+                  "text": "What is meant by a wave packet. Differentiate between the phase velocity and group velocity. Establish the relation between them.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem2_2022-23_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "physics-2-u2",
+          "name": "Quantum Mechanics",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "physics-2-u2-t1",
+              "name": "Schrodinger Equation",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "physics-2-mst1-q4",
+                  "exam": "mst1",
+                  "text": "Write down the Schrodinger's equation for a free particle and solve it. Show that the energy values of free particle are continuous.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem2_2022-23_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "physics-2-u3",
+          "name": "Wave-Particle Duality",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "physics-2-u3-t1",
+              "name": "Photoelectric Effect",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "physics-2-mst1-q2",
+                  "exam": "mst1",
+                  "text": "When a light of wavelength $6000 \\text{ A}^0$ falls on a metal surface photo electrons are emitted from it with a velocity of $2 \\times 10^5 \\text{ m/sec}$. Calculate the work function of the metal in ev.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem2_2022-23_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "physics-2-u3-t2",
+              "name": "Scattering Phenomena",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "physics-2-mst1-q1",
+                  "exam": "mst1",
+                  "text": "Define Thomson's scattering, Raman scattering and Compton's scattering.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem2_2022-23_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        }
+      ],
+      "off_syllabus": []
+    }
+  ],
+  "unsure": [],
+  "stats": {
+    "papers": 1,
+    "questions": 4,
+    "repeats": 0,
+    "same_topic_links": 0,
+    "dropped_bleed_through": 0
+  },
+  "harness": {
+    "model": "gemma-4-31b-it",
+    "fallback_model": "gemma-4-26b-a4b-it",
+    "embedding_model": "all-MiniLM-L6-v2",
+    "dropped_bleed_through": [],
+    "manifest_disagreements": [],
+    "repeat_judgements": []
+  }
+}

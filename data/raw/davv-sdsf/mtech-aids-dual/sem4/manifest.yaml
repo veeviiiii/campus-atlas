@@ -1,0 +1,117 @@
+# Human ground truth for the Semester 4 papers. The pipeline reads every page header too, but this
+# file wins and the run report lists every disagreement.
+#
+# Sources: "sem 4 question paper 2023-28.pdf" (2024-25, batch 2023-28) and a senior's
+# "Sem-4_papers.pdf" (batch 2022-27, plus one batch 2021-26 End Sem). Dates are only the year where no
+# paper prints the month. Subjects are matched by name, never by course code (OAT is DS6A-102 in 2024
+# and DSA 6A-224 in 2025).
+#
+# Waiting for the maintainer (not listed here): from Sem-4_papers.pdf, five End Sems with no year
+# (Discrete Structures, Operating Systems, Sampling Theory, DBMS, Automata Theory; only Sections B
+# and C photographed), the undated Automata Test-1/Test-2 and OAT First/Second Tests (that file mixes
+# two batches), a DBMS Test 1 printed by the School of Computer Science & IT, and a handwritten copy of
+# a Discrete Structures mid-sem.
+
+schema_version: "1.0"
+
+college:
+  id: davv-sdsf
+  name: School of Data Science & Forecasting, DAVV
+  city: Indore
+  # Takshashila Campus, DAVV (campus-level point, OpenStreetMap / Nominatim)
+  lat: 22.6880762
+  lng: 75.8749798
+
+course:
+  id: mtech-aids-dual
+  name: M.Tech (Dual Degree) AI & DS
+  semester: 4
+
+exams:
+  # 2024-25: "FOURTH SEMESTER (2023-28)"; no paper prints a date, only the batch.
+  - {id: mst1, name: MST-1, date: "2025", session: "2024-25"}
+  - {id: mst2, name: MST-2, date: "2025", session: "2024-25"}
+  - {id: end, name: End Sem, date: "2025", session: "2024-25"}
+  # 2023-24 (batch 2022-27): First Tests dated 06-03-2024; Second Tests 12-03-2024 (Python) and 08-04-2024.
+  - {id: mst1-2023-24, name: MST-1, date: "2024-03", session: "2023-24"}
+  - {id: mst2-2023-24, name: MST-2, date: "2024", session: "2023-24"}
+  # 2022-23: the Python End Sem prints "Batch: 2021-26", whose Semester 4 was in 2023.
+  - {id: end-2022-23, name: End Sem, date: "2023", session: "2022-23"}
+
+subjects:
+  - id: discrete-structures
+    name: Discrete Structures
+    aliases: [Discrete Structure]
+  - id: operating-systems
+    name: Operating Systems
+    aliases: []
+  - id: optimization-algorithms
+    name: Optimization Algorithms and Techniques
+    aliases: [OAT]
+  - id: automata-theory
+    name: Automata Theory
+    aliases: []
+  - id: dbms
+    name: Database Management Systems
+    aliases: [DBMS, Database Management System]
+  - id: sampling-theory
+    name: Sampling Theory and Applications
+    aliases: [Sampling Theory and Application]
+  - id: python-programming
+    name: Python Programming
+    aliases: [Python]
+
+files:
+  # ---- 2024-25 (batch 2023-28) ----
+  - file: mtech-aids-dual-sem4_2024-25_mst1.pdf
+    exam: mst1
+    pages:
+      - {page: 1, subject: discrete-structures}      # "Discrete Structures - First Class Test"
+      - {page: 2, subject: operating-systems}        # "Operating Systems - First Class Test"
+      - {page: 3, subject: optimization-algorithms}  # "First Test"; pen notes on the page
+      - {page: 4, subject: automata-theory}          # "Automata Theory - First Class Test"
+      - {page: 5, subject: dbms}                     # "DBMS - Class Test-First"
+
+  - file: mtech-aids-dual-sem4_2024-25_mst2.pdf
+    exam: mst2
+    pages:
+      - {page: 1, subject: discrete-structures}      # "Second Class Test"
+      - {page: 2, subject: operating-systems}        # "Second Class Test"
+      - {page: 3, subject: automata-theory}          # "Second Class Test"
+      - {page: 4, subject: sampling-theory}          # "MST- 2"
+      - {page: 5, subject: dbms}                     # "Class Test-Second"
+      - {page: 6, subject: optimization-algorithms}  # "Second Internal Test (MST - 2)"
+
+  - file: mtech-aids-dual-sem4_2024-25_end.pdf
+    exam: end
+    pages:
+      - {page: 1, subject: operating-systems}        # 3 hours, 60 marks; a handwritten roll number was blacked out
+      - {page: 2, subject: automata-theory}
+      - {page: 3, subject: optimization-algorithms}  # "End Semester Exam"
+      - {page: 4, subject: optimization-algorithms, continues_previous: true}
+      - {page: 5, subject: sampling-theory}
+      - {page: 6, subject: sampling-theory, continues_previous: true}
+      - {page: 7, subject: dbms}
+      - {page: 8, subject: dbms, continues_previous: true}
+      - {page: 9, subject: discrete-structures}
+      - {page: 10, subject: discrete-structures, continues_previous: true}
+
+  # ---- 2023-24 (batch 2022-27) ----
+  - file: mtech-aids-dual-sem4_2023-24_mst1.pdf
+    exam: mst1-2023-24
+    pages:
+      - {page: 1, subject: sampling-theory}          # "Fourth Semester (2022-27), Date: 06/03/2024, First Test" (top half of a photo)
+      - {page: 2, subject: discrete-structures}      # "First Internal Examination", 06-03-2024; worked answers in pen
+
+  - file: mtech-aids-dual-sem4_2023-24_mst2.pdf
+    exam: mst2-2023-24
+    pages:
+      - {page: 1, subject: sampling-theory}          # "(2022-27), Date: 08/04/2024, Second Test" (bottom half of a photo)
+      - {page: 2, subject: python-programming}       # "Fourth Semester (2022-27), Second Test", 12-03-2024, 50 marks
+      - {page: 3, subject: python-programming, continues_previous: true}  # answers filled in by hand
+
+  # ---- 2022-23 (batch 2021-26) ----
+  - file: mtech-aids-dual-sem4_2022-23_end.pdf
+    exam: end-2022-23
+    pages:
+      - {page: 1, subject: python-programming}       # "Batch: 2021-26, FOURTH SEMESTER, Semester End Examination"; Section A not photographed

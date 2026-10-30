@@ -1,0 +1,66 @@
+# Human ground truth for the Semester 7 papers. The pipeline reads every page header too, but this
+# file wins and the run report lists every disagreement.
+#
+# Source: a senior's "Sem-7 MST papers.pdf" (2025-26, batch 2022-27; no End Sems yet). Pages that held
+# two papers were split in two.
+#
+# Waiting for the maintainer (not listed here): Text and Image Analytics "Class Test 1 November 2025"
+# (its Class Test 2 is dated October 2025), and three tests that print no subject (a "M Tech VII Sem"
+# virtualization test, a time-series MCQ test, and a Semester 3 cloud computing test of batch 2024-29).
+
+schema_version: "1.0"
+
+college:
+  id: davv-sdsf
+  name: School of Data Science & Forecasting, DAVV
+  city: Indore
+  # Takshashila Campus, DAVV (campus-level point, OpenStreetMap / Nominatim)
+  lat: 22.6880762
+  lng: 75.8749798
+
+course:
+  id: mtech-aids-dual
+  name: M.Tech (Dual Degree) AI & DS
+  semester: 7
+
+exams:
+  # Only Text and Image Analytics prints a month ("Class Test 2 October 2025").
+  - {id: mst1, name: MST-1, date: "2025", session: "2025-26"}
+  - {id: mst2, name: MST-2, date: "2025-10", session: "2025-26"}
+  - {id: mst3, name: MST-3, date: "2025", session: "2025-26"}
+
+subjects:
+  - id: text-image-analytics
+    name: Text and Image Analytics
+    aliases: []
+  - id: big-data-computing
+    name: Big Data Computing
+    aliases: []
+  - id: data-visualization
+    name: Data Visualization
+    aliases: []
+  - id: machine-learning
+    name: Machine Learning
+    aliases: []
+
+files:
+  - file: mtech-aids-dual-sem7_2025-26_mst1.pdf
+    exam: mst1
+    pages:
+      - {page: 1, subject: big-data-computing}    # "1st Term exam" (top half of a photo)
+      - {page: 2, subject: data-visualization}    # "MST-1, Class-7th SEM" (top half of a photo)
+      - {page: 3, subject: machine-learning}      # "Mtech 7th SEM Test - 1"
+
+  - file: mtech-aids-dual-sem7_2025-26_mst2.pdf
+    exam: mst2
+    pages:
+      - {page: 1, subject: text-image-analytics}  # "7th Sem, Class Test 2 October 2025" (top half of a photo)
+      - {page: 2, subject: big-data-computing}    # "2nd Term exam", DS6A-405 (bottom half of a photo)
+      - {page: 3, subject: data-visualization}    # "MST-2"; header misprints "Class-VIII th SEM" (bottom half of a photo)
+      - {page: 4, subject: machine-learning}      # "Mid Sem Test - 2"
+
+  - file: mtech-aids-dual-sem7_2025-26_mst3.pdf
+    exam: mst3
+    pages:
+      - {page: 1, subject: data-visualization}    # "MST-3, Class-7th SEM"
+      - {page: 2, subject: data-visualization, continues_previous: true}

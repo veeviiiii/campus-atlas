@@ -1,0 +1,4532 @@
+{
+  "schema_version": "1.1",
+  "college": {
+    "id": "davv-sdsf",
+    "name": "School of Data Science & Forecasting, DAVV",
+    "city": "Indore",
+    "lat": 22.6880762,
+    "lng": 75.8749798
+  },
+  "course": {
+    "id": "mtech-aids-dual",
+    "name": "M.Tech (Dual Degree) AI & DS",
+    "semester": 4
+  },
+  "sources": {
+    "exams": [
+      {
+        "id": "mst1",
+        "name": "MST-1",
+        "date": "2025",
+        "session": "2024-25"
+      },
+      {
+        "id": "mst2",
+        "name": "MST-2",
+        "date": "2025",
+        "session": "2024-25"
+      },
+      {
+        "id": "end",
+        "name": "End Sem",
+        "date": "2025",
+        "session": "2024-25"
+      },
+      {
+        "id": "mst1-2023-24",
+        "name": "MST-1",
+        "date": "2024-03",
+        "session": "2023-24"
+      },
+      {
+        "id": "mst2-2023-24",
+        "name": "MST-2",
+        "date": "2024",
+        "session": "2023-24"
+      },
+      {
+        "id": "end-2022-23",
+        "name": "End Sem",
+        "date": "2023",
+        "session": "2022-23"
+      }
+    ],
+    "syllabus": null,
+    "units_from": "questions (no syllabus was available; units and topics are derived bottom-up)"
+  },
+  "subjects": [
+    {
+      "id": "discrete-structures",
+      "name": "Discrete Structures",
+      "aliases": [
+        "Discrete Structure"
+      ],
+      "codes_seen": [
+        "DS6A-202"
+      ],
+      "units": [
+        {
+          "id": "discrete-structures-u1",
+          "name": "Mathematical Logic",
+          "from_syllabus": false,
+          "blind_spot": true,
+          "topics": [
+            {
+              "id": "discrete-structures-u1-t2",
+              "name": "Logical Equivalences",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 13,
+              "questions": [
+                {
+                  "id": "discrete-structures-end-q13",
+                  "exam": "end",
+                  "text": "Define the following terms:",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "i. Contradiction",
+                    "ii. Contingency",
+                    "iii. Biconditional",
+                    "iv. Satisfiability",
+                    "v. Tautology"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p10",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "discrete-structures-end-q4",
+                  "exam": "end",
+                  "text": "Prove using logical equivalences (not truth tables) that the formula is a tautology or not.",
+                  "marks": 8.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "$(P \\land (P \\rightarrow Q)) \\rightarrow Q$",
+                    "$\\{\\neg P \\land (\\neg Q \\land R)\\} \\lor (Q \\land R) \\lor (P \\land R)$"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p9",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "discrete-structures-u1-t1",
+              "name": "Propositional Logic",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 7,
+              "questions": [
+                {
+                  "id": "discrete-structures-end-q5",
+                  "exam": "end",
+                  "text": "Translate the following sentences into propositional logic:",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "The computer works if and only if it is plugged in and turned on.",
+                    "If I study hard, then I will pass the exam",
+                    "It is not true that both the sun is shining and it is raining.",
+                    "If it is cold, then either it will snow or we will stay home.",
+                    "It is not true that both Arjun and Meera are coming to the party."
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p9",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "discrete-structures-end-q6",
+                  "exam": "end",
+                  "text": "Define the following terms:",
+                  "marks": 2.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "Atomic proposition and compound proposition",
+                    "Conjunction and disjunction"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p9",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "discrete-structures-u2",
+          "name": "Set Theory",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "discrete-structures-u2-t1",
+              "name": "Set Operations",
+              "exams_count": 3,
+              "is_repeat": true,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "discrete-structures-mst1-2023-24-q1",
+                  "exam": "mst1-2023-24",
+                  "text": "Define subset and prove that $A \\times (B \\cap C) = (A \\times B) \\cap (A \\times C)$",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "discrete-structures-mst1-q1",
+                  "exam": "mst1",
+                  "text": "Let $A=\\{2,4,6,8\\} B=\\{4,8,12\\}$ and $C=\\{2,6,12\\}$ Verify whether $A \\cup (B \\cap C) = (A \\cup B) \\cap (A \\cup C)$",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "discrete-structures-end-q12",
+                  "exam": "end",
+                  "text": "Define a Venn diagram. In a group of 100 students 60 students study Mathematics, 45 students study Physics, and 25 students study both Mathematics and Physics. Using a Venn diagram, determine the number of students who study:",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "i. Only Mathematics",
+                    "ii. Only Physics",
+                    "iii. Neither Mathematics nor Physics"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p10",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "discrete-structures-u2-t2",
+              "name": "Multisets",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 15,
+              "questions": [
+                {
+                  "id": "discrete-structures-mst1-q5",
+                  "exam": "mst1",
+                  "text": "Define a multiset and explain how it differs from a regular set. Consider two multisets $A=\\{2,2,3,3,3,4\\}$ and $B=\\{2,3,3,5,5\\}$. Explain and apply below operations on $A$ and $B$.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "$A \\cap B$",
+                    "$A \\cup B$",
+                    "$A - B$",
+                    "$A + B$"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "discrete-structures-end-q9",
+                  "exam": "end",
+                  "text": "Define a multiset. How does it differ from a regular set? Given two multisets: $A = \\{1, 1, 2, 3\\}$ $B = \\{1, 2, 2, 4\\}$ Perform the following operations:",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "i. $A \\cup B$ (multiset union)",
+                    "ii. $A \\cap B$ (multiset intersection)",
+                    "iii. $A - B$ (multiset difference)"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p10",
+                  "repeat_of": [
+                    {
+                      "id": "discrete-structures-mst1-q5",
+                      "type": "near",
+                      "similarity": 0.92
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "discrete-structures-u3",
+          "name": "Relations and Functions",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "discrete-structures-u3-t1",
+              "name": "Relation Properties",
+              "exams_count": 3,
+              "is_repeat": true,
+              "total_marks": 15,
+              "questions": [
+                {
+                  "id": "discrete-structures-mst1-2023-24-q4",
+                  "exam": "mst1-2023-24",
+                  "text": "Give an Example of a binary relation which is reflexive but not transitive.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "discrete-structures-mst1-q2",
+                  "exam": "mst1",
+                  "text": "Define the following with example: Relation, inverse of a relation, diagonal relation, reflexive relation, irreflexive relation",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "Relation",
+                    "inverse of a relation",
+                    "diagonal relation",
+                    "reflexive relation",
+                    "irreflexive relation"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p1",
+                  "repeat_of": [
+                    {
+                      "id": "discrete-structures-mst1-2023-24-q4",
+                      "type": "same-topic",
+                      "similarity": 0.614
+                    }
+                  ],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "discrete-structures-mst1-q3",
+                  "exam": "mst1",
+                  "text": "Define the following with example: symmetric relation, antisymmetric relation, asymmetric relation, transitive relation.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "symmetric relation",
+                    "antisymmetric relation",
+                    "asymmetric relation",
+                    "transitive relation"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p1",
+                  "repeat_of": [
+                    {
+                      "id": "discrete-structures-mst1-2023-24-q4",
+                      "type": "same-topic",
+                      "similarity": 0.616
+                    }
+                  ],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "discrete-structures-end-q10",
+                  "exam": "end",
+                  "text": "Define the following terms:",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "i. Subset and proper subset",
+                    "ii. Complement of a relation",
+                    "iii. Irreflexive relation",
+                    "iv. Equal set and power set",
+                    "v. Equivalence relation"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p10",
+                  "repeat_of": [
+                    {
+                      "id": "discrete-structures-mst1-q2",
+                      "type": "same-topic",
+                      "similarity": 0.705
+                    },
+                    {
+                      "id": "discrete-structures-mst1-2023-24-q4",
+                      "type": "same-topic",
+                      "similarity": 0.568
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "discrete-structures-u3-t2",
+              "name": "Equivalence Relations",
+              "exams_count": 2,
+              "is_repeat": false,
+              "total_marks": 15,
+              "questions": [
+                {
+                  "id": "discrete-structures-mst1-2023-24-q2",
+                  "exam": "mst1-2023-24",
+                  "text": "Let $I$ be The set of all integers and $R$ be a binary relation defined on $I$ by $aRb$ if and only if $5$ divides $a - b$. Then prove that $R$ is an Equivalence relation on $I$.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "discrete-structures-mst1-2023-24-q3",
+                  "exam": "mst1-2023-24",
+                  "text": "Define Equivalence class and prove that Equivalence classes are either disjoint or identical.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "discrete-structures-mst1-2023-24-q5",
+                  "exam": "mst1-2023-24",
+                  "text": "Let $N$ be The set of all Natural Numbers and $R$ be a binary relation defined on $N$ by $aRb$ if and only if $a$ divides $b$. Then check whether $R$ is an Equivalence relation on $N$ or not .",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "discrete-structures-mst1-q4",
+                  "exam": "mst1",
+                  "text": "Let $S$ be the set of all students in a college. Define a relation $R$ such that two students are related if they are in the same department. Is $R$ an equivalence relation? Why?",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "discrete-structures-u3-t3",
+              "name": "Functions",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "discrete-structures-mst2-q3",
+                  "exam": "mst2",
+                  "text": "Explain the concepts of function, one-to-one function, and onto function. If $A = \\{1, 2, 3\\}$ determine the number of relations on $A$ that are not functions.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "discrete-structures-u4",
+          "name": "Posets and Lattices",
+          "from_syllabus": false,
+          "blind_spot": true,
+          "topics": [
+            {
+              "id": "discrete-structures-u4-t2",
+              "name": "Hasse Diagrams",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 9,
+              "questions": [
+                {
+                  "id": "discrete-structures-end-q8",
+                  "exam": "end",
+                  "text": "Let $C = \\{1, 2, 3, 6, 7, 14, 21\\}$ with the relation $a \\le b$ defined as 'a divides b'",
+                  "marks": 9.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "i. Draw the Hasse diagram for the poset $(C, |)$:",
+                    "ii. Determine whether this poset forms a lattice/a join semilattice/a meet semilattice. Justify your answer.",
+                    "iii. For the following pairs, determine GLB and LUB (if they exist): $\\bullet (2, 7) \\bullet (3, 6) \\bullet (7, 14)$"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p10",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "discrete-structures-u4-t1",
+              "name": "Partial Orders",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 6,
+              "questions": [
+                {
+                  "id": "discrete-structures-end-q7",
+                  "exam": "end",
+                  "text": "Define a partially ordered set (POSET). Consider the set $A = \\{1, 2, 3, 6\\}$ with the relation \"divides\" ($|$). Show that $(A, |)$ is a POSET.",
+                  "marks": 6.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p10",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "discrete-structures-u5",
+          "name": "Graph Theory",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "discrete-structures-u5-t2",
+              "name": "Graph Isomorphism",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 15,
+              "questions": [
+                {
+                  "id": "discrete-structures-mst2-q4",
+                  "exam": "mst2",
+                  "text": "Explain Isomorphic Graph. Given the following graphs G1 and G2:\n• Graph G1: Vertices A, B, C, D with edges (A, B), (B, C), (C, D), (D, A), (A, C).\n• Graph G2: Vertices W, X, Y, Z with edges (W, X), (X, Y), (Y, Z), (Z, W), (W, Y).\nCheck whether these two graphs are isomorphic. If yes, provide the isomorphism function. If not, justify why they are not isomorphic.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "discrete-structures-end-q1",
+                  "exam": "end",
+                  "text": "What is graph isomorphism? List the steps to determine if two graphs are isomorphic. Give a small example to illustrate.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p9",
+                  "repeat_of": [
+                    {
+                      "id": "discrete-structures-mst2-q4",
+                      "type": "same-topic",
+                      "similarity": 0.783
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "discrete-structures-u5-t1",
+              "name": "Graph Types",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "discrete-structures-mst2-q2",
+                  "exam": "mst2",
+                  "text": "Explain the following types of graphs:",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "Complete Graph",
+                    "Complete Bipartite Graph",
+                    "Cyclic Graph"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "discrete-structures-end-q3",
+                  "exam": "end",
+                  "text": "Classify the following graphs and explain the reasoning for each:",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "Multigraph",
+                    "Cyclic graph",
+                    "Acyclic graph",
+                    "Star graph",
+                    "Bipartite graph"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p9",
+                  "repeat_of": [
+                    {
+                      "id": "discrete-structures-mst2-q2",
+                      "type": "near",
+                      "similarity": 0.876
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "discrete-structures-u5-t3",
+              "name": "Planar Graphs",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "discrete-structures-mst2-q1",
+                  "exam": "mst2",
+                  "text": "A simple connected Planar graph $G$ has 20 vertices, 30 edges and degree of each region is $k$, find the value of $k$.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "discrete-structures-end-q2",
+                  "exam": "end",
+                  "text": "State Euler's formula for planar graphs. Verify the formula for a graph with 6 vertices, 9 edges, and 5 regions. Is the graph planar? Justify your answer.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p9",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "discrete-structures-u5-t4",
+              "name": "Trees and Forests",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "discrete-structures-end-q11",
+                  "exam": "end",
+                  "text": "Differentiate between a tree, a forest, and a spanning tree with appropriate examples. A graph $G$ has 6 vertices and 9 edges. Can $G$ be a tree? Justify your answer.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p10",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        }
+      ],
+      "off_syllabus": []
+    },
+    {
+      "id": "operating-systems",
+      "name": "Operating Systems",
+      "aliases": [],
+      "codes_seen": [
+        "DS6A-206"
+      ],
+      "units": [
+        {
+          "id": "operating-systems-u1",
+          "name": "Introduction to Operating Systems",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "operating-systems-u1-t1",
+              "name": "OS Basics",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 15,
+              "questions": [
+                {
+                  "id": "operating-systems-mst1-q2",
+                  "exam": "mst1",
+                  "text": "Imagine a new startup develops a revolutionary supercomputer that has immense processing power but does not use an operating system. Instead, every user must manually control the hardware, load programs, and manage memory allocation themselves. One day, a researcher runs an advanced AI model while another team member tries to access stored data, and a third team attempts to install a new application. Soon, conflicts arise—files get corrupted, the system crashes frequently, and tasks run inconsistently due to manual intervention. Given this scenario, explain the challenges faced without an operating system and how an OS can resolve these issues by managing processes, memory, and hardware interactions.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "operating-systems-end-q1",
+                  "exam": "end",
+                  "text": "a) Define an Operating System. Give two examples. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "operating-systems-end-q2",
+                  "exam": "end",
+                  "text": "OR List and explain any two basic operations of an operating system. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "operating-systems-u1-t2",
+              "name": "OS Types",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "operating-systems-mst1-q3",
+                  "exam": "mst1",
+                  "text": "Compare the key differences between desktop and mobile operating systems in terms of architecture, user interface, resource management, security features, application support, and power consumption. Provide examples of popular operating systems in both categories and discuss their unique advantages and limitations.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "operating-systems-u2",
+          "name": "Process Management and Scheduling",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "operating-systems-u2-t2",
+              "name": "CPU Scheduling",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 20,
+              "questions": [
+                {
+                  "id": "operating-systems-mst1-q1",
+                  "exam": "mst1",
+                  "text": "Consider the following set of processes with their arrival times and burst times. The system follows pre-emptive Shortest Job First (SJF) scheduling.\n\nCalculate:",
+                  "marks": 10.0,
+                  "has_table": true,
+                  "table_markdown": "| Process | Arrival Time | Burst Time |\n| :--- | :--- | :--- |\n| P1 | 0 ms | 8 ms |\n| P2 | 1 ms | 4 ms |\n| P3 | 2 ms | 2 ms |\n| P4 | 3 ms | 1 ms |",
+                  "sub_parts": [
+                    "a. The Gantt chart for the execution sequence.",
+                    "b. The completion time, turnaround time, and waiting time for each process.",
+                    "c. The average turnaround time and average waiting time."
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "operating-systems-end-q12",
+                  "exam": "end",
+                  "text": "OR Differentiate between disk scheduling and process scheduling. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "operating-systems-end-q5",
+                  "exam": "end",
+                  "text": "c) What are the two different types of process scheduling methodologies? (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "operating-systems-end-q6",
+                  "exam": "end",
+                  "text": "OR Briefly explain the concept of 'Pre-emption' in process scheduling. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [
+                    {
+                      "id": "operating-systems-mst1-q1",
+                      "type": "same-topic",
+                      "similarity": 0.594
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "operating-systems-u2-t1",
+              "name": "Process Concepts",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "operating-systems-end-q3",
+                  "exam": "end",
+                  "text": "b) What is a Process Control Block (PCB)? (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "operating-systems-end-q4",
+                  "exam": "end",
+                  "text": "OR Differentiate between a program and a process. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "operating-systems-u3",
+          "name": "Process Synchronization",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "operating-systems-u3-t2",
+              "name": "Critical Section Problem",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 15,
+              "questions": [
+                {
+                  "id": "operating-systems-mst2-q2",
+                  "exam": "mst2",
+                  "text": "What is the critical section problem? Discuss the necessary conditions that a solution to the critical section problem must satisfy.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "operating-systems-end-q8",
+                  "exam": "end",
+                  "text": "OR Describe the Critical Section Problem with its three requirements. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [
+                    {
+                      "id": "operating-systems-mst2-q2",
+                      "type": "near",
+                      "similarity": 0.792
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "operating-systems-u3-t3",
+              "name": "Semaphores",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 15,
+              "questions": [
+                {
+                  "id": "operating-systems-mst2-q3",
+                  "exam": "mst2",
+                  "text": "Present the pseudocode and flowchart to demonstrate the use of semaphores for ensuring mutual exclusion in a critical section.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "operating-systems-end-q7",
+                  "exam": "end",
+                  "text": "a) Explain the role of semaphores in process synchronization with an example. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "operating-systems-u3-t4",
+              "name": "Classical Synchronization Problems",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 15,
+              "questions": [
+                {
+                  "id": "operating-systems-mst2-q4",
+                  "exam": "mst2",
+                  "text": "Five philosophers are sitting around a circular dining table, enjoying their meals. However, to eat, each philosopher needs two chopsticks—one on their left and one on their right. The problem is that there are only five chopsticks, and if all philosophers pick up just one chopstick at the same time, they might end up waiting indefinitely (deadlock) or some may starve while others keep eating. To solve this, they decide to follow a set of rules using semaphores to ensure that no two neighbouring philosophers pick up chopsticks at the same time, allowing everyone to eat without conflicts. Present this strategy and discuss it in detail.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "operating-systems-end-q10",
+                  "exam": "end",
+                  "text": "OR Explain any one classical problem of synchronization other than dining philosophers. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "operating-systems-end-q9",
+                  "exam": "end",
+                  "text": "b) Discuss the Dining Philosophers Problem and its significance in synchronization. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [
+                    {
+                      "id": "operating-systems-mst2-q4",
+                      "type": "same-topic",
+                      "similarity": 0.589
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "operating-systems-u3-t1",
+              "name": "Synchronization Basics",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "operating-systems-mst2-q1",
+                  "exam": "mst2",
+                  "text": "Explain the concept of process synchronization and its importance in a multi-processing system.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "operating-systems-u4",
+          "name": "Deadlocks",
+          "from_syllabus": false,
+          "blind_spot": true,
+          "topics": [
+            {
+              "id": "operating-systems-u4-t1",
+              "name": "Deadlock Characterization",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "operating-systems-end-q13",
+                  "exam": "end",
+                  "text": "a) Explain deadlock characterization and describe the necessary conditions for deadlock occurrence. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "operating-systems-u4-t2",
+              "name": "Deadlock Handling",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "operating-systems-end-q14",
+                  "exam": "end",
+                  "text": "OR Discuss the Banker's Algorithm for deadlock avoidance with an example. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "operating-systems-end-q15",
+                  "exam": "end",
+                  "text": "b) Explain the various methods of deadlock prevention. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "operating-systems-end-q16",
+                  "exam": "end",
+                  "text": "OR Discuss the key difference between deadlock detection and deadlock avoidance. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "operating-systems-u5",
+          "name": "Memory and Storage Management",
+          "from_syllabus": false,
+          "blind_spot": true,
+          "topics": [
+            {
+              "id": "operating-systems-u5-t1",
+              "name": "Memory Management",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "operating-systems-end-q11",
+                  "exam": "end",
+                  "text": "c) Explain the concept of memory management in operating systems. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "operating-systems-u5-t2",
+              "name": "Disk Management",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "operating-systems-end-q17",
+                  "exam": "end",
+                  "text": "c) Differentiate between track and sectors on disk, by giving a neat diagram (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "operating-systems-end-q18",
+                  "exam": "end",
+                  "text": "OR Discuss the concept of disk structure and its management in operating systems. (5 Marks)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        }
+      ],
+      "off_syllabus": []
+    },
+    {
+      "id": "optimization-algorithms",
+      "name": "Optimization Algorithms and Techniques",
+      "aliases": [
+        "OAT"
+      ],
+      "codes_seen": [
+        "DS6A – 224",
+        "DSA 6A-224"
+      ],
+      "units": [
+        {
+          "id": "optimization-algorithms-u1",
+          "name": "Linear Programming",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "optimization-algorithms-u1-t4",
+              "name": "Big-M Method",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "optimization-algorithms-mst2-q1",
+                  "exam": "mst2",
+                  "text": "Solve by BIG - M method\nMinimize $Z = 2x_1 + 3x_2$\nSubject to $x_1 + x_2 \\ge 5$\n$x_1 + 2x_2 \\ge 6$\nand $x_1, x_2 \\ge 0$.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p6",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "optimization-algorithms-end-q4",
+                  "exam": "end",
+                  "text": "Solve by BIG-M method:-\nMinimize $Z = 2x_1 + 3x_2$\nSubject to constraint $x_1 + x_2 \\ge 5$\n$x_1 + 2x_2 \\ge 6$\n$x_1, x_2 \\ge 0$",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p3",
+                  "repeat_of": [
+                    {
+                      "id": "optimization-algorithms-mst2-q1",
+                      "type": "exact",
+                      "similarity": 0.981
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "optimization-algorithms-u1-t1",
+              "name": "LPP Formulation and Basics",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "optimization-algorithms-mst1-q1",
+                  "exam": "mst1",
+                  "text": "A firm manufacture produces three products A, B and C. The profits are Rs. 3 , Rs 2 and Rs. 4 respectively. The firm has two machines $M_1$ and $M_2$ and below is the required capacity processing time in minutes for each machine on each product.",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| Machine | Product A | Product B | Product C |\n| :--- | :---: | :---: | :---: |\n| $M_1$ | 4 | 3 | 2 |\n| $M_2$ | 2 | 2 | 4 |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "optimization-algorithms-end-q2",
+                  "exam": "end",
+                  "text": "Describe LPP and its different input parameters along with slack and surplus variables.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "optimization-algorithms-u1-t2",
+              "name": "Graphical Method",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "optimization-algorithms-mst1-q2",
+                  "exam": "mst1",
+                  "text": "Solve graphically Max. $Z = 45x_1 + 80x_2$ Subject to $5x_1 + 20x_2 \\le 400$ $10x_1 + 15x_2 \\le 450$ $x_1 \\ge 0, x_2 \\ge 0$.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "optimization-algorithms-end-q1",
+                  "exam": "end",
+                  "text": "Solve the following problem using graphical method -\nMaximize $Z = 9x + 10y$\nSubject to $11x + 9y \\le 9900$\n$7x + 12y = 8400$\n$6x + 16y \\le 9600$\n$x \\ge 0, y \\ge 0$",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p3",
+                  "repeat_of": [
+                    {
+                      "id": "optimization-algorithms-mst1-q2",
+                      "type": "same-topic",
+                      "similarity": 0.667
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "optimization-algorithms-u1-t3",
+              "name": "Simplex Method",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "optimization-algorithms-mst1-q3",
+                  "exam": "mst1",
+                  "text": "Solve the following LPP by using Simplex Method. Max. $Z = 2x_1 + 4x_2$ Subject to $x_1 + 3x_2 \\le 42$ $x_1 + x_2 \\le 21$ $x_1 \\ge 0, x_2 \\ge 0$.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "optimization-algorithms-end-q3",
+                  "exam": "end",
+                  "text": "Solve by simplex method:\nMaximize $Z = 4x_1 + 10x_2$\nSubject to constraint $2x_1 + x_2 \\le 10$\n$2x_1 + 5x_2 \\le 20$\n$2x_1 + 3x_2 \\le 18$\n$x_1, x_2 \\ge 0$",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p3",
+                  "repeat_of": [
+                    {
+                      "id": "optimization-algorithms-mst1-q3",
+                      "type": "same-topic",
+                      "similarity": 0.711
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "optimization-algorithms-u1-t5",
+              "name": "Duality in LPP",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "optimization-algorithms-mst2-q2",
+                  "exam": "mst2",
+                  "text": "Write the dual of the following L.P.P.\nMinimize $Z = 3x_1 - 2x_2 + 4x_3$\nSubject to constrants $3x_1 + 5x_2 + 4x_3 \\ge 7$\n$6x_1 + x_2 + 3x_3 \\ge 4$\n$7x_1 - 2x_2 - x_3 \\le 10$\n$x_1 - 2x_2 + 5x_3 \\ge 3$\n$4x_1 + 7x_2 - 2x_3 \\ge 2$\nand $x_1, x_2, x_3 \\ge 0$.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p6",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "optimization-algorithms-u2",
+          "name": "Transportation and Assignment",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "optimization-algorithms-u2-t1",
+              "name": "Transportation Problems",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "optimization-algorithms-mst2-q3",
+                  "exam": "mst2",
+                  "text": "Obtain the initial basic feasible solution to the following transportation problem using North - West corner rule.\n\nDistribution Centres ( Destinations)",
+                  "marks": 5.0,
+                  "has_table": true,
+                  "table_markdown": "| Plant (origins) | $D_1$ | $D_2$ | $D_3$ | Supply |\n| :--- | :---: | :---: | :---: | :---: |\n| 01 | 2 | 7 | 4 | 5 |\n| 02 | 3 | 3 | 1 | 8 |\n| 03 | 5 | 4 | 7 | 7 |\n| 04 | 1 | 6 | 2 | 14 |\n| Demand | 7 | 9 | 18 | |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p6",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "optimization-algorithms-end-q11",
+                  "exam": "end",
+                  "text": "Obtain the initial basic feasible solution to the following transportation problem using North - West Corner Rule (NWCR).",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| | $D_1$ | $D_2$ | $D_3$ | Supply |\n|---|---|---|---|---|\n| $O_1$ | 2 | 7 | 4 | 5 |\n| $O_2$ | 3 | 3 | 1 | 8 |\n| $O_3$ | 5 | 4 | 7 | 7 |\n| $O_4$ | 1 | 6 | 2 | 14 |\n| Demand | 7 | 9 | 18 | |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p4",
+                  "repeat_of": [
+                    {
+                      "id": "optimization-algorithms-mst2-q3",
+                      "type": "exact",
+                      "similarity": 0.86
+                    }
+                  ],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "optimization-algorithms-end-q5",
+                  "exam": "end",
+                  "text": "Solve the following transportation problem by VAM.",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| | $w_1$ | $w_2$ | $w_3$ | $w_4$ | Supply |\n|---|---|---|---|---|---|\n| $f_1$ | 21 | 16 | 25 | 13 | 11 |\n| $f_2$ | 17 | 18 | 14 | 23 | 13 |\n| $f_3$ | 32 | 27 | 18 | 41 | 19 |\n| Demand | 06 | 10 | 12 | 15 | |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p3",
+                  "repeat_of": [
+                    {
+                      "id": "optimization-algorithms-mst2-q3",
+                      "type": "same-topic",
+                      "similarity": 0.582
+                    }
+                  ],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "optimization-algorithms-u2-t2",
+              "name": "Assignment Problems",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "optimization-algorithms-end-q6",
+                  "exam": "end",
+                  "text": "Four jobs are to be done on four different machines . The cost(in rupees) of producing $i^{th}$ job on the $j^{th}$ machines is given below :\nAssign the jobs on, different machines so as to minimize the total cost.",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| Job | $M_1$ | $M_2$ | $M_3$ | $M_4$ |\n|---|---|---|---|---|\n| $J_1$ | 15 | 11 | 13 | 15 |\n| $J_2$ | 17 | 12 | 12 | 13 |\n| $J_3$ | 14 | 15 | 10 | 14 |\n| $J_4$ | 16 | 13 | 11 | 17 |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "optimization-algorithms-u3",
+          "name": "Game Theory",
+          "from_syllabus": false,
+          "blind_spot": true,
+          "topics": [
+            {
+              "id": "optimization-algorithms-u3-t1",
+              "name": "Solving Games",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "optimization-algorithms-end-q8",
+                  "exam": "end",
+                  "text": "Discuss algebraic method for solving $2\\times2$ games by taking a suitable example.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p4",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "optimization-algorithms-end-q9",
+                  "exam": "end",
+                  "text": "Using the principle of dominance solve the following game.",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| | $B_1$ | $B_2$ | $B_3$ |\n|---|---|---|---|\n| $A_1$ | 3 | -2 | 4 |\n| $A_2$ | -1 | 4 | 2 |\n| $A_3$ | 2 | 2 | 6 |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p4",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "optimization-algorithms-u4",
+          "name": "Network Analysis",
+          "from_syllabus": false,
+          "blind_spot": true,
+          "topics": [
+            {
+              "id": "optimization-algorithms-u4-t1",
+              "name": "CPM and PERT",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "optimization-algorithms-end-q7",
+                  "exam": "end",
+                  "text": "Why network analysis is done? Compare CPM and PERT explaining the similarities and difference between the two techniques.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p4",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "optimization-algorithms-u4-t2",
+              "name": "Project Scheduling",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "optimization-algorithms-end-q10",
+                  "exam": "end",
+                  "text": "A project schedule has the following characteristics.",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| Activity | 1-2 | 1-3 | 2-3 | 2-5 | 3-4 | 3-6 | 4-5 | 4-6 | 5-6 | 6-7 |\n|---|---|---|---|---|---|---|---|---|---|---|\n| Duration (week) | 15 | 15 | 3 | 5 | 8 | 12 | 1 | 14 | 3 | 14 |",
+                  "sub_parts": [
+                    "Construct a network diagram.",
+                    "Compute earliest event time."
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p4",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        }
+      ],
+      "off_syllabus": []
+    },
+    {
+      "id": "automata-theory",
+      "name": "Automata Theory",
+      "aliases": [],
+      "codes_seen": [
+        "DS6A-212"
+      ],
+      "units": [
+        {
+          "id": "automata-theory-u1",
+          "name": "Finite Automata",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "automata-theory-u1-t2",
+              "name": "DFA Design",
+              "exams_count": 3,
+              "is_repeat": true,
+              "total_marks": 55,
+              "questions": [
+                {
+                  "id": "automata-theory-mst1-q1",
+                  "exam": "mst1",
+                  "text": "Construct a Deterministic Finite Automata machine to accept strings over $\\{a, b\\}$ that start and end with the same letter.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p4",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "automata-theory-mst1-q2",
+                  "exam": "mst1",
+                  "text": "Construct a Deterministic Finite Automata machine that checks whether a given number is even or odd. The machine should accept only ‘Even Numbers’.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p4",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "automata-theory-mst1-q3",
+                  "exam": "mst1",
+                  "text": "Observe the following DFA machine and observe its objective. Also, present it formally.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p4",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "automata-theory-mst2-q2",
+                  "exam": "mst2",
+                  "text": "A robotic vacuum cleaner moves around a smart home and operates based on a sequence of commands represented as a binary string:\n• '0' means the robot moves forward\n• '1' means the robot turns\n• The robot must always start and end with a forward move (0) to complete a cleaning cycle.\nDesign a Deterministic Finite Automaton (DFA) that determines whether a given command sequence ensures a valid cleaning cycle. Draw the transition diagram and explain how the DFA processes different sequences.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "automata-theory-mst2-q3",
+                  "exam": "mst2",
+                  "text": "A security system at a futuristic bank is designed to verify access codes using an automatic module. The access code is a binary string (composed of 0s and 1s), and the system follows these rules:\n• A valid access code must contain at least two consecutive 1s at any position.\n• The code can be of any length but should not end with a single isolated 1 (e.g., \"101\" is invalid, but \"110\" and \"1011\" are valid).\nDesign an automatic machine that verifies whether a given access code meets these conditions. Draw the transition diagram and explain how the machine processes different input strings.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "automata-theory-end-q7",
+                  "exam": "end",
+                  "text": "Construct a DFA for the language of all strings over $\\{0,1\\}$ that end with 01",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "automata-theory-u1-t3",
+              "name": "NFA and Comparisons",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 20,
+              "questions": [
+                {
+                  "id": "automata-theory-mst2-q1",
+                  "exam": "mst2",
+                  "text": "Differentiate between Deterministic Finite Automata (DFA) and Non-Deterministic Finite Automata (NFA) with an example.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "automata-theory-end-q2",
+                  "exam": "end",
+                  "text": "What is the basic difference between a DFA and an NFA? Give an example.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [
+                    {
+                      "id": "automata-theory-mst2-q1",
+                      "type": "near",
+                      "similarity": 0.646
+                    }
+                  ],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "automata-theory-end-q8",
+                  "exam": "end",
+                  "text": "Construct an NFA that accepts strings ending with 0 or 1",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "automata-theory-u1-t1",
+              "name": "FA Fundamentals",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "automata-theory-end-q1",
+                  "exam": "end",
+                  "text": "Define a Finite Automaton with an example of its application domain.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "automata-theory-end-q3",
+                  "exam": "end",
+                  "text": "Explain the concept of a Transition System in DFA with a simple illustration.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "automata-theory-end-q4",
+                  "exam": "end",
+                  "text": "What is meant by the acceptability of a string by a finite automaton? Give a brief explanation.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "automata-theory-u2",
+          "name": "Pushdown Automata",
+          "from_syllabus": false,
+          "blind_spot": true,
+          "topics": [
+            {
+              "id": "automata-theory-u2-t1",
+              "name": "PDA Fundamentals",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "automata-theory-end-q5",
+                  "exam": "end",
+                  "text": "Write the formal definition of a Pushdown Automaton (PDA).",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "automata-theory-end-q6",
+                  "exam": "end",
+                  "text": "Mention any one application area where Pushdown Automata are useful.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "automata-theory-u2-t2",
+              "name": "PDA Acceptance",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "automata-theory-end-q10",
+                  "exam": "end",
+                  "text": "Illustrate the Acceptance by a Pushdown Automaton using final state.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "automata-theory-end-q9",
+                  "exam": "end",
+                  "text": "Illustrate the Acceptance by a Pushdown Automaton using empty stack.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "automata-theory-u2-t3",
+              "name": "PDA Variations",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "automata-theory-end-q11",
+                  "exam": "end",
+                  "text": "Differentiate between Deterministic PDA and Non-deterministic PDA with examples.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "automata-theory-u2-t4",
+              "name": "FA vs PDA",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "automata-theory-end-q12",
+                  "exam": "end",
+                  "text": "Discuss the limitations of Finite Automata and how Pushdown Automata overcome these limitations.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "automata-theory-u3",
+          "name": "Turing Machines",
+          "from_syllabus": false,
+          "blind_spot": true,
+          "topics": [
+            {
+              "id": "automata-theory-u3-t1",
+              "name": "TM Fundamentals",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "automata-theory-end-q13",
+                  "exam": "end",
+                  "text": "Define a Turing Machine formally and explain its components with a diagram.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "automata-theory-end-q14",
+                  "exam": "end",
+                  "text": "Explain with an example how a Turing Machine accepts a string.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "automata-theory-u3-t2",
+              "name": "TM Power and Applications",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "automata-theory-end-q16",
+                  "exam": "end",
+                  "text": "Describe the application domain and advantages of using Turing machines over DFA.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "automata-theory-end-q17",
+                  "exam": "end",
+                  "text": "Explain how Turing Machines are applied in the context of computational theory to solve problems in areas like cryptography, artificial intelligence etc.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "automata-theory-end-q18",
+                  "exam": "end",
+                  "text": "Explain how Turing Machines are more powerful than Pushdown Automata.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "automata-theory-u3-t3",
+              "name": "The Halting Problem",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "automata-theory-end-q15",
+                  "exam": "end",
+                  "text": "What is the Halting Problem of Turing machines?",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        }
+      ],
+      "off_syllabus": []
+    },
+    {
+      "id": "dbms",
+      "name": "Database Management Systems",
+      "aliases": [
+        "DBMS",
+        "Database Management System"
+      ],
+      "codes_seen": [
+        "DS6A-210"
+      ],
+      "units": [
+        {
+          "id": "dbms-u1",
+          "name": "Introduction to DBMS",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "dbms-u1-t1",
+              "name": "DBMS Basics",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 17,
+              "questions": [
+                {
+                  "id": "dbms-mst1-q1",
+                  "exam": "mst1",
+                  "text": "Difference between Traditional File approach & Database approach?",
+                  "marks": 6.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-end-q2",
+                  "exam": "end",
+                  "text": "Define Schema and Instance with examples.",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-end-q3",
+                  "exam": "end",
+                  "text": "Write advantages of DBMS.",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-end-q9",
+                  "exam": "end",
+                  "text": "What is Object oriented DBMS? Write Difference between DBMS & traditional file system.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [
+                    {
+                      "id": "dbms-mst1-q1",
+                      "type": "same-topic",
+                      "similarity": 0.669
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "dbms-u1-t2",
+              "name": "Data Models",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 3,
+              "questions": [
+                {
+                  "id": "dbms-end-q6",
+                  "exam": "end",
+                  "text": "Explain different types of Data Models.",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "dbms-u1-t3",
+              "name": "Data Warehousing",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 3,
+              "questions": [
+                {
+                  "id": "dbms-end-q5",
+                  "exam": "end",
+                  "text": "Define data warehouse & data mining with real life examples.",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "dbms-u2",
+          "name": "Database Design",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "dbms-u2-t1",
+              "name": "ER Modeling",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 11,
+              "questions": [
+                {
+                  "id": "dbms-mst1-q2",
+                  "exam": "mst1",
+                  "text": "What is E-R Model? Explain it with one example.",
+                  "marks": 6.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-end-q10",
+                  "exam": "end",
+                  "text": "What is ER Model? And draw an ER diagram for a Hospital Management System with entities like Doctor, Patient, Appointment, Department.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "dbms-u2-t2",
+              "name": "Normalization",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 18,
+              "questions": [
+                {
+                  "id": "dbms-end-q14",
+                  "exam": "end",
+                  "text": "Define normalization .Explain different types of normalization with examples and solve following relation and find candidate keys & solve Given a relation $R(P, Q, R, S, T, U, V, W, X, Y)$ and Functional Dependency set $FD = \\{PQ \\rightarrow R, PS \\rightarrow VW, QS \\rightarrow TU, P \\rightarrow X, W \\rightarrow Y\\}$, determine whether the given $R$ is in 2NF? If not convert it to 2 NF.\nGiven a relation $R(A, B, C, D)$ and Functional Dependency set $FD = \\{AB \\rightarrow CD, B \\rightarrow C\\}$, determine whether the given $R$ is in 2NF? If not convert it to 2 NF.",
+                  "marks": 15.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "dbms-end-q4",
+                  "exam": "end",
+                  "text": "What are multivalued dependencies, functional dependencies, transitive dependencies?",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "dbms-u3",
+          "name": "SQL Fundamentals",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "dbms-u3-t3",
+              "name": "DQL Operations",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 16,
+              "questions": [
+                {
+                  "id": "dbms-mst1-q6",
+                  "exam": "mst1",
+                  "text": "Write query to display records of those employees who belong to city ='Indore'",
+                  "marks": 1.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "dbms-end-q15",
+                  "exam": "end",
+                  "text": "Write following queries for Employee Table",
+                  "marks": 15.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [
+                    {
+                      "id": "dbms-mst1-q6",
+                      "type": "same-topic",
+                      "similarity": 0.647
+                    }
+                  ],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "dbms-end-q20",
+                  "exam": "end",
+                  "text": "Write a query to retrieve the names and departments of employees from London",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| Employee ID | Name | Department | Salary | City |\n|---|---|---|---|---|\n| 201 | Emma Stone | Engineering | 85000 | New York |\n| 202 | John Miller | R&D | 92000 | Berlin |\n| 203 | Alice Carter | IT | 78000 | Toronto |\n| 204 | Mark Davis | Science | 69000 | Sydney |\n| 205 | Sophia Clark | Research | 88000 | London |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [
+                    {
+                      "id": "dbms-mst1-q6",
+                      "type": "near",
+                      "similarity": 0.706
+                    }
+                  ],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-end-q22",
+                  "exam": "end",
+                  "text": "Write a query to list all employees whose salary is greater than 80,000.",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| Employee ID | Name | Department | Salary | City |\n|---|---|---|---|---|\n| 201 | Emma Stone | Engineering | 85000 | New York |\n| 202 | John Miller | R&D | 92000 | Berlin |\n| 203 | Alice Carter | IT | 78000 | Toronto |\n| 204 | Mark Davis | Science | 69000 | Sydney |\n| 205 | Sophia Clark | Research | 88000 | London |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "dbms-u3-t4",
+              "name": "SQL Command Comparison",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 4,
+              "questions": [
+                {
+                  "id": "dbms-mst1-q8",
+                  "exam": "mst1",
+                  "text": "Difference between drop and delete in SQL",
+                  "marks": 1.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "dbms-end-q1",
+                  "exam": "end",
+                  "text": "Differentiate between NOT NULL & unique and delete & drop.",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [
+                    {
+                      "id": "dbms-mst1-q8",
+                      "type": "near",
+                      "similarity": 0.602
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "dbms-u3-t2",
+              "name": "DML Operations",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 3,
+              "questions": [
+                {
+                  "id": "dbms-mst1-q5",
+                  "exam": "mst1",
+                  "text": "Perform insert, update, delete operations on above created table",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-end-q17",
+                  "exam": "end",
+                  "text": "Write SQL queries to insert the 5 rows shown in the table.",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| Employee ID | Name | Department | Salary | City |\n|---|---|---|---|---|\n| 201 | Emma Stone | Engineering | 85000 | New York |\n| 202 | John Miller | R&D | 92000 | Berlin |\n| 203 | Alice Carter | IT | 78000 | Toronto |\n| 204 | Mark Davis | Science | 69000 | Sydney |\n| 205 | Sophia Clark | Research | 88000 | London |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-end-q18",
+                  "exam": "end",
+                  "text": "Write a query to update the salary of employee John Miller to 95000.",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| Employee ID | Name | Department | Salary | City |\n|---|---|---|---|---|\n| 201 | Emma Stone | Engineering | 85000 | New York |\n| 202 | John Miller | R&D | 92000 | Berlin |\n| 203 | Alice Carter | IT | 78000 | Toronto |\n| 204 | Mark Davis | Science | 69000 | Sydney |\n| 205 | Sophia Clark | Research | 88000 | London |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-end-q19",
+                  "exam": "end",
+                  "text": "Write a query to delete the employee with EmployeeID = 204.",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| Employee ID | Name | Department | Salary | City |\n|---|---|---|---|---|\n| 201 | Emma Stone | Engineering | 85000 | New York |\n| 202 | John Miller | R&D | 92000 | Berlin |\n| 203 | Alice Carter | IT | 78000 | Toronto |\n| 204 | Mark Davis | Science | 69000 | Sydney |\n| 205 | Sophia Clark | Research | 88000 | London |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-end-q23",
+                  "exam": "end",
+                  "text": "Write a query to change the city of employee 'Alice Carter' to 'Vancouver'.",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| Employee ID | Name | Department | Salary | City |\n|---|---|---|---|---|\n| 201 | Emma Stone | Engineering | 85000 | New York |\n| 202 | John Miller | R&D | 92000 | Berlin |\n| 203 | Alice Carter | IT | 78000 | Toronto |\n| 204 | Mark Davis | Science | 69000 | Sydney |\n| 205 | Sophia Clark | Research | 88000 | London |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "dbms-u3-t1",
+              "name": "DDL Operations",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 1,
+              "questions": [
+                {
+                  "id": "dbms-mst1-q3",
+                  "exam": "mst1",
+                  "text": "Write an SQL query to create a table Employee EmpID, Name, Department, Salary, city and set EmpID as the primary key.",
+                  "marks": 1.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-mst1-q4",
+                  "exam": "mst1",
+                  "text": "Write an SQL query to add a new column Phone Number to the Customer table.",
+                  "marks": 1.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-mst1-q7",
+                  "exam": "mst1",
+                  "text": "Write query to remove the column Department from the Employee table.",
+                  "marks": 1.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst1.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "dbms-end-q16",
+                  "exam": "end",
+                  "text": "Write the SQL query to create the above table.",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| Employee ID | Name | Department | Salary | City |\n|---|---|---|---|---|\n| 201 | Emma Stone | Engineering | 85000 | New York |\n| 202 | John Miller | R&D | 92000 | Berlin |\n| 203 | Alice Carter | IT | 78000 | Toronto |\n| 204 | Mark Davis | Science | 69000 | Sydney |\n| 205 | Sophia Clark | Research | 88000 | London |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "dbms-u4",
+          "name": "Advanced SQL",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "dbms-u4-t2",
+              "name": "SQL Joins",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 12.5,
+              "questions": [
+                {
+                  "id": "dbms-mst2-q2",
+                  "exam": "mst2",
+                  "text": "Explain different type of joins with examples?",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-end-q13",
+                  "exam": "end",
+                  "text": "what are joins? Explain different types of SQL Joins with examples",
+                  "marks": 7.5,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [
+                    {
+                      "id": "dbms-mst2-q2",
+                      "type": "exact",
+                      "similarity": 0.895
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "dbms-u4-t1",
+              "name": "Integrity Constraints",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "dbms-mst2-q1",
+                  "exam": "mst2",
+                  "text": "what are integrity constraints? Explain with examples",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-end-q7",
+                  "exam": "end",
+                  "text": "Define integrity constraints? Explain different types of integrity constraints with examples.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [
+                    {
+                      "id": "dbms-mst2-q1",
+                      "type": "near",
+                      "similarity": 0.92
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "dbms-u4-t3",
+              "name": "Aggregate Functions",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "dbms-mst2-q8",
+                  "exam": "mst2",
+                  "text": "what are aggregate functions. Explain with examples",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "dbms-end-q21",
+                  "exam": "end",
+                  "text": "Write a query to get the average salary of employees..",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| Employee ID | Name | Department | Salary | City |\n|---|---|---|---|---|\n| 201 | Emma Stone | Engineering | 85000 | New York |\n| 202 | John Miller | R&D | 92000 | Berlin |\n| 203 | Alice Carter | IT | 78000 | Toronto |\n| 204 | Mark Davis | Science | 69000 | Sydney |\n| 205 | Sophia Clark | Research | 88000 | London |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-end-q8",
+                  "exam": "end",
+                  "text": "What is SQL aggregate functions? Explain with examples.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [
+                    {
+                      "id": "dbms-mst2-q8",
+                      "type": "exact",
+                      "similarity": 0.865
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "dbms-u5",
+          "name": "Transaction Management",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "dbms-u5-t2",
+              "name": "Transaction Control",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "dbms-mst2-q6",
+                  "exam": "mst2",
+                  "text": "Write an SQL transaction to transfer $\\text{₹}10,000$ from Account A to Account B, ensuring that the transfer only happens if both debit and credit operations succeed.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-mst2-q7",
+                  "exam": "mst2",
+                  "text": "example of rollback and savepoint with example.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "dbms-end-q27",
+                  "exam": "end",
+                  "text": "Write a query for commit with example",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "dbms-end-q28",
+                  "exam": "end",
+                  "text": "Write a query for rollback with example",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [
+                    {
+                      "id": "dbms-mst2-q7",
+                      "type": "near",
+                      "similarity": 0.642
+                    }
+                  ],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "dbms-end-q29",
+                  "exam": "end",
+                  "text": "Write a query for Save point with example",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "dbms-u5-t1",
+              "name": "ACID Properties",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 7.5,
+              "questions": [
+                {
+                  "id": "dbms-end-q11",
+                  "exam": "end",
+                  "text": "What are ACID properties? Explain different types of acid properties with a real-world example.",
+                  "marks": 7.5,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "dbms-u5-t3",
+              "name": "Deadlock Management",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 7.5,
+              "questions": [
+                {
+                  "id": "dbms-end-q12",
+                  "exam": "end",
+                  "text": "What is a deadlock? How can it be prevented or resolved in DBMS?",
+                  "marks": 7.5,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "dbms-u6",
+          "name": "Database Security",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "dbms-u6-t1",
+              "name": "User Management",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "dbms-mst2-q3",
+                  "exam": "mst2",
+                  "text": "Write a query to create a new user called Mtech4",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-end-q26",
+                  "exam": "end",
+                  "text": "How we create a new user. write its command",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [
+                    {
+                      "id": "dbms-mst2-q3",
+                      "type": "near",
+                      "similarity": 0.602
+                    }
+                  ],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "dbms-end-q30",
+                  "exam": "end",
+                  "text": "How we delete a user which we create",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "dbms-u6-t2",
+              "name": "DCL Commands",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "dbms-mst2-q4",
+                  "exam": "mst2",
+                  "text": "Write a query to grant a user Mtech4 the ability to SELECT and INSERT on a table students.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-mst2-q5",
+                  "exam": "mst2",
+                  "text": "Write an SQL query to revoke INSERT permission from Mtech4 on the student table.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "dbms-end-q24",
+                  "exam": "end",
+                  "text": "Grant SELECT permission on the Employee table to user user1",
+                  "marks": null,
+                  "has_table": true,
+                  "table_markdown": "| Employee ID | Name | Department | Salary | City |\n|---|---|---|---|---|\n| 201 | Emma Stone | Engineering | 85000 | New York |\n| 202 | John Miller | R&D | 92000 | Berlin |\n| 203 | Alice Carter | IT | 78000 | Toronto |\n| 204 | Mark Davis | Science | 69000 | Sydney |\n| 205 | Sophia Clark | Research | 88000 | London |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "dbms-end-q25",
+                  "exam": "end",
+                  "text": "Revoke INSERT and UPDATE permissions from user hr_staff",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p8",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        }
+      ],
+      "off_syllabus": []
+    },
+    {
+      "id": "sampling-theory",
+      "name": "Sampling Theory and Applications",
+      "aliases": [
+        "Sampling Theory and Application"
+      ],
+      "codes_seen": [
+        "DS6A-208"
+      ],
+      "units": [
+        {
+          "id": "sampling-theory-u1",
+          "name": "Introduction to Sampling",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "sampling-theory-u1-t2",
+              "name": "Survey Planning",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 27.5,
+              "questions": [
+                {
+                  "id": "sampling-theory-end-q10",
+                  "exam": "end",
+                  "text": "Discuss briefly the basic principles of a sample survey.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "sampling-theory-end-q12",
+                  "exam": "end",
+                  "text": "What are the main steps involved in a sample survey? Discuss them briefly.",
+                  "marks": 7.5,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "sampling-theory-end-q14",
+                  "exam": "end",
+                  "text": "What precaution should be taken in the planning of a statistical survey? Give briefly the characteristics of a good questionnaire or Schedule.",
+                  "marks": 15.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "sampling-theory-end-q9",
+                  "exam": "end",
+                  "text": "Write the limitations of sampling.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "sampling-theory-u1-t3",
+              "name": "Sampling Errors",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "sampling-theory-mst1-2023-24-q2",
+                  "exam": "mst1-2023-24",
+                  "text": "What do you mean by sampling and non-sampling errors explain with example.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "sampling-theory-u1-t4",
+              "name": "Sampling Types",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "sampling-theory-mst1-2023-24-q5",
+                  "exam": "mst1-2023-24",
+                  "text": "What are the advantages of random sampling? Also explain the difference between probability and Non probability sampling.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "sampling-theory-u1-t1",
+              "name": "Basic Definitions",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 3,
+              "questions": [
+                {
+                  "id": "sampling-theory-end-q1",
+                  "exam": "end",
+                  "text": "Define Parameter and Estimator",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "sampling-theory-end-q2",
+                  "exam": "end",
+                  "text": "Define Auxiliary Variable",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "sampling-theory-end-q3",
+                  "exam": "end",
+                  "text": "Define Population and sample",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "sampling-theory-end-q6",
+                  "exam": "end",
+                  "text": "Define Cost function",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "sampling-theory-u2",
+          "name": "Simple Random Sampling",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "sampling-theory-u2-t1",
+              "name": "SRS Unbiasedness",
+              "exams_count": 3,
+              "is_repeat": true,
+              "total_marks": 25,
+              "questions": [
+                {
+                  "id": "sampling-theory-mst2-2023-24-q1",
+                  "exam": "mst2-2023-24",
+                  "text": "Consider a population of 6 units with values 1,2,3,4,5,6. Write down all possible samples of 2 (without replacement) from this population and verify that sample mean is an unbiased estimate of the population mean. Also calculate its sampling variance and verify (i) it agrees with the formula for the variance of the sample mean (ii) this variance is less than the variance obtained from sampling with replacement.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "(i) it agrees with the formula for the variance of the sample mean",
+                    "(ii) this variance is less than the variance obtained from sampling with replacement"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "sampling-theory-mst2-2023-24-q4",
+                  "exam": "mst2-2023-24",
+                  "text": "Prove that $\\bar{y}_{st}$ is an unbiased estimate of the population mean. Also prove that in SRSWOR the sample mean is an unbiased estimate of the population mean.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "sampling-theory-mst2-q1",
+                  "exam": "mst2",
+                  "text": "Define Simple Random Sampling (With replacement and Without replacement). Also prove that the sample mean is unbiased estimate of the population mean.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p4",
+                  "repeat_of": [
+                    {
+                      "id": "sampling-theory-mst2-2023-24-q1",
+                      "type": "same-topic",
+                      "similarity": 0.716
+                    },
+                    {
+                      "id": "sampling-theory-mst2-2023-24-q4",
+                      "type": "near",
+                      "similarity": 0.663
+                    }
+                  ],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "sampling-theory-end-q7",
+                  "exam": "end",
+                  "text": "Prove that the sample mean is unbiased estimate of the population mean.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+                  "repeat_of": [
+                    {
+                      "id": "sampling-theory-mst2-q1",
+                      "type": "near",
+                      "similarity": 0.793
+                    },
+                    {
+                      "id": "sampling-theory-mst2-2023-24-q1",
+                      "type": "same-topic",
+                      "similarity": 0.63
+                    },
+                    {
+                      "id": "sampling-theory-mst2-2023-24-q4",
+                      "type": "near",
+                      "similarity": 0.799
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "sampling-theory-u2-t3",
+              "name": "SRS Mean Square",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "sampling-theory-mst2-q2",
+                  "exam": "mst2",
+                  "text": "In SRSWOR, the sample mean square is an unbiased estimate of the population mean square, i.e. $E(s^2) = S^2$.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p4",
+                  "repeat_of": [
+                    {
+                      "id": "sampling-theory-mst2-2023-24-q2",
+                      "type": "same-topic",
+                      "similarity": 0.717
+                    }
+                  ],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "sampling-theory-end-q8",
+                  "exam": "end",
+                  "text": "Prove that in sample random sampling without replacement, sample mean square is an unbiased estimate of the population mean square.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+                  "repeat_of": [
+                    {
+                      "id": "sampling-theory-mst2-q1",
+                      "type": "same-topic",
+                      "similarity": 0.802
+                    },
+                    {
+                      "id": "sampling-theory-mst2-q2",
+                      "type": "near",
+                      "similarity": 0.648
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "sampling-theory-u2-t2",
+              "name": "SRS Variance",
+              "exams_count": 2,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "sampling-theory-mst2-2023-24-q2",
+                  "exam": "mst2-2023-24",
+                  "text": "In SRSWOR the variance of the sample mean is given by $\\text{Var}(\\bar{y}_n) = \\frac{S^2}{n} \\cdot \\frac{N-n}{N}$.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "sampling-theory-mst2-q3",
+                  "exam": "mst2",
+                  "text": "Prove that In SRSWOR, the variance of the sample mean is given by $V(\bar{y}_n) = \\left( \frac{1}{n} - \frac{1}{N} \right) S^2$",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p4",
+                  "repeat_of": [
+                    {
+                      "id": "sampling-theory-mst2-2023-24-q2",
+                      "type": "near",
+                      "similarity": 0.79
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "sampling-theory-u2-t4",
+              "name": "Probability Properties",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "sampling-theory-mst1-2023-24-q1",
+                  "exam": "mst1-2023-24",
+                  "text": "In SRS without replacement prove that the probability of drawing a specified unit at the rth draw is equal to the probability of drawing it at the $1^{st}$ draw i.e. $P(E_r)=P(E_1)$.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "sampling-theory-u3",
+          "name": "Stratified Random Sampling",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "sampling-theory-u3-t1",
+              "name": "Stratified Definitions",
+              "exams_count": 2,
+              "is_repeat": true,
+              "total_marks": 3,
+              "questions": [
+                {
+                  "id": "sampling-theory-mst2-q4",
+                  "exam": "mst2",
+                  "text": "Define Stratified Random Sampling.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p4",
+                  "repeat_of": [
+                    {
+                      "id": "sampling-theory-mst1-2023-24-q4",
+                      "type": "same-topic",
+                      "similarity": 0.786
+                    },
+                    {
+                      "id": "sampling-theory-mst2-2023-24-q3",
+                      "type": "same-topic",
+                      "similarity": 0.7
+                    }
+                  ],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "sampling-theory-end-q5",
+                  "exam": "end",
+                  "text": "Define Stratified Random Sampling",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+                  "repeat_of": [
+                    {
+                      "id": "sampling-theory-mst2-q4",
+                      "type": "exact",
+                      "similarity": 0.991
+                    },
+                    {
+                      "id": "sampling-theory-mst1-2023-24-q4",
+                      "type": "same-topic",
+                      "similarity": 0.784
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "sampling-theory-u3-t4",
+              "name": "Stratified Estimators",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "sampling-theory-mst2-2023-24-q3",
+                  "exam": "mst2-2023-24",
+                  "text": "In SRSWOR (N, n) State the variance of Stratified sampling.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "sampling-theory-u3-t2",
+              "name": "Stratification Procedure",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "sampling-theory-end-q15",
+                  "exam": "end",
+                  "text": "Describe the procedure of stratified random sampling. Under what conditions is stratified random sampling preferred to simple random sampling and why? Point out a situation suitable for the use of stratified random sampling, explaining clearly the basis of stratification.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p6",
+                  "repeat_of": [
+                    {
+                      "id": "sampling-theory-mst2-q4",
+                      "type": "same-topic",
+                      "similarity": 0.752
+                    },
+                    {
+                      "id": "sampling-theory-mst1-2023-24-q4",
+                      "type": "same-topic",
+                      "similarity": 0.709
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "sampling-theory-u3-t3",
+              "name": "Allocation and Comparison",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "sampling-theory-mst2-q5",
+                  "exam": "mst2",
+                  "text": "Explain Proportional Allocation Vs Simple Random Sampling.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_mst2.pdf#p4",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "sampling-theory-u4",
+          "name": "Systematic and Other Sampling",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "sampling-theory-u4-t1",
+              "name": "Systematic Sampling",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10.5,
+              "questions": [
+                {
+                  "id": "sampling-theory-end-q11",
+                  "exam": "end",
+                  "text": "Define and derive Systematic sampling vs Simple random sampling.",
+                  "marks": 7.5,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+                  "repeat_of": [
+                    {
+                      "id": "sampling-theory-mst1-2023-24-q4",
+                      "type": "same-topic",
+                      "similarity": 0.842
+                    }
+                  ],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "sampling-theory-end-q4",
+                  "exam": "end",
+                  "text": "Define circular systematic sampling",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "sampling-theory-u4-t2",
+              "name": "Other Sampling Methods",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "sampling-theory-mst1-2023-24-q4",
+                  "exam": "mst1-2023-24",
+                  "text": "Explain sampling methods with example",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "(1) Purposive sampling",
+                    "(2) Stratified sampling",
+                    "(3) Systematic sampling",
+                    "(4) cluster sampling",
+                    "(5) Judgement sampling"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "sampling-theory-u5",
+          "name": "Ratio Estimation and Inference",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "sampling-theory-u5-t1",
+              "name": "Ratio Estimation",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 7.5,
+              "questions": [
+                {
+                  "id": "sampling-theory-end-q13",
+                  "exam": "end",
+                  "text": "Define the ratio method of estimation. Also find the bias and MSE of the ratio estimate for first order of approximation under simple random sampling without replacement.",
+                  "marks": 7.5,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "sampling-theory-u5-t2",
+              "name": "Statistical Inference",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "sampling-theory-mst1-2023-24-q3",
+                  "exam": "mst1-2023-24",
+                  "text": "If a random sample of size 20 from a normal population with SD 5.2 shows a mean of 16.9, test at 5% significance level. Calculate 99% confidence limit for mean.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        }
+      ],
+      "off_syllabus": []
+    },
+    {
+      "id": "python-programming",
+      "name": "Python Programming",
+      "aliases": [
+        "Python"
+      ],
+      "codes_seen": [
+        "DS6A-204"
+      ],
+      "units": [
+        {
+          "id": "python-programming-u1",
+          "name": "Python Fundamentals",
+          "from_syllabus": false,
+          "blind_spot": true,
+          "topics": [
+            {
+              "id": "python-programming-u1-t3",
+              "name": "Control Flow and Loops",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "python-programming-end-2022-23-q2",
+                  "exam": "end-2022-23",
+                  "text": "Write a program to display the following table.",
+                  "marks": 5.0,
+                  "has_table": true,
+                  "table_markdown": "| X | Y | $X**Y$ |\n|---|---|---|\n| 10 | 2 | 100 |\n| 10 | 3 | 1000 |\n| 10 | 4 | 10000 |\n| 10 | 5 | 100000 |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2022-23_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "python-programming-end-2022-23-q5",
+                  "exam": "end-2022-23",
+                  "text": "Write a program to print even numbers from 0 to 10 and find their sum.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2022-23_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "python-programming-end-2022-23-q6",
+                  "exam": "end-2022-23",
+                  "text": "Write a program to calculate the sum of numbers from 1 to 20 which are not divisible 2,3 or 5.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2022-23_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "python-programming-u1-t1",
+              "name": "Comparison Operators",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "python-programming-end-2022-23-q3",
+                  "exam": "end-2022-23",
+                  "text": "Explain the difference between the in and is operators in Python, providing examples to illustrate their usage and highlighting when each would be appropriate.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2022-23_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "python-programming-u1-t2",
+              "name": "Range Function",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "python-programming-end-2022-23-q4",
+                  "exam": "end-2022-23",
+                  "text": "Describe the range() function in Python. Give relevant output with respect to range() function. list(range(5)), list(range(1,5)), list(range(1,10,2)), list(range(5,0,-1)), list(range(5,0,-2)), list(range(-4,4)), list(range(-4,4,2)), list(range(0,1)), list(range(1,1)), list(range(0)),",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2022-23_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "python-programming-u2",
+          "name": "Python Data Structures",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "python-programming-u2-t2",
+              "name": "Lists and Dictionaries",
+              "exams_count": 2,
+              "is_repeat": false,
+              "total_marks": 20,
+              "questions": [
+                {
+                  "id": "python-programming-end-2022-23-q1",
+                  "exam": "end-2022-23",
+                  "text": "How do you create and manipulate lists and dictionaries in Python?",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2022-23_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "python-programming-mst2-2023-24-q4",
+                  "exam": "mst2-2023-24",
+                  "text": "Write a function that takes a list of words and returns the length of the longest one.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "python-programming-mst2-2023-24-q5",
+                  "exam": "mst2-2023-24",
+                  "text": "What is a list? Given a list, $l=[1,2,3,4,5]$, write instructions for the following tasks,",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "a. Set the third element to 100",
+                    "b. Insert 200 at the second index.",
+                    "c. Append 300 to the list",
+                    "d. Remove the fourth element from the list",
+                    "e. Sort the list",
+                    "f. Reverse the list."
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "python-programming-mst2-2023-24-q7",
+                  "exam": "mst2-2023-24",
+                  "text": "What is dictionary? How is the zip() function used to create a dictionary?",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "python-programming-u2-t1",
+              "name": "String Manipulation",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 15,
+              "questions": [
+                {
+                  "id": "python-programming-mst2-2023-24-q1",
+                  "exam": "mst2-2023-24",
+                  "text": "If $str = \\text{'Welcome to the world of python Programming'}$, write an instruction to print the tenth character of the string.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "python-programming-mst2-2023-24-q2",
+                  "exam": "mst2-2023-24",
+                  "text": "If $str = \\text{'Welcome to the world of python Programming'}$, write an instruction that prints the index of the first occurrence of the letter 'o' in the string.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "python-programming-mst2-2023-24-q3",
+                  "exam": "mst2-2023-24",
+                  "text": "Write a Python program to add 'ing' at the end of a given string (length should be at least 3). If the given string already ends with 'ing' then add 'ly' instead. If the string length of the given string is less than 3, leave it unchanged. (5 marks) (hint : use endswith()- is used with strings to check for a specific suffix at the end of the string, or append()- is used with lists to add elements to the end of the list.)",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "python-programming-mst2-2023-24-q8",
+                  "exam": "mst2-2023-24",
+                  "text": "Fill in the Blanks.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "1. Individual characters in a string are accessed using the ........ Operator.",
+                    "2. The ........ function is used to convert of any other type into string type.",
+                    "3. The ........ function checks if the string ends with suffix.",
+                    "4. Numpy stands for ........"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "python-programming-u2-t3",
+              "name": "Tuples",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "python-programming-mst2-2023-24-q6",
+                  "exam": "mst2-2023-24",
+                  "text": "What are the major differences between a list and a tuple in Python?",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "python-programming-u3",
+          "name": "Numerical Computing with NumPy",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "python-programming-u3-t3",
+              "name": "Array Attributes and Indexing",
+              "exams_count": 2,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "python-programming-end-2022-23-q9",
+                  "exam": "end-2022-23",
+                  "text": "Create a two-dimensional array and print its attributes such as shape, size, no of dimension and data type.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2022-23_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "python-programming-mst2-2023-24-q10",
+                  "exam": "mst2-2023-24",
+                  "text": "... returns the total number of elements in the Numpy array.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "python-programming-mst2-2023-24-q11",
+                  "exam": "mst2-2023-24",
+                  "text": "A $3 * 4$ matrix will have how many elements.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "python-programming-mst2-2023-24-q9",
+                  "exam": "mst2-2023-24",
+                  "text": "The array index starts from ..",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "python-programming-u3-t2",
+              "name": "Array Creation",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "python-programming-mst2-2023-24-q12",
+                  "exam": "mst2-2023-24",
+                  "text": "which function(s) is used to create arrays of evenly spaced values.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "python-programming-mst2-2023-24-q16",
+                  "exam": "mst2-2023-24",
+                  "text": "With the help of an example explain the difference between np.arange() and np.linspace().",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "python-programming-mst2-2023-24-q17",
+                  "exam": "mst2-2023-24",
+                  "text": "Create a Numpy array containing multiples of 3 in the range of 1 to 100.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "python-programming-u3-t1",
+              "name": "NumPy Basics",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "python-programming-mst2-2023-24-q14",
+                  "exam": "mst2-2023-24",
+                  "text": "Numpy arrays can be created from .........\na) Python list b)Python tuples c) Individual integers d) All of these",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "python-programming-mst2-2023-24-q15",
+                  "exam": "mst2-2023-24",
+                  "text": "What is NumPy? How do you create a NumPy array?",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "python-programming-u3-t4",
+              "name": "Array Manipulation",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "python-programming-mst2-2023-24-q13",
+                  "exam": "mst2-2023-24",
+                  "text": "When joining arrays, which function must have same dimension.\na)np.concatenate() b)np.vstack() c)np.hstack() d) All of these.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2023-24_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "python-programming-u4",
+          "name": "Data Analysis with Pandas",
+          "from_syllabus": false,
+          "blind_spot": true,
+          "topics": [
+            {
+              "id": "python-programming-u4-t1",
+              "name": "Pandas Series",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "python-programming-end-2022-23-q10",
+                  "exam": "end-2022-23",
+                  "text": "Describe the process of creating a Pandas Series using Python lists and dictionaries. Provide examples of both methods and explain how labels and data are organized within a Pandas Series.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2022-23_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "python-programming-u4-t2",
+              "name": "Pandas DataFrames",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "python-programming-end-2022-23-q11",
+                  "exam": "end-2022-23",
+                  "text": "How can you create a Pandas Data Frame using different approaches? Explain with examples how to create Data Frames from Python dictionaries, lists, and CSV files. Explain head() and tail() method.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2022-23_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "python-programming-u5",
+          "name": "Data Visualization",
+          "from_syllabus": false,
+          "blind_spot": true,
+          "topics": [
+            {
+              "id": "python-programming-u5-t1",
+              "name": "Visualization Concepts",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "python-programming-end-2022-23-q7",
+                  "exam": "end-2022-23",
+                  "text": "Why is data visualization considered essential in decision-making processes for organizations or businesses?",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2022-23_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "python-programming-u5-t2",
+              "name": "Matplotlib Customization",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "python-programming-end-2022-23-q8",
+                  "exam": "end-2022-23",
+                  "text": "Describe the process of customizing plots using Matplotlib. Provide examples of different customization options mentioned in the text and explain their effects on the resulting plot.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem4_2022-23_end.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        }
+      ],
+      "off_syllabus": []
+    }
+  ],
+  "unsure": [],
+  "stats": {
+    "papers": 22,
+    "questions": 196,
+    "repeats": 17,
+    "same_topic_links": 16,
+    "dropped_bleed_through": 0
+  },
+  "harness": {
+    "model": "gemma-4-31b-it",
+    "fallback_model": "gemma-4-26b-a4b-it",
+    "embedding_model": "all-MiniLM-L6-v2",
+    "dropped_bleed_through": [],
+    "manifest_disagreements": [
+      {
+        "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p9",
+        "field": "exam",
+        "ai": "None -> None",
+        "manifest": "end",
+        "subject": "discrete-structures"
+      },
+      {
+        "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p1",
+        "field": "exam",
+        "ai": "None -> None",
+        "manifest": "end",
+        "subject": "operating-systems"
+      },
+      {
+        "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p2",
+        "field": "exam",
+        "ai": "None -> None",
+        "manifest": "end",
+        "subject": "automata-theory"
+      },
+      {
+        "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p7",
+        "field": "exam",
+        "ai": "None -> None",
+        "manifest": "end",
+        "subject": "dbms"
+      },
+      {
+        "page_ref": "mtech-aids-dual-sem4_2024-25_end.pdf#p5",
+        "field": "exam",
+        "ai": "None -> None",
+        "manifest": "end",
+        "subject": "sampling-theory"
+      }
+    ],
+    "repeat_judgements": [
+      {
+        "a": "discrete-structures-mst1-q2",
+        "b": "discrete-structures-end-q10",
+        "similarity": 0.705,
+        "relation": "same-topic",
+        "reason": "Both questions cover fundamental concepts within the mathematical domains of set theory and relations."
+      },
+      {
+        "a": "discrete-structures-mst1-q3",
+        "b": "discrete-structures-end-q10",
+        "similarity": 0.72,
+        "relation": "different",
+        "reason": "Question A focuses specifically on properties of relations, while Question B covers both set theory and relations."
+      },
+      {
+        "a": "discrete-structures-mst2-q4",
+        "b": "discrete-structures-end-q1",
+        "similarity": 0.783,
+        "relation": "same-topic",
+        "reason": "Both questions focus on graph isomorphism, but one requires solving a specific problem while the other asks for a general definition and procedure."
+      },
+      {
+        "a": "discrete-structures-mst1-2023-24-q4",
+        "b": "discrete-structures-mst1-q2",
+        "similarity": 0.614,
+        "relation": "same-topic",
+        "reason": "Both questions focus on the properties and definitions of binary relations."
+      },
+      {
+        "a": "discrete-structures-mst1-2023-24-q4",
+        "b": "discrete-structures-mst1-q3",
+        "similarity": 0.616,
+        "relation": "same-topic",
+        "reason": "Both questions concern the properties of binary relations."
+      },
+      {
+        "a": "discrete-structures-mst1-2023-24-q4",
+        "b": "discrete-structures-end-q10",
+        "similarity": 0.568,
+        "relation": "same-topic",
+        "reason": "Both questions cover concepts related to binary relations and their properties."
+      },
+      {
+        "a": "operating-systems-mst1-q1",
+        "b": "operating-systems-end-q6",
+        "similarity": 0.594,
+        "relation": "same-topic",
+        "reason": "Both questions are about process scheduling, specifically focusing on the concept of pre-emption."
+      },
+      {
+        "a": "operating-systems-mst2-q2",
+        "b": "operating-systems-end-q8",
+        "similarity": 0.792,
+        "relation": "near",
+        "reason": "Both questions ask for the definition of the critical section problem and its specific requirements/conditions."
+      },
+      {
+        "a": "operating-systems-mst2-q4",
+        "b": "operating-systems-end-q9",
+        "similarity": 0.589,
+        "relation": "same-topic",
+        "reason": "Both questions focus on the Dining Philosophers Problem, though one asks for a specific implementation strategy and the other for a general discussion."
+      },
+      {
+        "a": "optimization-algorithms-mst1-q2",
+        "b": "optimization-algorithms-end-q1",
+        "similarity": 0.667,
+        "relation": "same-topic",
+        "reason": "Both questions require solving a linear programming problem using the graphical method."
+      },
+      {
+        "a": "optimization-algorithms-mst1-q3",
+        "b": "optimization-algorithms-end-q3",
+        "similarity": 0.711,
+        "relation": "same-topic",
+        "reason": "Both questions require solving a linear programming problem using the Simplex Method."
+      },
+      {
+        "a": "optimization-algorithms-mst2-q3",
+        "b": "optimization-algorithms-end-q5",
+        "similarity": 0.582,
+        "relation": "same-topic",
+        "reason": "Both questions involve finding initial solutions for transportation problems using different heuristic methods."
+      },
+      {
+        "a": "automata-theory-mst2-q1",
+        "b": "automata-theory-end-q2",
+        "similarity": 0.646,
+        "relation": "near",
+        "reason": "Both questions ask for the difference between DFA and NFA and require an example, with only minor rewording."
+      },
+      {
+        "a": "dbms-mst1-q1",
+        "b": "dbms-end-q9",
+        "similarity": 0.669,
+        "relation": "same-topic",
+        "reason": "Both questions focus on the comparison between traditional file systems and database management systems."
+      },
+      {
+        "a": "dbms-mst1-q6",
+        "b": "dbms-end-q15",
+        "similarity": 0.647,
+        "relation": "same-topic",
+        "reason": "Both questions involve writing SQL queries related to an Employee table."
+      },
+      {
+        "a": "dbms-mst1-q6",
+        "b": "dbms-end-q20",
+        "similarity": 0.706,
+        "relation": "near",
+        "reason": "Both questions ask for a query to filter employees by city, with only the city name and specific columns requested differing."
+      },
+      {
+        "a": "dbms-mst1-q8",
+        "b": "dbms-end-q1",
+        "similarity": 0.602,
+        "relation": "near",
+        "reason": "Question B contains the same request as Question A but adds an extra part regarding NOT NULL and UNIQUE."
+      },
+      {
+        "a": "dbms-mst2-q3",
+        "b": "dbms-end-q26",
+        "similarity": 0.602,
+        "relation": "near",
+        "reason": "Both ask for the command to create a user, with one specifying a particular username and the other asking generally."
+      },
+      {
+        "a": "dbms-mst2-q7",
+        "b": "dbms-end-q28",
+        "similarity": 0.642,
+        "relation": "near",
+        "reason": "Question A includes an extra part (savepoint) compared to the core requirement of Question B."
+      },
+      {
+        "a": "sampling-theory-mst2-q1",
+        "b": "sampling-theory-end-q7",
+        "similarity": 0.793,
+        "relation": "near",
+        "reason": "Question A contains the entirety of Question B plus an additional requirement to define Simple Random Sampling."
+      },
+      {
+        "a": "sampling-theory-mst2-q1",
+        "b": "sampling-theory-end-q8",
+        "similarity": 0.802,
+        "relation": "same-topic",
+        "reason": "Both questions concern proving the unbiasedness of estimators within the context of simple random sampling."
+      },
+      {
+        "a": "sampling-theory-mst2-q2",
+        "b": "sampling-theory-end-q8",
+        "similarity": 0.648,
+        "relation": "near",
+        "reason": "Both questions ask to prove the same property of the sample mean square in SRSWOR, with only slight differences in phrasing."
+      },
+      {
+        "a": "sampling-theory-mst2-q4",
+        "b": "sampling-theory-end-q15",
+        "similarity": 0.752,
+        "relation": "same-topic",
+        "reason": "Both questions focus on stratified random sampling, but one asks for a simple definition while the other asks for the procedure, advantages, and a practical application."
+      },
+      {
+        "a": "sampling-theory-mst1-2023-24-q4",
+        "b": "sampling-theory-mst2-q4",
+        "similarity": 0.786,
+        "relation": "same-topic",
+        "reason": "Both questions focus on sampling methods, specifically stratified sampling."
+      },
+      {
+        "a": "sampling-theory-mst1-2023-24-q4",
+        "b": "sampling-theory-end-q5",
+        "similarity": 0.784,
+        "relation": "same-topic",
+        "reason": "Question B focuses on one specific sampling method that is included in the broader list of Question A."
+      },
+      {
+        "a": "sampling-theory-mst1-2023-24-q4",
+        "b": "sampling-theory-end-q11",
+        "similarity": 0.842,
+        "relation": "same-topic",
+        "reason": "Both questions cover sampling methods, specifically mentioning systematic sampling, but A is a general overview while B is a specific comparison and derivation."
+      },
+      {
+        "a": "sampling-theory-mst1-2023-24-q4",
+        "b": "sampling-theory-end-q15",
+        "similarity": 0.709,
+        "relation": "same-topic",
+        "reason": "Question A asks for an overview of multiple sampling methods including stratified sampling, while Question B focuses specifically on the details of stratified sampling."
+      },
+      {
+        "a": "sampling-theory-mst2-2023-24-q1",
+        "b": "sampling-theory-mst2-q1",
+        "similarity": 0.716,
+        "relation": "same-topic",
+        "reason": "Both questions address the unbiasedness of the sample mean in simple random sampling, but one is a numerical application and the other is a theoretical proof."
+      },
+      {
+        "a": "sampling-theory-mst2-2023-24-q1",
+        "b": "sampling-theory-end-q7",
+        "similarity": 0.63,
+        "relation": "same-topic",
+        "reason": "Question A is a specific numerical application to verify unbiasedness, while Question B is a general theoretical proof of the same property."
+      },
+      {
+        "a": "sampling-theory-mst2-2023-24-q2",
+        "b": "sampling-theory-mst2-q2",
+        "similarity": 0.717,
+        "relation": "same-topic",
+        "reason": "Both questions address the mathematical properties of estimators under Simple Random Sampling Without Replacement (SRSWOR)."
+      },
+      {
+        "a": "sampling-theory-mst2-2023-24-q2",
+        "b": "sampling-theory-mst2-q3",
+        "similarity": 0.79,
+        "relation": "near",
+        "reason": "They ask for the same mathematical proof using algebraically equivalent expressions."
+      },
+      {
+        "a": "sampling-theory-mst2-2023-24-q3",
+        "b": "sampling-theory-mst2-q4",
+        "similarity": 0.7,
+        "relation": "same-topic",
+        "reason": "Both questions concern Stratified Random Sampling, but one asks for a definition while the other asks for a variance formula."
+      },
+      {
+        "a": "sampling-theory-mst2-2023-24-q4",
+        "b": "sampling-theory-mst2-q1",
+        "similarity": 0.663,
+        "relation": "near",
+        "reason": "Both questions require proving that the sample mean is an unbiased estimate of the population mean, with minor differences in additional requirements (stratified sampling proof vs. SRS definitions)."
+      },
+      {
+        "a": "sampling-theory-mst2-2023-24-q4",
+        "b": "sampling-theory-end-q7",
+        "similarity": 0.799,
+        "relation": "near",
+        "reason": "Question A contains the requirement of Question B as one of its two parts."
+      }
+    ]
+  }
+}

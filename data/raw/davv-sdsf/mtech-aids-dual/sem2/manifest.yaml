@@ -1,0 +1,34 @@
+# Human ground truth for the Semester 2 papers. The pipeline reads every page header too, but this
+# file wins and the run report lists every disagreement.
+#
+# One paper so far: page 17 of a senior's CamScanner PDF of Semester 1 papers (batch 2022-27), turned
+# upright when this PDF was made. It prints no year; the student's Semester 2 was in 2023 (session 2022-23).
+
+schema_version: "1.0"
+
+college:
+  id: davv-sdsf
+  name: School of Data Science & Forecasting, DAVV
+  city: Indore
+  # Takshashila Campus, DAVV (campus-level point, OpenStreetMap / Nominatim)
+  lat: 22.6880762
+  lng: 75.8749798
+
+course:
+  id: mtech-aids-dual
+  name: M.Tech (Dual Degree) AI & DS
+  semester: 2
+
+exams:
+  - {id: mst1, name: MST-1, date: "2023", session: "2022-23"}
+
+subjects:
+  - id: physics-2
+    name: Physics-II
+    aliases: [Physics II]
+
+files:
+  - file: mtech-aids-dual-sem2_2022-23_mst1.pdf
+    exam: mst1
+    pages:
+      - {page: 1, subject: physics-2}  # "M. Tech (AI&DS) Dual Degree Sem. II, Internal Exam - I, Subject: Physics II"

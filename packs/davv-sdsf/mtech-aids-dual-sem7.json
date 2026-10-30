@@ -1,0 +1,1087 @@
+{
+  "schema_version": "1.1",
+  "college": {
+    "id": "davv-sdsf",
+    "name": "School of Data Science & Forecasting, DAVV",
+    "city": "Indore",
+    "lat": 22.6880762,
+    "lng": 75.8749798
+  },
+  "course": {
+    "id": "mtech-aids-dual",
+    "name": "M.Tech (Dual Degree) AI & DS",
+    "semester": 7
+  },
+  "sources": {
+    "exams": [
+      {
+        "id": "mst1",
+        "name": "MST-1",
+        "date": "2025",
+        "session": "2025-26"
+      },
+      {
+        "id": "mst2",
+        "name": "MST-2",
+        "date": "2025-10",
+        "session": "2025-26"
+      },
+      {
+        "id": "mst3",
+        "name": "MST-3",
+        "date": "2025",
+        "session": "2025-26"
+      }
+    ],
+    "syllabus": null,
+    "units_from": "questions (no syllabus was available; units and topics are derived bottom-up)"
+  },
+  "subjects": [
+    {
+      "id": "text-image-analytics",
+      "name": "Text and Image Analytics",
+      "aliases": [],
+      "codes_seen": [
+        "DS6A-425"
+      ],
+      "units": [
+        {
+          "id": "text-image-analytics-u1",
+          "name": "Text Pre-processing",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "text-image-analytics-u1-t1",
+              "name": "Text Cleaning and Tokenization",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "text-image-analytics-mst2-q2",
+                  "exam": "mst2",
+                  "text": "Text pre-processing: what is it? Using appropriate examples, describe the primary steps of text pre-processing, such as tokenization, stop word and stemming.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "text-image-analytics-mst2-q3",
+                  "exam": "mst2",
+                  "text": "Why are stop words eliminated during text mining, and what are they? Give instances and talk about how they affect the creation of Word Clouds and other text analysis outcomes.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "text-image-analytics-u2",
+          "name": "Natural Language Processing",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "text-image-analytics-u2-t1",
+              "name": "Parsing and POS Tagging",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "text-image-analytics-mst2-q4",
+                  "exam": "mst2",
+                  "text": "Explain what shallow parsing is. How is it not the same as Deep Parsing? Describe how part-of-speech tagging functions in shallow parsing.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "text-image-analytics-u3",
+          "name": "Recommendation Systems",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "text-image-analytics-u3-t1",
+              "name": "Similarity Distance Measures",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "text-image-analytics-mst2-q5",
+                  "exam": "mst2",
+                  "text": "Examine and contrast the Manhattan and Euclidean distances. Give an example of how both are used in recommendation or text systems to determine how similar two data components are.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "text-image-analytics-u3-t2",
+              "name": "Recommendation System Techniques",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "text-image-analytics-mst2-q1",
+                  "exam": "mst2",
+                  "text": "Explain the working of a Recommendation System for movies. Describe different types of recommendation techniques used in such systems with suitable examples.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        }
+      ],
+      "off_syllabus": []
+    },
+    {
+      "id": "big-data-computing",
+      "name": "Big Data Computing",
+      "aliases": [],
+      "codes_seen": [
+        "DS6A-405"
+      ],
+      "units": [
+        {
+          "id": "big-data-computing-u1",
+          "name": "Introduction to Big Data",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "big-data-computing-u1-t1",
+              "name": "Big Data Fundamentals",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "big-data-computing-mst1-q1",
+                  "exam": "mst1",
+                  "text": "Discuss the origin of Big Data and explain the major challenges and applications associated with it. Additionally, describe the enabling technologies that support Big Data processing and analytics.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "big-data-computing-u2",
+          "name": "Hadoop Ecosystem",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "big-data-computing-u2-t1",
+              "name": "HDFS Architecture",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "big-data-computing-mst1-q2",
+                  "exam": "mst1",
+                  "text": "Describe the architecture and goals of HDFS. What are the key configuration parameters that affect its performance and robustness?",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "big-data-computing-u2-t2",
+              "name": "MapReduce Paradigm",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "big-data-computing-mst1-q3",
+                  "exam": "mst1",
+                  "text": "Explain the MapReduce programming paradigm with its internal working. Give a suitable example (e.g., Word Count) and mention different real-world applications of MapReduce.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "big-data-computing-u3",
+          "name": "Apache Spark",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "big-data-computing-u3-t1",
+              "name": "Resilient Distributed Datasets",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "big-data-computing-mst2-q1",
+                  "exam": "mst2",
+                  "text": "Explain the concept of Resilient Distributed Datasets (RDDs) in Apache Spark. What are their key characteristics, and how do they enable fault tolerance and parallel processing?",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "big-data-computing-u3-t2",
+              "name": "Spark Ecosystem Libraries",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "big-data-computing-mst2-q2",
+                  "exam": "mst2",
+                  "text": "Provide an overview of Spark’s built-in libraries – MLlib, GraphX, Spark Streaming, and Spark SQL. Include one use case for each library.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "big-data-computing-u4",
+          "name": "Distributed NoSQL Databases",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "big-data-computing-u4-t1",
+              "name": "Apache Cassandra Overview",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "big-data-computing-mst2-q3",
+                  "exam": "mst2",
+                  "text": "What is a key-value database? Explain how Apache Cassandra functions as a distributed key-value store.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "big-data-computing-u4-t2",
+              "name": "Data Placement Strategies",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "big-data-computing-mst2-q4",
+                  "exam": "mst2",
+                  "text": "Describe and compare Simple Strategy and Network Topology Strategy for data placement in Cassandra. When should each be used?",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "big-data-computing-u4-t3",
+              "name": "Consistency and CAP Theorem",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "big-data-computing-mst2-q5",
+                  "exam": "mst2",
+                  "text": "Define the CAP Theorem. Illustrate how it applies to distributed databases like Cassandra.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "big-data-computing-mst2-q6",
+                  "exam": "mst2",
+                  "text": "Discuss the concept of Eventual Consistency and explain how newer consistency models in Cassandra (e.g., Tunable Consistency) provide a balance between availability and consistency.",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        }
+      ],
+      "off_syllabus": []
+    },
+    {
+      "id": "data-visualization",
+      "name": "Data Visualization",
+      "aliases": [],
+      "codes_seen": [
+        "DS6A-401"
+      ],
+      "units": [
+        {
+          "id": "data-visualization-u1",
+          "name": "Introduction to Data Visualization",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "data-visualization-u1-t1",
+              "name": "Fundamentals of Data Visualization",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "data-visualization-mst1-q1",
+                  "exam": "mst1",
+                  "text": "Define data visualization. Explain its characteristics and goals with suitable examples.",
+                  "marks": 4.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "data-visualization-mst1-q2",
+                  "exam": "mst1",
+                  "text": "Why is there a need for data visualization in data science? Explain with real-world applications.",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "data-visualization-mst1-q3",
+                  "exam": "mst1",
+                  "text": "Compare Data Science and Data Visualization. Write at least four key differences.",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "data-visualization-u1-t2",
+              "name": "Basic Visualization Charts",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 6,
+              "questions": [
+                {
+                  "id": "data-visualization-mst1-q4",
+                  "exam": "mst1",
+                  "text": "Explain any three visualization charts (Scatter, Line, Pie, Bar, Histogram, Bubble, Stacked Area) with suitable use cases.",
+                  "marks": 4.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "data-visualization-mst1-q5",
+                  "exam": "mst1",
+                  "text": "Differentiate between Histogram and Bar Chart with suitable examples.",
+                  "marks": 2.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "data-visualization-u1-t3",
+              "name": "Specialized Visualization Techniques",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 4,
+              "questions": [
+                {
+                  "id": "data-visualization-mst1-q6",
+                  "exam": "mst1",
+                  "text": "What are Smart Charts? Explain any three types from the following with examples: List, Process, Cycle, Hierarchy, Relationships, Matrix, Pyramid, Pictures.",
+                  "marks": 3.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                },
+                {
+                  "id": "data-visualization-mst1-q7",
+                  "exam": "mst1",
+                  "text": "What is Text Visualization? Describe two commonly used text visualization techniques.",
+                  "marks": 1.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "data-visualization-u2",
+          "name": "Data Visualization using Power BI",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "data-visualization-u2-t1",
+              "name": "Data Cleaning and Transformation",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "data-visualization-mst2-q1",
+                  "exam": "mst2",
+                  "text": "Import a dataset (e.g., Sales, Employee, or any CSV file of your choice) into Power BI. Perform data cleaning and transformation using Power Query Editor (e.g., remove duplicates, handle nulls, rename columns, change data types).",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "data-visualization-u2-t2",
+              "name": "Power BI Visuals",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "data-visualization-mst2-q2",
+                  "exam": "mst2",
+                  "text": "Create two different types of visualizations (e.g., Bar chart and Pie chart) to represent the relationship between at least two key variables (e.g., Product Category vs. Sales). Apply appropriate titles and data labels.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p3",
+                  "repeat_of": [
+                    {
+                      "id": "data-visualization-mst1-q4",
+                      "type": "same-topic",
+                      "similarity": 0.709
+                    }
+                  ],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "data-visualization-u2-t3",
+              "name": "DAX and Measures",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "data-visualization-mst2-q3",
+                  "exam": "mst2",
+                  "text": "Implement a DAX Measure to calculate:",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "Total Sales",
+                    "Average Profit per Region",
+                    "Display both using a Card Visualization."
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "data-visualization-u2-t4",
+              "name": "Interactive Dashboards",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "data-visualization-mst2-q4",
+                  "exam": "mst2",
+                  "text": "Design an interactive dashboard combining at least three visuals (e.g., map, slicer, column chart). Add filters and slicers for user interactivity.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "data-visualization-u3",
+          "name": "Data Visualization using Tableau",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "data-visualization-u3-t1",
+              "name": "Data Loading and Preparation",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "data-visualization-mst3-q1",
+                  "exam": "mst3",
+                  "text": "Explain the complete process of Data Loading and Data Preparation in Tableau using Text files, CSV files, and Excel workbooks. Your answer should include:",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "Role of Data Interpreter",
+                    "Splitting fields, renaming, metadata grid",
+                    "Union and Join of multiple sheets/files",
+                    "Handling nulls, data types, and data cleaning options",
+                    "Advantages of using Tableau Prep vs Tableau Desktop"
+                  ],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst3.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "data-visualization-u3-t2",
+              "name": "Data Analysis Tools",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "data-visualization-mst3-q2",
+                  "exam": "mst3",
+                  "text": "Discuss Drill Down, Hierarchies, Sorting, Grouping, and Filters in Tableau in detail. Explain: Include diagrams or examples wherever appropriate.",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "Creation and use of hierarchies",
+                    "Automatic vs manual drill-down",
+                    "Types of sorting and examples",
+                    "Group formation and practical use cases",
+                    "Types of filters (Extract, Data Source, Context, Dimension, Measure, Top N)"
+                  ],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst3.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "data-visualization-u3-t3",
+              "name": "Geographic Mapping",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "data-visualization-mst3-q3",
+                  "exam": "mst3",
+                  "text": "Describe the Mapping capabilities of Tableau in detail. Your answer should include:",
+                  "marks": 10.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "Geographic roles and geocoding",
+                    "Symbol maps, filled maps, map layers",
+                    "Custom maps",
+                    "WMS (Web Map Service): features, use cases, steps to connect"
+                  ],
+                  "is_or_choice": true,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst3.pdf#p1",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "data-visualization-u3-t4",
+              "name": "Dashboards and Stories",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 0,
+              "questions": [
+                {
+                  "id": "data-visualization-mst3-q4",
+                  "exam": "mst3",
+                  "text": "Explain Dashboards and Stories in Tableau. Cover the following points:",
+                  "marks": null,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "Dashboard components (objects, charts, layout containers)",
+                    "Tiled vs Floating layout",
+                    "Formatting options (shading, borders, fonts, backgrounds)",
+                    "Interactive features (filters, highlight actions, parameters, navigation buttons)",
+                    "Story points, sequencing, and formatting in Stories",
+                    "Best practices for designing professional dashboards"
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst3.pdf#p2",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        }
+      ],
+      "off_syllabus": []
+    },
+    {
+      "id": "machine-learning",
+      "name": "Machine Learning",
+      "aliases": [],
+      "codes_seen": [
+        "DS6A-423"
+      ],
+      "units": [
+        {
+          "id": "machine-learning-u1",
+          "name": "Introduction to Machine Learning",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "machine-learning-u1-t1",
+              "name": "ML Fundamentals",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 12,
+              "questions": [
+                {
+                  "id": "machine-learning-mst1-q1",
+                  "exam": "mst1",
+                  "text": "What is Machine learning. Explain their all types?",
+                  "marks": 4.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "machine-learning-mst1-q2",
+                  "exam": "mst1",
+                  "text": "Explain algorithm of Machine learning with their real-world example (any 5)?",
+                  "marks": 4.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "machine-learning-mst1-q4",
+                  "exam": "mst1",
+                  "text": "Difference between Traditional Programming & Machine learning?",
+                  "marks": 4.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "machine-learning-u1-t2",
+              "name": "ML Life Cycle",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 4,
+              "questions": [
+                {
+                  "id": "machine-learning-mst1-q3",
+                  "exam": "mst1",
+                  "text": "Explain Machine Learning Life Cycle with flow diagram?",
+                  "marks": 4.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "machine-learning-u2",
+          "name": "Concept Learning",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "machine-learning-u2-t1",
+              "name": "Hypothesis Generation",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "machine-learning-mst1-q5",
+                  "exam": "mst1",
+                  "text": "A car dealership wants to build a machine learning model that helps predict whether a customer will buy a car or not, based on several attributes.\n\n| Example | Budget | CarType | FuelType | SafetyRating | Brand | Feature | BuyCar |\n|---|---|---|---|---|---|---|---|\n| 1 | High | SUV | Petrol | Excellent | Toyota | Advanced Safety | Yes |\n| 2 | High | SUV | Diesel | Excellent | Toyota | Advanced Safety | Yes |\n| 3 | Low | Sedan | Diesel | Medium | Unknown | Basic Features | No |\n| 4 | High | SUV | Diesel | Medium | Honda | Advanced Safety | Yes |\n\nWhat type of machine learning problem is this? Identify the input features and the target label.",
+                  "marks": 2.0,
+                  "has_table": true,
+                  "table_markdown": "| Example | Budget | CarType | FuelType | SafetyRating | Brand | Feature | BuyCar |\n|---|---|---|---|---|---|---|---|\n| 1 | High | SUV | Petrol | Excellent | Toyota | Advanced Safety | Yes |\n| 2 | High | SUV | Diesel | Excellent | Toyota | Advanced Safety | Yes |\n| 3 | Low | Sedan | Diesel | Medium | Unknown | Basic Features | No |\n| 4 | High | SUV | Diesel | Medium | Honda | Advanced Safety | Yes |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "machine-learning-mst1-q6",
+                  "exam": "mst1",
+                  "text": "Based on the dataset, what hypothesis can you propose for why customers decide to buy a car? Solve.",
+                  "marks": 3.0,
+                  "has_table": true,
+                  "table_markdown": "| Example | Budget | CarType | FuelType | SafetyRating | Brand | Feature | BuyCar |\n|---|---|---|---|---|---|---|---|\n| 1 | High | SUV | Petrol | Excellent | Toyota | Advanced Safety | Yes |\n| 2 | High | SUV | Diesel | Excellent | Toyota | Advanced Safety | Yes |\n| 3 | Low | Sedan | Diesel | Medium | Unknown | Basic Features | No |\n| 4 | High | SUV | Diesel | Medium | Honda | Advanced Safety | Yes |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p3",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "machine-learning-u3",
+          "name": "Supervised Learning",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "machine-learning-u3-t1",
+              "name": "Linear and Logistic Regression",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 10,
+              "questions": [
+                {
+                  "id": "machine-learning-mst2-q1",
+                  "exam": "mst2",
+                  "text": "A bank wants to predict whether a loan applicant will default (\"Yes\") or not (\"No\") based on three features:\nIncome ($\\text{₹}$ in lakhs)\nLoan Amount ($\\text{₹}$ in lakhs)\nCredit Score (out of 10)\nThe following dataset is given:",
+                  "marks": 5.0,
+                  "has_table": true,
+                  "table_markdown": "| Applicant | Income ($X_1$) | Loan Amount ($X_2$) | Credit Score ($X_3$) | Default |\n|---|---|---|---|---|\n| A1 | 3 | 9 | 4 | Yes |\n| A2 | 5 | 6 | 6 | No |\n| A3 | 8 | 5 | 7 | No |\n| A4 | 6 | 9 | 5 | Yes |\n| A5 | 7 | 4 | 8 | No |\n| A6 | 4 | 8 | 5 | Yes |\n| A7 | 9 | 3 | 9 | No |\n| A8 | 5 | 7 | 4 | Yes |",
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p4",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                },
+                {
+                  "id": "machine-learning-mst2-q4",
+                  "exam": "mst2",
+                  "text": "You have a DataFrame DF with features x1, x2 and target variable $y$ is continuous for regression and binary (0 or 1) for classification.\nWrite the Python code structure to:",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [
+                    "a. Import necessary libraries for linear and logistic regression.",
+                    "b. Select features and target variables.",
+                    "c. Split the data into training (80%) and testing (20%) sets.",
+                    "d. Initialize and fit a linear regression model.",
+                    "e. Initialize and fit a logistic regression model."
+                  ],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p4",
+                  "repeat_of": [],
+                  "confidence": 0.8
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        },
+        {
+          "id": "machine-learning-u4",
+          "name": "Artificial Neural Networks",
+          "from_syllabus": false,
+          "blind_spot": false,
+          "topics": [
+            {
+              "id": "machine-learning-u4-t1",
+              "name": "Perceptron Models",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "machine-learning-mst2-q2",
+                  "exam": "mst2",
+                  "text": "What is Perceptron? Explain its types. Also show working of Multi-layer Perceptron.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p4",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            },
+            {
+              "id": "machine-learning-u4-t2",
+              "name": "Activation Functions",
+              "exams_count": 1,
+              "is_repeat": false,
+              "total_marks": 5,
+              "questions": [
+                {
+                  "id": "machine-learning-mst2-q3",
+                  "exam": "mst2",
+                  "text": "What is Activation function? Explain their types with equation and graphs.",
+                  "marks": 5.0,
+                  "has_table": false,
+                  "table_markdown": null,
+                  "sub_parts": [],
+                  "is_or_choice": false,
+                  "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p4",
+                  "repeat_of": [],
+                  "confidence": 0.9
+                }
+              ],
+              "quiz": []
+            }
+          ],
+          "fog_topics": []
+        }
+      ],
+      "off_syllabus": []
+    }
+  ],
+  "unsure": [],
+  "stats": {
+    "papers": 8,
+    "questions": 39,
+    "repeats": 0,
+    "same_topic_links": 0,
+    "dropped_bleed_through": 0
+  },
+  "harness": {
+    "model": "gemma-4-31b-it",
+    "fallback_model": "gemma-4-26b-a4b-it",
+    "embedding_model": "all-MiniLM-L6-v2",
+    "dropped_bleed_through": [],
+    "manifest_disagreements": [
+      {
+        "page_ref": "mtech-aids-dual-sem7_2025-26_mst1.pdf#p1",
+        "field": "exam",
+        "ai": "'1st Term exam' -> None",
+        "manifest": "mst1",
+        "subject": "big-data-computing"
+      },
+      {
+        "page_ref": "mtech-aids-dual-sem7_2025-26_mst2.pdf#p2",
+        "field": "exam",
+        "ai": "'2nd Term exam' -> None",
+        "manifest": "mst2",
+        "subject": "big-data-computing"
+      }
+    ],
+    "repeat_judgements": [
+      {
+        "a": "data-visualization-mst1-q4",
+        "b": "data-visualization-mst2-q2",
+        "similarity": 0.709,
+        "relation": "same-topic",
+        "reason": "Both questions focus on the selection and application of different types of visualization charts, though one is theoretical and the other is practical."
+      }
+    ]
+  }
+}
