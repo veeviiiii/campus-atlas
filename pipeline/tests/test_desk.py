@@ -319,6 +319,7 @@ class Write(unittest.TestCase):
         self.assertEqual(plan.errors, [])
         self.assertEqual([r["manifest"] for r in results], ["data/raw/test-college/bca/sem1/manifest.yaml", "data/raw/test-college/bca/sem2/manifest.yaml"])
         self.assertTrue(results[0]["ok"], results[0]["check"])
+        self.assertTrue(results[0]["check"].startswith("data/raw/test-college/bca/sem1/manifest.yaml: ready"), results[0]["check"])
         self.assertFalse(results[1]["ok"])  # only a held-back page: the new manifest still has its TODOs
 
         m = yaml.safe_load((self.sem1 / "manifest.yaml").read_text(encoding="utf-8"))
@@ -328,6 +329,7 @@ class Write(unittest.TestCase):
         self.assertEqual(files["bca-sem1_2024-25_mst1.pdf"]["pages"], [{"page": 1, "subject": "maths"}, {"page": 2, "subject": "maths", "continues_previous": True}])
         self.assertEqual(files["bca-sem1_2024-25_end.pdf"]["pages"], [{"page": 1, "subject": "maths"}, {"page": 2, "subject": "c-lang"}])
         held = (self.sem2 / "manifest.yaml").read_text(encoding="utf-8")
+        self.assertTrue(held.splitlines()[1].startswith("# Made by the intake desk"))
         self.assertIn('"tests.pdf" page 3: no test number. physics. 20 marks', held)
 
         # The PDFs: 200 dpi pages, the name blacked out, the right half turned.
@@ -442,6 +444,27 @@ class Server(Write):
         self.assertEqual(status, 200)
         self.assertEqual(Image.open(io.BytesIO(body)).format, "JPEG")
         self.assertEqual(self.request("GET", "/api/image?src=../secret.pdf&page=1")[0], 400)
+
+    def test_a_run_shows_the_reports_unsure_list(self):
+        import sys
+        import time
+
+        from pipeline.desk import server
+
+        run_dir = self.root / "runs" / "20261031-000000"
+        run_dir.mkdir(parents=True)
+        unsure = [{"page_ref": "x.pdf#p2", "step": "validate", "error": "text too short", "raw": "Q3"}]
+        (run_dir / "report.json").write_text(json.dumps({"unsure": unsure, "papers": [{"questions": 7}], "dropped": [], "disagreements": [{}]}), encoding="utf-8")
+        # A stand-in for build_pack: prints like it, calls no model.
+        r = server.Run("data/raw/x/manifest.yaml", cmd=[sys.executable, "-c", "print('model: m | papers: 1'); print('report: runs/20261031-000000/report.md')"])
+        for _ in range(100):
+            if r.code is not None:
+                break
+            time.sleep(0.05)
+        self.assertEqual(r.code, 0)
+        self.assertIn("model: m | papers: 1", r.lines)
+        rep = r.report()
+        self.assertEqual((rep["unsure"], rep["questions"], rep["disagreements"]), (unsure, 7, 1))
 
     def test_other_sites_cannot_use_it(self):
         self.assertEqual(self.request("GET", "/api/folder", Host="evil.example:80")[0], 403)

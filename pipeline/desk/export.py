@@ -269,7 +269,8 @@ def make_plan(folder: Path, desk: Desk, sources: list[Source]) -> Plan:
             path = intake.manifest_path(c, sem)
             exists = path.exists()
             rel = path.relative_to(intake.ROOT).as_posix()
-            text = path.read_text(encoding="utf-8") if exists else intake.template(c, sem)
+            text = path.read_text(encoding="utf-8") if exists else intake.template(c, sem).replace(
+                "# Made by `python -m pipeline.intake new`.", "# Made by the intake desk (python -m pipeline.desk).")
             before = desk.written.get(rel, {"files": [], "exams": [], "subjects": []})
             targets[(course_id, sem)] = Target(c, sem, path, text, exists, before)
         return targets[(course_id, sem)]
@@ -409,11 +410,11 @@ def _write_text(path: Path, text: str) -> None:
 
 
 def check(path: Path) -> tuple[bool, str]:
-    """intake check, with what it printed."""
+    """intake check, with what it printed (paths relative to the repo, as on the command line)."""
     out = io.StringIO()
     with contextlib.redirect_stdout(out):
         ok = intake.check(path)
-    return ok, out.getvalue()
+    return ok, out.getvalue().replace(intake.ROOT.as_posix() + "/", "")
 
 
 def write(folder: Path, desk: Desk, sources: list[Source], log=lambda msg: None) -> tuple[Plan, list[dict]]:
