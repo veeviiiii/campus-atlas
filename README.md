@@ -7,9 +7,9 @@ Starting with DAVV, Indore. Pick your course and semester, open a subject, and y
 - **Papers:** every mid-sem (MST-1, 2, 3) and End Sem paper, question by question (maths and tables included),
   each question linked to the photo of its original page.
 - **Likely topics:** the subject's topics ranked by how often and how heavily they were asked, each with
-  its reasons ("asked in MST-2 and End Sem", "came back word for word", "25 marks in total"). With one
-  year of papers this is a frequency score, not a prediction model; it gets more useful as older papers
-  are added.
+  its reasons ("asked in MST-2 and End Sem", "came back word for word", "25 marks in total"). With so
+  few years of papers this is a frequency score, not a prediction model; it gets more useful as older
+  papers are added.
 - **Marks by unit:** how many marks each unit carried in each exam, and the units only the End Sem
   asked about ("Optics and Lasers were never asked in the mid-sems, but carried 90 of 150 marks").
 - **Search** every question on the site by a word, a topic or a subject, and **print** any paper on
@@ -31,16 +31,19 @@ anyone add a course. Apache-2.0.
 
 ## What it found (DAVV, M.Tech AI&DS, Semester 1)
 
-From 21 papers (3 exams x 7 subjects, 22 phone photos), the pipeline found, without any of this being
-hard-coded:
+From 39 papers of two years (2025-26 and 2022-23: the mid-sems and End Sems of 7 subjects, 40 phone
+photos), the pipeline found, without any of this being hard-coded:
 
-- **21 questions that came back** from MST-1/MST-2 in the End Sem (9 word for word, 12 nearly so),
-  plus 31 End Sem questions on the same specific topic as an MST question.
-- **Blind spots:** units with no MST question but real End Sem marks, e.g. Physics *Optics* and
-  *Lasers*, Statistics *Correlation and Regression* and *Index Numbers*, Programming
-  *Object-Oriented Programming*, Electronics *Operational Amplifiers*.
-- 204 questions kept, 11 fragments of other papers dropped, 0 left unsure.
+- **37 End Sem questions that came back** from an earlier paper (14 word for word, 23 nearly so):
+  25 from the same year's mid-sems, and 12 in the 2025-26 End Sem that only 2022-23 papers had asked
+  (5 of them in its End Sem). Plus 45 more End Sem questions on the same specific topic as an earlier
+  question.
+- **Blind spots:** units asked in an End Sem but never in a mid-sem, in either year, e.g. Mathematics
+  *Integral Calculus* and *Vector Calculus*, Physics *Lasers and Fiber Optics*, Statistics
+  *Index Numbers*, Programming *Object-Oriented Programming*, Electronics *Operational Amplifiers*.
+- 370 questions kept, 12 fragments of other papers dropped, 0 left unsure.
   Full run report: [runs/sample/report.md](runs/sample/report.md).
+- Also on the site: Semesters 2, 4, 5 and 7 (2022-23 to 2025-26), from seniors' papers.
 
 ## Open-source AI inside
 
@@ -76,7 +79,7 @@ Things the harness had to handle in the real papers:
 - an upside-down photo (the model spotted it and Pillow turned it), and pages photographed landscape;
 - **bleed-through**: fragments of other papers under the photo, e.g. an Environmental Science question
   at the bottom of a Physics page, and faint text of the Programming paper showing *through* the Intro to
-  CS page. The harness dropped 11 such fragments, each logged with the visual reason;
+  CS page. The harness dropped 12 such fragments, each logged with the visual reason;
 - unreliable course codes (`DS6A-101` is printed on both Maths and Programming), so subjects are matched
   by name and an alias table, never by code;
 - a header that says "test 2" on an MST-1 paper (the human manifest wins and the disagreement is
@@ -142,7 +145,8 @@ Older years of an existing course are just as welcome: they make Likely topics b
 
 ## Honest limits
 
-- **One year of papers** (2025-26, three exams). A topic asked once may still be important.
+- **Few years of papers:** one to three per semester, and not every exam of every year. A topic asked
+  once may still be important.
 - **Likely topics is a frequency score**, not a prediction model: it ranks what was asked most often and
   most heavily. A real model needs 3+ years of papers and a test against a year it has not seen.
 - **No syllabus was used** for this pack: units and topics are grouped from the questions themselves.

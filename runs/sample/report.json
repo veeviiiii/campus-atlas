@@ -8,7 +8,7 @@
     "mathematics-1",
     "physics-1"
   ],
-  "started": "20261017-034223",
+  "started": "20261031-023352",
   "pages": [
     {
       "page_ref": "End_sem_pyq_sem1.pdf#p1",
@@ -163,6 +163,132 @@
       "header_subject": "Fundamental Of Programming language",
       "header_exam": "TEST-I",
       "header_code": "DS6A-105"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p1",
+      "rotation": 0,
+      "header_subject": "Descriptive Statistics",
+      "header_exam": "(SEMESTER EXAM)",
+      "header_code": "DS6A-105"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p2",
+      "rotation": 0,
+      "header_subject": "Fundamentals of Electronics",
+      "header_exam": null,
+      "header_code": "DS6A-121"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p3",
+      "rotation": 0,
+      "header_subject": "Fundamental OF Programming",
+      "header_exam": null,
+      "header_code": "DS6A-105"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p4",
+      "rotation": 0,
+      "header_subject": "Physics I",
+      "header_exam": "First Semester End Examination",
+      "header_code": "DS6A-103"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p5",
+      "rotation": 0,
+      "header_subject": "Environmental Science",
+      "header_exam": null,
+      "header_code": "DS6A-141"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p6",
+      "rotation": 0,
+      "header_subject": "Mathematics-I",
+      "header_exam": null,
+      "header_code": null
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p7",
+      "rotation": 0,
+      "header_subject": "Introduction to Computer Science",
+      "header_exam": "End Semester Examination (March, 2023)",
+      "header_code": "DS6A-109"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst1.pdf#p1",
+      "rotation": 0,
+      "header_subject": "Descriptive Statistics",
+      "header_exam": "TEST I",
+      "header_code": "DS6A-105"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst1.pdf#p2",
+      "rotation": 0,
+      "header_subject": "FUNDAMENTAL OF PROGRAMMING",
+      "header_exam": "First Test",
+      "header_code": null
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst1.pdf#p3",
+      "rotation": 0,
+      "header_subject": "Physics",
+      "header_exam": "Internal -1",
+      "header_code": null
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst1.pdf#p4",
+      "rotation": 0,
+      "header_subject": "Environmental Science",
+      "header_exam": "First Test",
+      "header_code": null
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst1.pdf#p5",
+      "rotation": 0,
+      "header_subject": "Mathematics-I",
+      "header_exam": "Test-I",
+      "header_code": null
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst1.pdf#p6",
+      "rotation": 0,
+      "header_subject": "Introduction to Computer Science",
+      "header_exam": "First Test",
+      "header_code": "DS6A-109"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst2.pdf#p1",
+      "rotation": 0,
+      "header_subject": "Descriptive Statistics",
+      "header_exam": "TEST-2",
+      "header_code": "DS6A-105"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst2.pdf#p2",
+      "rotation": 0,
+      "header_subject": "Fundamental OF ProgrammingAI & DS",
+      "header_exam": "Second Test",
+      "header_code": null
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst2.pdf#p3",
+      "rotation": 0,
+      "header_subject": "Environmental Science",
+      "header_exam": "Second Test",
+      "header_code": null
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst3.pdf#p1",
+      "rotation": 0,
+      "header_subject": "Physics I",
+      "header_exam": "Internal Exam -III",
+      "header_code": null
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst3.pdf#p2",
+      "rotation": 0,
+      "header_subject": "Mathematics-I",
+      "header_exam": "Internal Test-III",
+      "header_code": null
     }
   ],
   "disagreements": [
@@ -177,6 +303,48 @@
       "field": "exam",
       "ai": "'I Semester Examination (test 2)' -> mst2",
       "manifest": "mst1"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p1",
+      "field": "rotation",
+      "ai": 90,
+      "manifest": 0
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p1",
+      "field": "exam",
+      "ai": "'(SEMESTER EXAM)' -> None",
+      "manifest": "end-2022-23"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p2",
+      "field": "exam",
+      "ai": "None -> None",
+      "manifest": "end-2022-23"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p3",
+      "field": "exam",
+      "ai": "None -> None",
+      "manifest": "end-2022-23"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p5",
+      "field": "exam",
+      "ai": "None -> None",
+      "manifest": "end-2022-23"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p6",
+      "field": "exam",
+      "ai": "None -> None",
+      "manifest": "end-2022-23"
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst2.pdf#p2",
+      "field": "subject",
+      "ai": "'Fundamental OF ProgrammingAI & DS' -> None",
+      "manifest": "fundamentals-of-programming"
     }
   ],
   "dropped": [
@@ -245,6 +413,12 @@
       "text": "copying Statements in C++. And write the multiplication table for any given number",
       "likely_subject": "Computer Science",
       "reason": "The text appears as a faint ghost image behind the main text, indicating it is on a separate sheet of paper underneath."
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst1.pdf#p3",
+      "text": "relative velocity,",
+      "likely_subject": "Physics",
+      "reason": "The text is located below the bottom edge of the main sheet and is partially cut off, indicating it is on a separate piece of paper underneath."
     }
   ],
   "unsure": [],
@@ -375,6 +549,114 @@
       "subject": "fundamentals-of-programming",
       "exam": "mst1",
       "questions": 4
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p1",
+      "subject": "descriptive-statistics",
+      "exam": "end-2022-23",
+      "questions": 7
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p2",
+      "subject": "fundamentals-of-electronics",
+      "exam": "end-2022-23",
+      "questions": 17
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p3",
+      "subject": "fundamentals-of-programming",
+      "exam": "end-2022-23",
+      "questions": 13
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p4",
+      "subject": "physics-1",
+      "exam": "end-2022-23",
+      "questions": 12
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p5",
+      "subject": "environmental-science",
+      "exam": "end-2022-23",
+      "questions": 11
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p6",
+      "subject": "mathematics-1",
+      "exam": "end-2022-23",
+      "questions": 12
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_end.pdf#p7",
+      "subject": "intro-to-cs",
+      "exam": "end-2022-23",
+      "questions": 19
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst1.pdf#p1",
+      "subject": "descriptive-statistics",
+      "exam": "mst1-2022-23",
+      "questions": 7
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst1.pdf#p2",
+      "subject": "fundamentals-of-programming",
+      "exam": "mst1-2022-23",
+      "questions": 8
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst1.pdf#p3",
+      "subject": "physics-1",
+      "exam": "mst1-2022-23",
+      "questions": 5
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst1.pdf#p4",
+      "subject": "environmental-science",
+      "exam": "mst1-2022-23",
+      "questions": 16
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst1.pdf#p5",
+      "subject": "mathematics-1",
+      "exam": "mst1-2022-23",
+      "questions": 6
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst1.pdf#p6",
+      "subject": "intro-to-cs",
+      "exam": "mst1-2022-23",
+      "questions": 6
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst2.pdf#p1",
+      "subject": "descriptive-statistics",
+      "exam": "mst2-2022-23",
+      "questions": 4
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst2.pdf#p2",
+      "subject": "fundamentals-of-programming",
+      "exam": "mst2-2022-23",
+      "questions": 5
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst2.pdf#p3",
+      "subject": "environmental-science",
+      "exam": "mst2-2022-23",
+      "questions": 8
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst3.pdf#p1",
+      "subject": "physics-1",
+      "exam": "mst3-2022-23",
+      "questions": 6
+    },
+    {
+      "page_ref": "mtech-aids-dual-sem1_2022-23_mst3.pdf#p2",
+      "subject": "mathematics-1",
+      "exam": "mst3-2022-23",
+      "questions": 4
     }
   ],
   "model": {
@@ -382,14 +664,14 @@
     "model": "gemma-4-31b-it"
   },
   "calls": {
-    "calls": 194,
-    "live_calls": 129,
-    "cached_calls": 65,
-    "failed_calls": 56,
-    "live_seconds": 5065.4,
+    "calls": 251,
+    "live_calls": 10,
+    "cached_calls": 241,
+    "failed_calls": 6,
+    "live_seconds": 496.7,
     "answers_by_model": {
-      "gemma-4-26b-a4b-it": 5,
-      "gemma-4-31b-it": 133
+      "gemma-4-26b-a4b-it": 61,
+      "gemma-4-31b-it": 184
     }
   }
 }
