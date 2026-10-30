@@ -147,12 +147,14 @@ class GeminiProvider(Provider):
         from google.genai import types
 
         parts = [types.Part.from_bytes(data=b, mime_type="image/jpeg") for b in images] + [prompt]
-        resp = self.client.models.generate_content(
+        # Streamed: Gemma 4 thinks for up to two minutes before it writes anything, and a plain request
+        # that long often ends in 504 DEADLINE_EXCEEDED or a read timeout. The stream keeps the line busy.
+        stream = self.client.models.generate_content_stream(
             model=model,
             contents=parts,
             config=types.GenerateContentConfig(temperature=0),
         )
-        return resp.text or ""
+        return "".join(chunk.text or "" for chunk in stream)
 
 
 class OpenAICompatibleProvider(Provider):
