@@ -7,6 +7,9 @@ Switch with MODEL_PROVIDER in .env:
 
 Every call runs at temperature 0, is logged (for the run report) and cached on disk under
 data/work/cache/ so re-runs are cheap and repeatable.
+
+The intake desk may read pages with another model (DESK_MODEL_ID in .env) to pre-fill fields the
+maintainer then confirms; packs are always built with MODEL_ID.
 """
 
 import base64
@@ -181,15 +184,19 @@ class OpenAICompatibleProvider(Provider):
         return resp.choices[0].message.content or ""
 
 
-_PROVIDER: Provider | None = None
+_PROVIDERS: dict[str, Provider] = {}
 
 
-def get_provider() -> Provider:
-    global _PROVIDER
-    if _PROVIDER is None:
+def get_provider(model: str = "") -> Provider:
+    """The provider set in .env. With `model`: one that asks that model first, then FALLBACK_MODEL_ID
+    (the intake desk's DESK_MODEL_ID)."""
+    if model not in _PROVIDERS:
         kind = os.environ.get("MODEL_PROVIDER", "gemini")
-        _PROVIDER = {"gemini": GeminiProvider, "openai_compatible": OpenAICompatibleProvider}[kind]()
-    return _PROVIDER
+        p = {"gemini": GeminiProvider, "openai_compatible": OpenAICompatibleProvider}[kind]()
+        if model:
+            p.model = model
+        _PROVIDERS[model] = p
+    return _PROVIDERS[model]
 
 
 if __name__ == "__main__":
