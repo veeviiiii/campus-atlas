@@ -28,6 +28,62 @@ All commands run in a terminal (PowerShell or Git Bash) opened in the repository
 
 `intake` never calls the AI model and costs nothing. Only step 7 uses the API.
 
+**Steps 2 to 7 in one page:** the [intake desk](#using-the-desk) does them for a whole folder (mixed
+semesters, two papers per photo, sideways pages, names to black out) without editing any file by hand.
+The commands in steps 3 to 6 still work for a single paper.
+
+## Using the desk
+
+```bash
+.venv/Scripts/python -m pipeline.desk "E:/uploads/M.Tech Int AIDS 5 year"
+```
+
+It opens http://127.0.0.1:8790 in the browser (start it without a folder to pick one on the page).
+It runs only on this laptop: no sign-in, nothing uploaded, no API key needed. Every page of every PDF
+and photo in the folder (subfolders too) is a card. Click one, then:
+
+- **Turn** it upright: ↺ / ↻ (or `R`).
+- **Split** a photo of two papers: **Top / bottom** or **Left / right**, then drag the dashed line.
+  Each half gets its own fields; **Turn this half** if one half is the other way up.
+- **Black out** names, roll numbers and signatures: drag a box on the page. The box is burned into
+  the PDF's pixels and the new PDFs keep no hidden text layer from the scanner app, so nothing is left
+  under it. The small cards show exactly what will be written.
+- **Use**, **Skip** (duplicates, answer sheets, anything that isn't a question paper) or **Held back**
+  (a real paper with no year, no test number or no subject). Held-back pages are listed, with their
+  reason, at the top of that semester's manifest until you know more.
+- **Course, semester, subject, exam, session, date.** Shift-click a range (or **Select all** on a file)
+  to set course, semester, exam and session for many pages at once, then the subject page by page.
+  **+ New** adds a subject with the other names printed on its papers. The date belongs to the exam:
+  set it once.
+- **Continues the previous page** (`C`) for a paper's second page: it takes that paper's subject and exam.
+
+Keys: `←` `→` move, `U` use, `S` skip, `H` held back, `C` continues, `R` turn, `Del` removes the
+selected black-out box. Everything is saved as you go to `desk-decisions.json` in the folder of
+sources: close the page whenever you like and open the folder again to carry on.
+
+**Write PDFs and manifests** first lists what it will write and anything to fix (a page with no
+subject, a date outside its session, a subject the manifest already has in that exam). Then it:
+
+- writes one PDF per course-semester, session and exam, named `<course>-sem<N>_<session>_<exam>.pdf`,
+  in `data/raw/<school>/<course>/sem<N>/`. If a PDF of that name exists and the desk did not make it,
+  it uses `_2`, `_3` and leaves the old one alone;
+- adds them to that semester's `manifest.yaml` (made from the usual template if missing). Lines already
+  in the manifest are never changed or moved: new exams, subjects and files go at the end, each page
+  with a comment naming the source page it came from. Exam ids follow the usual rule: `mst1`, `end`
+  for the manifest's first year and `end-2024-25` for any other (in a new manifest, the newest year
+  is the first);
+- runs `intake check` on every manifest it touched and shows the result.
+
+Writing again after a change replaces only what the desk wrote before. Edit pages in the desk, not
+the desk's own lines in the manifest (the next write would put them back).
+
+**Run the pipeline** (on a manifest that is ready) runs step 7, shows its log as it goes and, at the
+end, the run report's **Unsure** list. Carry on from step 8.
+
+Optional: start it with `--suggest` for a **Read the header (model)** button that asks the model to
+read a page's printed header and suggests the subject and exam (one model call per page, cached in
+`data/work/cache`). It is only a suggestion: check it against the picture.
+
 ## 1. Download the uploads
 
 - **Responses:** Google Forms, open the form, **Responses**, then **Link to Sheets** (or **View in
@@ -44,6 +100,8 @@ Every page you publish is shown on the site as a photo. Before going on, open ea
 - delete answer sheets, mark lists and anything that isn't a question paper;
 - crop or cover names, roll numbers and signatures;
 - delete duplicates and blurry shots.
+
+(In the desk: **Skip** and the black-out boxes.)
 
 ## 3. Make the course folder and manifest
 
