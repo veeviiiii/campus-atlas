@@ -29,7 +29,7 @@ MAX_IMAGE_SIDE = 2048  # pages are rendered at 200 dpi; downscale only for trans
 MAX_ATTEMPTS = 6  # per model
 PRIMARY_ATTEMPTS_WITH_FALLBACK = 3
 REQUEST_TIMEOUT_S = 240
-RETRYABLE = ("429", "500", "502", "503", "504", "RESOURCE_EXHAUSTED", "UNAVAILABLE", "INTERNAL", "timeout", "Timeout", "Connect")  # ConnectError, ConnectionError
+RETRYABLE = ("429", "500", "502", "503", "504", "RESOURCE_EXHAUSTED", "UNAVAILABLE", "INTERNAL", "timeout", "Timeout", "Connect", "RemoteProtocolError")  # ConnectError, ConnectionError; a stream cut off
 
 
 def log(msg: str) -> None:
