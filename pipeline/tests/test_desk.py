@@ -406,6 +406,7 @@ class Server(Write):
 
         self.app = server.App()
         self.app.open(self.src)
+        self.wait(lambda: self.app.dupes_ready)  # the picture matches run in the background, in the temporary repo
         self.httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.make_handler(self.app, 0))
         port = self.httpd.server_address[1]
         self.httpd.RequestHandlerClass = server.make_handler(self.app, port)
@@ -414,6 +415,15 @@ class Server(Write):
         self.addCleanup(self.httpd.shutdown)
         self.conn = lambda: http.client.HTTPConnection("127.0.0.1", port, timeout=10)
         self.host = f"127.0.0.1:{port}"
+
+    def wait(self, done):
+        import time
+
+        for _ in range(250):
+            if done():
+                return
+            time.sleep(0.02)
+        self.fail("timed out")
 
     def request(self, method, path, body=None, **headers):
         c = self.conn()
@@ -465,6 +475,62 @@ class Server(Write):
         self.assertIn("model: m | papers: 1", r.lines)
         rep = r.report()
         self.assertEqual((rep["unsure"], rep["questions"], rep["disagreements"]), (unsure, 7, 1))
+
+    def test_one_file_opens_on_its_own(self):
+        status, body = self.request("POST", "/api/open", {"folder": f'"{self.src / "tests.pdf"}"'})  # quotes as Windows copies a path
+        self.assertEqual(status, 200, body)
+        info = json.loads(body)
+        self.assertEqual(([s["id"] for s in info["sources"]], info["name"], info["state_file"]), (["tests.pdf"], "tests.pdf", "tests.pdf.desk-decisions.json"))
+        self.wait(lambda: self.app.dupes_ready)
+        self.request("PUT", "/api/state", {"pages": {"tests.pdf#1": {"parts": [{"status": "skip"}]}}})
+        self.assertTrue((self.src / "tests.pdf.desk-decisions.json").exists())
+        self.assertFalse((self.src / "desk-decisions.json").exists())
+        status, body = self.request("GET", "/api/browse?path=" + str(self.src).replace(" ", "%20"))
+        self.assertEqual([f["name"] for f in json.loads(body)["files"]], ["tests.pdf"])
+
+    def test_reading_pages_through_the_api(self):
+        from pipeline.desk import reader
+        from pipeline.providers import Provider
+
+        class StandIn(Provider):  # answers every page the same way; no model is called
+            model = "stand-in"
+
+            def generate(self, prompt, images=None, step=""):
+                return json.dumps({"rotation": 0, "kind": "question paper", "papers": [
+                    {"position": "whole", "has_header": True, "exam_title": "MST-1", "subject_name": "Maths", "course_name": "BCA",
+                     "semester": "I Sem", "date": "Sept. 2024", "year": None}]})
+
+        for p in (mock.patch.object(reader, "provider", lambda: StandIn()), mock.patch.object(reader, "problem", lambda: "")):
+            p.start()
+            self.addCleanup(p.stop)
+        self.sem1.mkdir(parents=True)
+        (self.sem1 / "manifest.yaml").write_text(intake.template(CATALOG["courses"][0], 1).replace(
+            "subjects:\n", "subjects:\n  - id: maths\n    name: Mathematics\n    aliases: [Maths]\n", 1), encoding="utf-8")
+        decided = {"pages": {"tests.pdf#3": {"parts": [{"status": "skip"}]}}}  # a decided page is not read
+        self.request("PUT", "/api/state", decided)
+        status, body = self.request("POST", "/api/read", {})
+        self.assertEqual(json.loads(body), {"queued": 3, "model": "stand-in"})
+        self.wait(lambda: not json.loads(self.request("GET", "/api/read")[1])["running"])
+        r = json.loads(self.request("GET", "/api/read")[1])
+        self.assertEqual((r["done"], r["failed"], r["dupes_ready"]), (3, 0, True))
+        s = r["suggestions"]["tests.pdf#1"]["parts"][0]
+        self.assertEqual({k: s[k] for k in ("status", "course", "semester", "subject", "kind", "session", "date")},
+                         {"status": "use", "course": "bca", "semester": 1, "subject": "maths", "kind": "mst1", "session": "2024-25", "date": "2024-09"})
+        # Readings are kept in the decisions file, and saving the page's state does not drop them.
+        self.request("PUT", "/api/state", decided)
+        self.assertEqual(sorted(decisions.load(self.src).reads), ["end/two papers.pdf#1", "tests.pdf#1", "tests.pdf#2"])
+        self.assertNotIn("reads", json.loads(self.request("GET", "/api/folder")[1])["state"])
+        self.assertEqual(json.loads(self.request("POST", "/api/read", {})[1])["queued"], 0)  # all read already
+        self.assertEqual(json.loads(self.request("POST", "/api/read", {"pages": ["tests.pdf#1", "nope.pdf#1"]})[1])["queued"], 1)
+
+    def test_reading_needs_a_key_but_nothing_else_does(self):
+        from pipeline.desk import reader
+
+        with mock.patch.dict("os.environ", {"MODEL_PROVIDER": "gemini", "GEMINI_API_KEY": ""}):
+            self.assertEqual(reader.problem(), "no GEMINI_API_KEY in .env")
+            status, body = self.request("POST", "/api/read", {})
+            self.assertEqual((status, json.loads(body)["error"]), (400, "cannot read pages: no GEMINI_API_KEY in .env"))
+            self.assertEqual(json.loads(self.request("GET", "/api/folder")[1])["reader"]["problem"], "no GEMINI_API_KEY in .env")
 
     def test_other_sites_cannot_use_it(self):
         self.assertEqual(self.request("GET", "/api/folder", Host="evil.example:80")[0], 403)
