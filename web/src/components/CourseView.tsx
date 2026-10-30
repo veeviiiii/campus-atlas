@@ -57,7 +57,7 @@ export default function CourseView({ entry }: { entry: PackEntry }) {
             <MiniPlanet topics={planet} tint={SUBJECT_COLORS[i % SUBJECT_COLORS.length]} />
             <h3>{s.name}</h3>
             <span className="mono">
-              {papers} papers · {questions} questions
+              {papers} paper{papers === 1 ? "" : "s"} · {questions} question{questions === 1 ? "" : "s"}
             </span>
             {repeats > 0 && (
               <span className="mono" style={{ color: HEAT.repeat }}>
@@ -75,7 +75,7 @@ export default function CourseView({ entry }: { entry: PackEntry }) {
       </div>
 
       <p className="note">
-        Based on {pack.stats.papers} papers
+        Based on {pack.stats.papers} paper{pack.stats.papers === 1 ? "" : "s"}
         {sessions.length > 1
           ? ` from ${sessions.length} years (${[...sessions].reverse().join(", ")}).`
           : `: ${inOrder(exams)

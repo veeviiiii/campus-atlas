@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const p = e.pack;
   return {
     title: `${p.course.name}, Semester ${p.course.semester} past papers · Campus Atlas`,
-    description: `Past papers of ${p.course.name}, Semester ${p.course.semester}, ${p.college.name}, Indore: ${p.stats.papers} papers (${examsSummary(p.sources.exams)}) in ${p.subjects.length} subjects, ${p.subjects.map((s) => s.name).join(", ")}.`,
+    description: `Past papers of ${p.course.name}, Semester ${p.course.semester}, ${p.college.name}, Indore: ${p.stats.papers} paper${p.stats.papers === 1 ? "" : "s"} (${examsSummary(p.sources.exams)}) in ${p.subjects.length} subject${p.subjects.length === 1 ? "" : "s"}, ${p.subjects.map((s) => s.name).join(", ")}.`,
     alternates: { canonical: courseHref(e.key) },
   };
 }

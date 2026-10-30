@@ -71,7 +71,7 @@ export default async function CoursePage({ params }: { params: Promise<Params> }
                     s.key ? (
                       <Link key={s.semester} className="sem-tile ready" href={courseHref(s.key)}>
                         <b>Semester {s.semester}</b>
-                        <span className="mono">{s.mock ? "Mock data · dev only" : `${s.papers} papers →`}</span>
+                        <span className="mono">{s.mock ? "Mock data · dev only" : `${s.papers} paper${s.papers === 1 ? "" : "s"} →`}</span>
                       </Link>
                     ) : (
                       <div key={s.semester} className="sem-tile">
