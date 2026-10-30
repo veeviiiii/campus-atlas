@@ -27,6 +27,12 @@ from pipeline.report import RunReport
 DEFAULT_MANIFEST = ROOT / "data/raw/davv-sdsf/mtech-aids-dual/sem1/manifest.yaml"
 
 
+def about(items: list[dict], refs: set[str]) -> list[dict]:
+    """The report items on these pages. A page_ref is one page or several joined by ", "; match whole
+    refs, since "x.pdf#p1" is also the start of "x.pdf#p10"."""
+    return [x for x in items if refs & set(str(x.get("page_ref", "")).split(", "))]
+
+
 def run(manifest_path: Path, subjects: list[str] | None, workers: int) -> Path:
     m = load_manifest(manifest_path)
     todo = [p for p in papers(m) if not subjects or p.subject in subjects]
@@ -61,7 +67,7 @@ def run(manifest_path: Path, subjects: list[str] | None, workers: int) -> Path:
     for sid in sids:
         mine = [(p, qs, codes) for p, qs, codes in results if p.subject == sid]
         refs = {pg.ref for p, _, _ in mine for pg in p.pages}
-        about_me = lambda items: [x for x in items if any(r in str(x.get("page_ref", "")) for r in refs)]  # noqa: E731
+        about_me = lambda items: about(items, refs)  # noqa: E731
         out = {
             "subject_id": sid,
             "subject_name": subject_name(m, sid),

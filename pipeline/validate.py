@@ -73,12 +73,23 @@ def parse_json(text: str) -> Any:
     """Parse a model reply that should be JSON, tolerating ```json fences or stray prose."""
     t = re.sub(r"^\s*```(?:json)?\s*|\s*```\s*$", "", text.strip())
     try:
-        return json.loads(t)
+        return _loads(t)
     except json.JSONDecodeError:
         start, end = t.find("{"), t.rfind("}")
         if start != -1 and end > start:
-            return json.loads(t[start : end + 1])
+            return _loads(t[start : end + 1])
         raise
+
+
+def _loads(t: str) -> Any:
+    """json.loads, but a LaTeX backslash the model forgot to double ("\\{", "\\s") is read as itself.
+    Only backslashes that are not a JSON escape are touched; the result is still schema-checked."""
+    try:
+        return json.loads(t)
+    except json.JSONDecodeError as e:
+        if not e.msg.startswith("Invalid \\escape"):
+            raise
+        return json.loads(re.sub(r"\\(.)", lambda m: m[0] if m[1] in '"\\/bfnrtu' else "\\\\" + m[1], t, flags=re.S))
 
 
 def _check(reply: str, model_cls: type[M], extra: Callable[[M], str | None] | None) -> tuple[M | None, str | None]:

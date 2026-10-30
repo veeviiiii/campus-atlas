@@ -1,5 +1,6 @@
 import unittest
 
+from pipeline.build_pack import about
 from pipeline.pack import blind_spot, came_back, confidence, topic_marks
 
 ORDER = {"mst1-2024-25": 0, "end-2024-25": 1, "mst1": 2, "mst2": 3, "end": 4}
@@ -28,6 +29,13 @@ class Scoring(unittest.TestCase):
     def test_confidence_drops_with_each_check_it_needed(self):
         self.assertEqual(confidence({}), 0.9)
         self.assertEqual(confidence({"contamination_checked": True, "extract_retried": True}), 0.7)
+
+
+class ReportItems(unittest.TestCase):
+    def test_page_1_is_not_page_10(self):
+        items = [{"page_ref": "e.pdf#p10"}, {"page_ref": "e.pdf#p1"}, {"page_ref": "e.pdf#p9, e.pdf#p10"}]
+        self.assertEqual(about(items, {"e.pdf#p1"}), [{"page_ref": "e.pdf#p1"}])
+        self.assertEqual(len(about(items, {"e.pdf#p9", "e.pdf#p10"})), 2)
 
 
 if __name__ == "__main__":

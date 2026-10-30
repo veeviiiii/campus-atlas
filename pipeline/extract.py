@@ -98,7 +98,7 @@ PAGE_NOTE = "\n\nNote: this image is page {k} of {n} of the same paper. It may s
 
 def _extract_once(paper: Paper, images: list[Path], note: str, ref: str, max_marks: float | None, m: dict, report: RunReport) -> tuple[list[Question], bool]:
     prompt = EXTRACT_PROMPT.format(n=len(images), subject=subject_name(m, paper.subject), exam=exam_name(m, paper.exam)) + note
-    n = len(images)
+    n = len(paper.pages)  # one page of a longer paper may be numbered "page k of n"; extract_paper renumbers it
 
     def check(ex: Extraction) -> str | None:
         _, bad = validate_items(ex.questions, max_marks, n)

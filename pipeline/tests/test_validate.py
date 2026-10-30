@@ -29,6 +29,10 @@ class ParseJson(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_json("no json here")
 
+    def test_latex_backslash_the_model_did_not_double(self):
+        self.assertEqual(parse_json(r'{"t": "$A = \{1, 2\}$"}'), {"t": r"$A = \{1, 2\}$"})
+        self.assertEqual(parse_json(r'{"t": "\\frac{1}{2} \{x\}", "u": "a\nb"}'), {"t": r"\frac{1}{2} \{x\}", "u": "a\nb"})
+
 
 class ValidateItems(unittest.TestCase):
     def test_keeps_good_questions_and_says_why_others_fail(self):
