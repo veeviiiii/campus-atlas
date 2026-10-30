@@ -28,7 +28,8 @@ CACHE_DIR = ROOT / "data" / "work" / "cache"
 MAX_IMAGE_SIDE = 2048  # pages are rendered at 200 dpi; downscale only for transport
 MAX_ATTEMPTS = 6  # per model
 PRIMARY_ATTEMPTS_WITH_FALLBACK = 3
-REQUEST_TIMEOUT_S = 240
+REQUEST_TIMEOUT_S = 600  # the Gemini SDK also sends this as the server's deadline (X-Server-Timeout); the biggest
+# groupings, thinking included, ran past 240 s when the API was busy and were cut off with 504 every time
 RETRYABLE = ("429", "500", "502", "503", "504", "RESOURCE_EXHAUSTED", "UNAVAILABLE", "INTERNAL", "timeout", "Timeout", "Connect", "RemoteProtocolError")  # ConnectError, ConnectionError; a stream cut off
 
 
