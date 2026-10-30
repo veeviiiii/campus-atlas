@@ -208,8 +208,7 @@ def make_handler(app: App, port: int):
             return self.command == "GET" or self.headers.get("Content-Type", "").startswith("application/json")
 
         def body(self) -> dict:
-            n = int(self.headers.get("Content-Length") or 0)
-            return json.loads(self.rfile.read(n) or b"{}")
+            return json.loads(self.raw or b"{}")
 
         def do_GET(self):
             self.handle_any()
@@ -221,6 +220,7 @@ def make_handler(app: App, port: int):
             self.handle_any()
 
         def handle_any(self):
+            self.raw = self.rfile.read(int(self.headers.get("Content-Length") or 0))  # always read it: closing on unread data resets the connection
             if not self.allowed():
                 return self.json({"error": "not allowed"}, 403)
             url = urlparse(self.path)
