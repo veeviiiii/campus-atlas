@@ -5,8 +5,8 @@ Switch with MODEL_PROVIDER in .env:
   openai_compatible -> any OpenAI-style endpoint serving an open-weight model, e.g. Ollama
                        (OPENAI_BASE_URL, OPENAI_MODEL, OPENAI_API_KEY)
 
-Every call runs at temperature 0, is logged (for the run report) and cached on disk under
-data/work/cache/ so re-runs are cheap and repeatable.
+Every call runs at temperature 0 (a retry at RETRY_TEMPERATURE), is logged (for the run report) and
+cached on disk under data/work/cache/ so re-runs are cheap and repeatable.
 """
 
 import base64
@@ -28,6 +28,7 @@ CACHE_DIR = ROOT / "data" / "work" / "cache"
 MAX_IMAGE_SIDE = 2048  # pages are rendered at 200 dpi; downscale only for transport
 MAX_ATTEMPTS = 6  # per model
 PRIMARY_ATTEMPTS_WITH_FALLBACK = 3
+RETRY_TEMPERATURE = 0.5  # at temperature 0 a prompt that sends the model into endless thinking does so every time
 REQUEST_TIMEOUT_S = 600  # the Gemini SDK also sends this as the server's deadline (X-Server-Timeout); the biggest
 # groupings, thinking included, ran past 240 s when the API was busy and were cut off with 504 every time
 RETRYABLE = ("429", "500", "502", "503", "504", "RESOURCE_EXHAUSTED", "UNAVAILABLE", "INTERNAL", "timeout", "Timeout", "Connect", "RemoteProtocolError")  # ConnectError, ConnectionError; a stream cut off
@@ -82,7 +83,7 @@ class Provider:
     model = ""
     fallback = ""  # optional second open-weight model, used only when `model` keeps failing
 
-    def _generate(self, prompt: str, images: list[bytes], model: str) -> str:
+    def _generate(self, prompt: str, images: list[bytes], model: str, temperature: float) -> str:
         raise NotImplementedError
 
     def generate(self, prompt: str, images: list[Path | Image.Image] | None = None, step: str = "") -> str:
@@ -110,8 +111,9 @@ class Provider:
             attempts = PRIMARY_ATTEMPTS_WITH_FALLBACK if model == self.model and self.fallback else MAX_ATTEMPTS
             for attempt in range(attempts):
                 t0 = time.time()
+                temperature = 0.0 if attempt == 0 else RETRY_TEMPERATURE
                 try:
-                    text = self._generate(prompt, imgs, model)
+                    text = self._generate(prompt, imgs, model, temperature)
                 except Exception as e:  # network / quota / overload errors: back off and retry
                     last_err = f"{type(e).__name__}: {e}"
                     CALLS.records.append(CallRecord(step, model, time.time() - t0, cached=False, ok=False, error=last_err[:200]))
@@ -123,7 +125,7 @@ class Provider:
                 CALLS.records.append(CallRecord(step, model, time.time() - t0, cached=False, ok=True))
                 log(f"    [{step}] {model} ok in {time.time() - t0:.0f}s")
                 CACHE_DIR.mkdir(parents=True, exist_ok=True)
-                cache_file.write_text(json.dumps({"model": model, "step": step, "text": text}), encoding="utf-8")
+                cache_file.write_text(json.dumps({"model": model, "step": step, "temperature": temperature, "text": text}), encoding="utf-8")
                 return text
         raise RuntimeError(f"model call failed after retries: {last_err}")
 
@@ -144,7 +146,7 @@ class GeminiProvider(Provider):
             api_key=os.environ["GEMINI_API_KEY"], http_options=types.HttpOptions(timeout=REQUEST_TIMEOUT_S * 1000)
         )
 
-    def _generate(self, prompt: str, images: list[bytes], model: str) -> str:
+    def _generate(self, prompt: str, images: list[bytes], model: str, temperature: float) -> str:
         from google.genai import types
 
         parts = [types.Part.from_bytes(data=b, mime_type="image/jpeg") for b in images] + [prompt]
@@ -153,7 +155,7 @@ class GeminiProvider(Provider):
         stream = self.client.models.generate_content_stream(
             model=model,
             contents=parts,
-            config=types.GenerateContentConfig(temperature=0),
+            config=types.GenerateContentConfig(temperature=temperature),
         )
         return "".join(chunk.text or "" for chunk in stream)
 
@@ -171,13 +173,13 @@ class OpenAICompatibleProvider(Provider):
             timeout=REQUEST_TIMEOUT_S,
         )
 
-    def _generate(self, prompt: str, images: list[bytes], model: str) -> str:
+    def _generate(self, prompt: str, images: list[bytes], model: str, temperature: float) -> str:
         content = [
             {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64," + base64.b64encode(b).decode()}}
             for b in images
         ] + [{"type": "text", "text": prompt}]
         resp = self.client.chat.completions.create(
-            model=model, temperature=0, messages=[{"role": "user", "content": content}]
+            model=model, temperature=temperature, messages=[{"role": "user", "content": content}]
         )
         return resp.choices[0].message.content or ""
 
