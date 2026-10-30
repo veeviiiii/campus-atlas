@@ -83,6 +83,12 @@ def file_block(pdf: Path) -> str:
     return "\n".join(lines) + "\n"
 
 
+def save_pdf(pages: list[Image.Image], out: Path) -> None:
+    """Images -> one PDF, a page per image at 200 dpi (the pipeline renders at 200 dpi, so it gets the same pixels back)."""
+    out.parent.mkdir(parents=True, exist_ok=True)
+    pages[0].save(out, save_all=True, append_images=pages[1:], resolution=200.0)
+
+
 def photos(src: Path, out: Path) -> None:
     """All photos in a folder -> one PDF, in file-name order (rename to 01.jpg, 02.jpg... to set the order)."""
     files = sorted(p for p in src.iterdir() if p.suffix.lower() in PHOTOS) if src.is_dir() else []
@@ -91,23 +97,42 @@ def photos(src: Path, out: Path) -> None:
     if out.suffix.lower() != ".pdf":
         die("the output must end in .pdf")
     pages = [ImageOps.exif_transpose(Image.open(p)).convert("RGB") for p in files]  # phones store rotation in EXIF
-    out.parent.mkdir(parents=True, exist_ok=True)
-    pages[0].save(out, save_all=True, append_images=pages[1:], resolution=200.0)
+    save_pdf(pages, out)
     print(f"{out}: {len(pages)} pages")
     for i, p in enumerate(files, start=1):
         print(f"  page {i}: {p.name}")
 
 
-def new(course_id: str, sem: int) -> None:
+def find_course(course_id: str, sem: int) -> dict:
+    """The course's entry in catalog/davv.json; ValueError if there is no such course or semester."""
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     c = next((x for x in catalog["courses"] if x["id"] == course_id), None)
     if c is None:
-        die(f"no course {course_id!r} in catalog/davv.json. Ids: " + ", ".join(x["id"] for x in catalog["courses"]))
+        raise ValueError(f"no course {course_id!r} in catalog/davv.json. Ids: " + ", ".join(x["id"] for x in catalog["courses"]))
     if not 1 <= sem <= c["years"] * 2:
-        die(f"{c['name']} has semesters 1 to {c['years'] * 2}")
-    folder = ROOT / "data" / "raw" / c["college"] / c["id"] / f"sem{sem}"
+        raise ValueError(f"{c['name']} has semesters 1 to {c['years'] * 2}")
+    return c
+
+
+def manifest_path(c: dict, sem: int) -> Path:
+    """data/raw/<school>/<course>/sem<N>/manifest.yaml for a catalog entry."""
+    return ROOT / "data" / "raw" / c["college"] / c["id"] / f"sem{sem}" / "manifest.yaml"
+
+
+def template(c: dict, sem: int) -> str:
+    """A new manifest with the college and course filled in and TODOs for the rest (no files yet)."""
+    rel = manifest_path(c, sem).relative_to(ROOT).as_posix()
+    return TEMPLATE.format(name=c["name"], sem=sem, school=c["school"], college=c["college"], course=c["id"], rel=rel)
+
+
+def new(course_id: str, sem: int) -> None:
+    try:
+        c = find_course(course_id, sem)
+    except ValueError as e:
+        die(str(e))
+    manifest = manifest_path(c, sem)
+    folder = manifest.parent
     folder.mkdir(parents=True, exist_ok=True)
-    manifest = folder / "manifest.yaml"
     rel = manifest.relative_to(ROOT).as_posix()
     pdfs = sorted(folder.glob("*.pdf"))
 
@@ -122,8 +147,7 @@ def new(course_id: str, sem: int) -> None:
         print(f"Added {len(fresh)} PDF(s) to {rel}: {', '.join(p.name for p in fresh)}. Fill in their TODOs.")
         return
 
-    text = TEMPLATE.format(name=c["name"], sem=sem, school=c["school"], college=c["college"], course=c["id"], rel=rel)
-    manifest.write_text(text + "".join(file_block(p) for p in pdfs), encoding="utf-8")
+    manifest.write_text(template(c, sem) + "".join(file_block(p) for p in pdfs), encoding="utf-8")
     print(f"Created {rel}")
     if pdfs:
         print(f"  listed {len(pdfs)} PDF(s): {', '.join(p.name for p in pdfs)}")
