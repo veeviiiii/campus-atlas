@@ -143,7 +143,13 @@ details.local > summary::-webkit-details-marker { display: none; }
 .page { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
 .page .parts { display: flex; flex-direction: column; gap: 3px; }
 .page .parts.v { flex-direction: row; }
-.page .label { font: 500 10px var(--mono); color: var(--muted); display: flex; justify-content: space-between; text-transform: uppercase; letter-spacing: 0.04em; padding: 0 2px; }
+.page .label { font: 500 10px var(--mono); color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.04em; padding: 0 2px; }
+.page .cut { font: 500 10px var(--mono); text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 8px; background: transparent; color: var(--muted); white-space: nowrap; }
+.page .cut:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 10px 0 2px; }
+.filters button span { font: 500 11px var(--mono); opacity: 0.75; margin-left: 2px; }
+.filters > .muted { margin-left: 6px; }
+.held-intro { margin: 8px 0 0; max-width: 760px; }
 .tile { padding: 0; border: 2px solid transparent; border-radius: 8px; background: var(--surface); display: flex; flex-direction: column; overflow: hidden; flex: 1; min-width: 0; text-align: left; font-weight: 400; }
 .tile:hover:not(:disabled) { border-color: rgba(196, 181, 253, 0.5); }
 .tile img { width: 100%; height: 150px; object-fit: contain; background: #fff1; display: block; }

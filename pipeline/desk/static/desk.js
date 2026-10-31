@@ -37,7 +37,10 @@ const S = {
   toastTimer: null,
   ping: null,
   uploading: false,
+  filter: "all", // which pages the grid shows: all, or those with a part to do / held back / use / skip
+  shown: new Set(), // the page keys the grid shows now
 };
+const FILTERS = [["all", "All"], ["todo", "To do"], ["held", "Held back"], ["use", "Use"], ["skip", "Skip"]];
 
 async function api(method, path, body) {
   const opts = { method };
@@ -225,20 +228,40 @@ function tileHTML(key, i) {
 function cardHTML(key) {
   const pg = pageOf(key), [, n] = splitKey(key);
   const marks = [pg.rotation ? `${pg.rotation}°` : "", pg.boxes.length ? `${pg.boxes.length} black-out` : ""].filter(Boolean).join(" · ");
-  return `<div class="page" data-key="${esc(key)}"><div class="label"><span>p${n}</span><span>${marks}</span></div><div class="parts ${pg.split}">${pg.parts.map((_, i) => tileHTML(key, i)).join("")}</div></div>`;
+  const cut = `<button type="button" class="cut" data-cut="${esc(key)}" title="${pg.split ? "Make it one paper again" : "Two question papers on this page: split it"}">${pg.split ? "1 paper" : "✂ 2 papers"}</button>`;
+  return `<div class="page" data-key="${esc(key)}"><div class="label"><span>p${n}${marks ? ` · ${marks}` : ""}</span>${cut}</div><div class="parts ${pg.split}">${pg.parts.map((_, i) => tileHTML(key, i)).join("")}</div></div>`;
 }
+
+const matches = (key) => S.filter === "all" || S.pieces.some((p) => p.key === key && p.d.status === S.filter);
 
 function renderGrid() {
   S.cards = {};
-  $("#grid").innerHTML = `<p id="counts" class="muted small"></p>` + S.info.sources.map((s) => {
+  S.shown = new Set();
+  resolve();
+  const files = S.info.sources.map((s) => {
     const cards = [];
     for (let n = 1; n <= s.pages; n++) {
       const key = `${s.id}#${n}`;
+      if (!matches(key)) continue;
+      S.shown.add(key);
       S.cards[key] = cardHTML(key);
       cards.push(S.cards[key]);
     }
-    return `<div class="source"><h3>${esc(s.id)} <span class="muted small">${s.pages} page${s.pages > 1 ? "s" : ""}</span><button type="button" class="small" data-select-source="${esc(s.id)}">Select all</button></h3><div class="pages">${cards.join("")}</div></div>`;
-  }).join("") + (S.info.broken.length ? `<p class="error">Could not open: ${S.info.broken.map(esc).join(", ")}</p>` : "");
+    if (!cards.length) return "";
+    const of = S.filter === "all" ? `${s.pages} page${s.pages > 1 ? "s" : ""}` : `${cards.length} of ${s.pages} pages`;
+    return `<div class="source"><h3>${esc(s.id)} <span class="muted small">${of}</span><button type="button" class="small" data-select-source="${esc(s.id)}">Select ${S.filter === "all" ? "all" : "these"}</button></h3><div class="pages">${cards.join("")}</div></div>`;
+  }).join("");
+  const empty = { todo: "Nothing left to do.", held: "No paper is held back.", use: "No page is marked Use yet.", skip: "No page is skipped." }[S.filter];
+  const intro = S.filter === "held" && files ? `<p class="muted small held-intro">Real papers kept out because something is not printed on them. Click one, fill in what is missing (year, exam or subject) and it becomes <b>Use</b>. Shift-click several to fill a field for all of them.</p>` : "";
+  $("#grid").innerHTML = `<div id="counts" class="filters"></div>${intro}` + (files || `<p class="muted pad">${empty || "No pages."}</p>`)
+    + (S.info.broken.length ? `<p class="error">Could not open: ${S.info.broken.map(esc).join(", ")}</p>` : "");
+}
+
+function setFilter(f) {
+  S.filter = f;
+  renderGrid();
+  refresh();
+  $("#grid").scrollTop = 0;
 }
 
 /** Recompute and redraw what changed: only the cards whose HTML differs, the progress, the editor. */
@@ -256,7 +279,8 @@ function refresh(editor = true) {
   const todo = count("todo");
   const waiting = waitingPages().length;
   const counts = $("#counts");
-  if (counts) counts.textContent = `${count("use")} to write · ${count("held")} held back · ${count("skip")} skipped · ${todo} to do` + (waiting ? ` · ${waiting} page${waiting > 1 ? "s" : ""} suggested, waiting for you` : "");
+  if (counts) counts.innerHTML = FILTERS.map(([f, name]) => `<button type="button" class="small ${S.filter === f ? "on" : ""}" data-filter="${f}" aria-pressed="${S.filter === f}">${name} <span>${f === "all" ? S.pieces.length : count(f)}</span></button>`).join("")
+    + (waiting ? `<span class="muted small">${waiting} page${waiting > 1 ? "s" : ""} suggested, waiting for you</span>` : "");
   updateSteps();
   if (editor) typing() ? updateDerived() : renderEditor();
 }
@@ -278,9 +302,18 @@ function select(ids, anchor) {
   if (first) first.scrollIntoView({ block: "nearest" });
 }
 
-$("#grid").addEventListener("click", (e) => {
+$("#grid").addEventListener("click", async (e) => {
+  const f = e.target.closest("[data-filter]");
+  if (f) return setFilter(f.dataset.filter);
+  const cut = e.target.closest("[data-cut]");
+  if (cut) {
+    const key = cut.dataset.cut, pg = pageOf(key);
+    if (pg.split && pg.parts[1].status !== "todo" && !(await ask("Make it one paper again?", "What you set for the second half of this page is dropped.", "One paper"))) return;
+    setSplit(key, pg.split ? "" : "h");
+    return select([`${key}:0`], `${key}:0`);
+  }
   const src = e.target.closest("[data-select-source]");
-  if (src) return select(S.pieces.filter((p) => splitKey(p.key)[0] === src.dataset.selectSource).map((p) => p.id), null);
+  if (src) return select(S.pieces.filter((p) => splitKey(p.key)[0] === src.dataset.selectSource && S.shown.has(p.key)).map((p) => p.id), null);
   const tile = e.target.closest(".tile");
   if (!tile) return;
   const id = tile.dataset.id;
@@ -293,7 +326,7 @@ $("#grid").addEventListener("click", (e) => {
 });
 
 function step(delta) {
-  const ids = S.pieces.map((p) => p.id);
+  const ids = S.pieces.filter((p) => S.shown.has(p.key)).map((p) => p.id);
   const at = S.sel.length ? ids.indexOf(S.sel[S.sel.length - 1]) : -1;
   const next = ids[clamp(at + delta, 0, ids.length - 1)];
   if (next) select([next], next);
@@ -333,8 +366,8 @@ function pageToolsHTML(key, ps) {
       <button type="button" data-act="turn" data-deg="90" title="Turn the page right (R)">↻ Turn right</button>
       <span class="sep"></span>
       <button type="button" data-act="split" data-split="" class="${pg.split ? "" : "on"}">One paper</button>
-      <button type="button" data-act="split" data-split="h" class="${pg.split === "h" ? "on" : ""}">Top / bottom</button>
-      <button type="button" data-act="split" data-split="v" class="${pg.split === "v" ? "on" : ""}">Left / right</button>
+      <button type="button" data-act="split" data-split="h" class="${pg.split === "h" ? "on" : ""}" title="Two question papers, one above the other">2 papers: top / bottom</button>
+      <button type="button" data-act="split" data-split="v" class="${pg.split === "v" ? "on" : ""}" title="Two question papers side by side">2 papers: left / right</button>
       ${onePart ? `<span class="sep"></span><button type="button" data-act="turn-part">↻ Turn this half${onePart.raw.rotation ? ` (${onePart.raw.rotation}°)` : ""}</button>` : ""}
       <span class="sep"></span>
       <button type="button" data-act="box-del" ${S.box === null ? "disabled" : ""}>Remove box</button>
@@ -376,11 +409,12 @@ function fieldsHTML(ps) {
 
   return `
     ${problems.length ? `<p class="error small">⚠ ${problems.map(esc).join("<br>⚠ ")}</p>` : ""}
+    ${status === "held" ? `<p class="small warn" id="held-hint">Held back${reason && reason !== MIXED ? `: ${esc(reason)}` : ""}. Fill in what is missing below (the year goes in Session) and it becomes Use.</p>` : ""}
     <div class="status" id="status">${statusHTML(ps)}</div>
     <label class="small"><input type="checkbox" data-f="continues" ${cont === true ? "checked" : ""}> Continues the previous page (the same paper's next page)</label>
     ${locked ? `<p class="muted small">Takes its course, subject and exam from ${esc(followsLabel || "the page before it")}.</p>` : ""}
     ${noPrev ? `<p class="error small">There is no used or held-back page before it to continue.</p>` : ""}
-    ${reasons ? `<div class="field"><label>Reason</label><div class="row">${reasons.map((r) => `<button type="button" class="small ${reason === r ? "on" : ""}" data-act="reason" data-reason="${esc(r)}" ${dis}>${esc(r)}</button>`).join("")}</div>
+    ${reasons ? `<div class="field" id="reason-field"><label>Reason</label><div class="row">${reasons.map((r) => `<button type="button" class="small ${reason === r ? "on" : ""}" data-act="reason" data-reason="${esc(r)}" ${dis}>${esc(r)}</button>`).join("")}</div>
       <span></span><input type="text" data-f="reason" value="${reason === MIXED || reasons.includes(reason) ? "" : esc(reason)}" placeholder="${reason === MIXED ? "— mixed —" : "or in your own words"}" ${dis}></div>` : ""}
     <div class="field">
       <label>Course</label>${courseSel}
@@ -438,6 +472,8 @@ function updateDerived() {
   const ps = selected();
   if (!ps.length || !$("#status")) return;
   $("#status").innerHTML = statusHTML(ps);
+  const status = common(ps.map((p) => p.d.status));
+  for (const [id, show] of [["#held-hint", status === "held"], ["#reason-field", status === "held" || status === "skip"]]) if ($(id)) $(id).hidden = !show;
   $("#session-hint").innerHTML = sessionHint(ps);
   $("#date-hint").innerHTML = dateHint(ps);
   if (document.activeElement.dataset.f !== "date") $("#date-cell").innerHTML = dateCellHTML(ps);
@@ -637,8 +673,13 @@ function setField(f, value) {
   for (const p of selected()) {
     if (p.raw.continues && p.follows && f !== "continues" && f !== "note") continue;
     const part = editPage(p.key).parts[p.part];
+    const missing = PAPER_FIELDS.some((k) => !part[k]) || !validSession(part.session);
     part[f] = value;
     if (f === "course" || f === "semester") part.subject = "";
+    if (part.status === "held" && missing && PAPER_FIELDS.every((k) => part[k]) && validSession(part.session)) {
+      part.status = "use"; // what was missing is filled in now
+      part.reason = "";
+    }
     if (f === "course" && part.semester && course(value) && part.semester > course(value).semesters) part.semester = null;
     if (PAPER_FIELDS.includes(f) && part.status === "todo" && value) part.status = "use";
   }
@@ -974,7 +1015,9 @@ function updateSteps() {
 function gotoFirst(test) {
   const at = S.sel.length ? S.pieces.findIndex((p) => p.id === S.sel[S.sel.length - 1]) : -1;
   const p = S.pieces.slice(at + 1).find(test) || S.pieces.find(test);
-  if (p) select([p.id], p.id);
+  if (!p) return;
+  if (!S.shown.has(p.key)) { S.filter = "all"; renderGrid(); }
+  select([p.id], p.id);
 }
 const GO = {
   waiting: () => gotoFirst((p) => undecided(p.key) && acceptable(p.key)),
@@ -1127,6 +1170,7 @@ function load(info) {
   S.box = null;
   S.sugs = {};
   S.read = null;
+  S.filter = "all";
   S.written = info.written;
   S.writtenFresh = info.written.length > 0;
   if (S.run && S.run.last && S.run.last.done) S.run = null;
