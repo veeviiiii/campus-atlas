@@ -35,15 +35,29 @@ The commands in steps 3 to 6 still work for a single paper.
 
 ## Using the desk
 
+**Double-click `intake-desk.cmd`** in the repository folder. The desk starts without a console window
+and opens http://127.0.0.1:8790 in your browser. For a desktop shortcut, right-click the file and pick
+**Send to > Desktop (create shortcut)**. Double-clicking again while it runs opens the same desk.
+**Close the desk** (top right) stops it; it also stops by itself half an hour after its page was
+closed. It needs the project's `.venv` (see "Run it yourself" in README.md); its messages go to
+`data/work/desk/desk.log`. From a terminal it is
+
 ```bash
-.venv/Scripts/python -m pipeline.desk "E:/uploads/M.Tech Int AIDS 5 year"
+.venv/Scripts/python -m pipeline.desk ["E:/uploads/M.Tech Int AIDS 5 year"]
 ```
 
-It opens http://127.0.0.1:8790 in the browser (start it without a folder to pick one on the page).
 It runs only on this laptop: no sign-in, and nothing leaves it except the pages you ask the model to
-read. Every page of every PDF and photo in the folder (subfolders too) is a card. Give it a PDF
-instead of a folder (or pick one under **Open**) to work on that file alone; its work is then saved
-next to it as `<file>.desk-decisions.json`. Click a card, then:
+read. On the start screen:
+
+- **Drop the PDFs or photos** students sent (or **Choose files**). They are copied into a new folder
+  in `data/inbox/` (never committed) and opened.
+- **Carry on** with a folder you opened before; each card shows how many pages are decided.
+- **Open a folder or a PDF already on this laptop.** Every page of every PDF and photo in a folder
+  (subfolders too) is a card. A single PDF is worked on alone; its work is saved next to it as
+  `<file>.desk-decisions.json`.
+
+The step bar at the top shows what is done and the one thing to do next: **Open**, **Read pages**
+(optional), **Check** every page, **Write** the PDFs and manifests, **Run** the pipeline. Click a card, then:
 
 - **Turn** it upright: ↺ / ↻ (or `R`).
 - **Split** a photo of two papers: **Top / bottom** or **Left / right**, then drag the dashed line.
@@ -108,8 +122,8 @@ subject, a date outside its session, a subject the manifest already has in that 
 Writing again after a change replaces only what the desk wrote before. Edit pages in the desk, not
 the desk's own lines in the manifest (the next write would put them back).
 
-**Run the pipeline** (on a manifest that is ready) runs step 7, shows its log as it goes and, at the
-end, the run report's **Unsure** list. Carry on from step 8.
+**Run the pipeline** (after writing, or step 5 of the bar, on a manifest the desk wrote) runs step 7,
+shows its log as it goes and, at the end, the run report's **Unsure** list. Carry on from step 8.
 
 ## 1. Download the uploads
 

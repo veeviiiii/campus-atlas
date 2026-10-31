@@ -137,6 +137,8 @@ schema and common problems (rotated pages, bleed-through, old syllabus, API erro
   skill, open a PR with the pack.
 - **Maintainer, publishing form uploads:** [ADDING-PAPERS.md](ADDING-PAPERS.md), step by step. The
   `pipeline.intake` helper turns photos into PDFs, writes the manifest skeleton and checks it, with no model calls.
+  For a messy pile (mixed semesters, two papers per photo, sideways pages), double-click
+  `intake-desk.cmd`: the intake desk sorts it page by page in the browser, on the maintainer's laptop.
 
 Older years of an existing course are just as welcome: they make Likely topics better.
 
@@ -191,6 +193,7 @@ catalog/       DAVV course list (names, schools, durations) from the CUET (UG) 2
 runs/sample/   run report of the full pipeline run
 skills/        pyq-atlas Agent Skill
 web/           Next.js website (static export); tests in web/tests
+intake-desk.cmd  double-click (Windows) to open the intake desk, pipeline/desk, in the browser
 ```
 
 ## License
