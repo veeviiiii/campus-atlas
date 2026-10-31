@@ -87,6 +87,11 @@ border. A paper that prints no year is suggested as held back "no year" (likewis
 "no subject"); a page with no printed header continues the paper before it; a paper that prints no
 course takes the course and semester of the page before it.
 
+- **Accept all sure pages** (in the bar at the top) takes, in one go, every suggestion with nothing to
+  doubt: course, semester, subject, exam and session all matched what is printed (no year-only date,
+  no new subject, nothing that disagrees), a page that continues a paper already taken, or a copy
+  found by its picture. The rest stay suggested for you to check; look over the small pictures of the
+  accepted ones, and change any page afterwards.
 - **Nothing counts until you accept it.** Look at the picture, then **Accept** (`A` accepts and moves
   on), or set the fields yourself. Shift-click a range and **Accept** to take several at once. A subject
   the semester does not have yet comes with **+ Add "…" as a subject**.
