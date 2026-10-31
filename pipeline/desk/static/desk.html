@@ -4,43 +4,95 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Intake desk · Campus Atlas</title>
-<link rel="stylesheet" href="/desk.css">
+<link rel="stylesheet" href="desk.css">
 </head>
 <body>
-<header class="bar">
-  <strong class="brand">Intake desk</strong>
+<!-- Shown until the desk answers: this file opened straight from disk, or the desk has stopped. -->
+<section id="not-started" class="not-started">
+  <p class="mono ok">Campus Atlas · intake desk</p>
+  <h1>The desk is not running.</h1>
+  <p>Double-click <code>intake-desk.cmd</code> in the Campus Atlas folder. It starts the desk and opens it in your browser.</p>
+</section>
+
+<section id="closed" class="closed" hidden>
+  <p class="mono ok">Campus Atlas · intake desk</p>
+  <h1>The desk is closed.</h1>
+  <p>Your work is saved. Double-click <code>intake-desk.cmd</code> to open it again. You can close this tab.</p>
+</section>
+
+<header id="bar" class="bar" hidden>
+  <button id="btn-home" class="brand" type="button" title="Back to the start screen"><span class="pix">Intake</span> desk</button>
   <span id="folder-name" class="muted"></span>
-  <span id="progress" class="pill"></span>
   <span class="grow"></span>
-  <span id="read-progress" class="pill"></span>
-  <span id="saved" class="muted small"></span>
-  <button id="btn-open" type="button">Open</button>
-  <button id="btn-read" type="button" disabled title="Ask the model to read every undecided page and suggest its fields">Read pages</button>
-  <button id="btn-write" type="button" class="primary" disabled>Write PDFs and manifests</button>
+  <span id="saved" class="mono"></span>
+  <button id="btn-close" type="button" class="small ghost" title="Stop the desk. Your work is saved.">Close the desk</button>
 </header>
 
-<main id="desk">
-  <section id="grid" aria-label="Pages"></section>
-  <aside id="editor" aria-label="Selected page"><p class="muted pad">Open a folder of papers to start.</p></aside>
-</main>
+<nav id="steps" class="steps" aria-label="Steps" hidden>
+  <ol>
+    <li><button type="button" class="step" id="step-open" title="Back to the start screen"><span class="mono">1 · Open</span><b>Papers</b><span class="sub" id="sub-open"></span></button></li>
+    <li><button type="button" class="step" id="btn-read" title="Ask the model to read every undecided page and suggest its fields"><span class="mono">2 · Optional</span><b>Read pages</b><span class="sub" id="read-progress"></span></button></li>
+    <li><button type="button" class="step" id="step-check" title="Go to the next page to decide"><span class="mono">3 · Check</span><b>Every page</b><span class="sub" id="progress"></span></button></li>
+    <li><button type="button" class="step" id="btn-write" title="See what will be written, then write it"><span class="mono">4 · Write</span><b>PDFs and manifests</b><span class="sub" id="sub-write"></span></button></li>
+    <li><button type="button" class="step" id="btn-run" title="Turn the written papers into the pack the site shows"><span class="mono">5 · Run</span><b>The pipeline</b><span class="sub" id="sub-run"></span></button></li>
+  </ol>
+  <div class="next"><span id="next-text"></span><button type="button" id="next-go" class="primary small" hidden></button></div>
+</nav>
 
-<dialog id="opener">
-  <form method="dialog" class="sheet">
-    <h2>Open a folder of papers, or one PDF</h2>
-    <p class="muted small">A folder: every PDF and photo (.jpg, .png, .webp) in it, in subfolders too, with the work saved to
-      <code>desk-decisions.json</code> in that folder. One file: the work is saved next to it as
-      <code>&lt;file&gt;.desk-decisions.json</code>. Opening it again picks up where you left off.</p>
-    <div class="row">
-      <input id="open-path" type="text" placeholder="E:\uploads\M.Tech Int AIDS 5 year  or  E:\Downloads\papers.pdf" spellcheck="false">
-      <button id="open-go" type="button" class="primary">Open</button>
+<section id="start" class="start" hidden>
+  <div class="start-in">
+    <div>
+      <button type="button" id="btn-back" class="small" hidden></button>
+      <p class="kicker pix">Campus Atlas</p>
+      <h1>Turn a pile of papers into clean, sorted PDFs.</h1>
+      <p class="lede">Drop the PDFs or phone photos students sent, in any order. You check every page (turn it, split two papers,
+        black out names), the desk writes one PDF per exam and the manifest, then runs the pipeline. <b>Everything stays on this laptop.</b></p>
     </div>
-    <p id="open-error" class="error small"></p>
-    <div id="open-recent"></div>
-    <h3>Browse</h3>
-    <div id="open-browse" class="browse"></div>
-    <div class="row end"><button value="cancel">Close</button></div>
-  </form>
-</dialog>
+
+    <div id="drop" class="drop">
+      <h2>Drop PDFs or photos here</h2>
+      <p>Or choose them on this laptop. They are copied into a new folder in <code>data/inbox/</code>, which is never committed.</p>
+      <div class="row">
+        <button type="button" id="pick" class="primary big">Choose files</button>
+        <input type="file" id="files" multiple accept=".pdf,.jpg,.jpeg,.png,.webp" hidden>
+        <span class="mono muted">PDF · JPG · PNG · WebP</span>
+      </div>
+      <div id="upload-status"></div>
+    </div>
+
+    <div id="recent-wrap" hidden>
+      <h3>Carry on where you left off</h3>
+      <div id="recent" class="cards"></div>
+    </div>
+
+    <details id="local" class="local">
+      <summary>Open a folder or a PDF already on this laptop</summary>
+      <div class="local-in">
+        <p class="muted small">A folder: every PDF and photo in it, in subfolders too; the work is saved in <code>desk-decisions.json</code> in
+          that folder. One file: the work is saved next to it. Opening it again picks up where you left off.</p>
+        <div class="row">
+          <input id="open-path" type="text" placeholder="E:\uploads\M.Tech Int AIDS  or  E:\Downloads\papers.pdf" spellcheck="false">
+          <button id="open-go" type="button" class="violet">Open</button>
+        </div>
+        <p id="open-error" class="error small"></p>
+        <div id="open-browse" class="browse"></div>
+      </div>
+    </details>
+
+    <ol class="how">
+      <li><b>Open</b>Drop the files, or open a folder.</li>
+      <li><b>Read, if you like</b>The model suggests course, subject and exam for each page.</li>
+      <li><b>Check</b>Accept or fix every page. Black out names.</li>
+      <li><b>Write</b>One PDF per exam, and the manifest.</li>
+      <li><b>Run</b>The pipeline makes the pack the site shows.</li>
+    </ol>
+  </div>
+</section>
+
+<main id="desk" hidden>
+  <section id="grid" aria-label="Pages"></section>
+  <aside id="editor" aria-label="Selected page"></aside>
+</main>
 
 <dialog id="sheet">
   <div class="sheet wide">
@@ -49,6 +101,16 @@
   </div>
 </dialog>
 
-<script src="/desk.js"></script>
+<dialog id="ask">
+  <form method="dialog" class="sheet">
+    <h2 id="ask-title"></h2>
+    <p id="ask-body"></p>
+    <div class="row end"><button value="no">Cancel</button><button value="yes" id="ask-yes" class="primary">OK</button></div>
+  </form>
+</dialog>
+
+<div id="toast" role="status" hidden><span></span><button type="button" class="small ghost" id="toast-close">OK</button></div>
+
+<script src="desk.js"></script>
 </body>
 </html>

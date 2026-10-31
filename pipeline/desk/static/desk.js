@@ -29,7 +29,14 @@ const S = {
   cards: {},
   saveTimer: null,
   dirty: false,
-  run: null,
+  run: null, // { next, text, last }: the pipeline run started from this page, last = the latest GET /api/run
+  written: [], // the manifests the desk wrote for this folder
+  writtenFresh: false, // nothing changed since they were written
+  keysOpen: false,
+  browseFrom: "",
+  toastTimer: null,
+  ping: null,
+  uploading: false,
 };
 
 async function api(method, path, body) {
@@ -144,6 +151,7 @@ function ensureManifest(c, sem) {
 
 function changed() {
   S.dirty = true;
+  S.writtenFresh = false;
   $("#saved").textContent = "Saving…";
   clearTimeout(S.saveTimer);
   S.saveTimer = setTimeout(save, 400);
@@ -157,12 +165,12 @@ async function save() {
   try {
     const r = await api("PUT", "/api/state", S.state);
     $("#saved").textContent = `Saved ${r.saved}`;
-    $("#saved").className = "muted small";
+    $("#saved").className = "mono";
     if (Object.keys(S.sugs).length && !S.readTimer) fetchRead(); // a decided page can change what the next page is suggested
   } catch (e) {
     S.dirty = true;
     $("#saved").textContent = `Not saved: ${e.message}`;
-    $("#saved").className = "error small";
+    $("#saved").className = "mono error";
   }
 }
 
@@ -222,7 +230,7 @@ function cardHTML(key) {
 
 function renderGrid() {
   S.cards = {};
-  $("#grid").innerHTML = S.info.sources.map((s) => {
+  $("#grid").innerHTML = `<p id="counts" class="muted small"></p>` + S.info.sources.map((s) => {
     const cards = [];
     for (let n = 1; n <= s.pages; n++) {
       const key = `${s.id}#${n}`;
@@ -247,7 +255,9 @@ function refresh(editor = true) {
   const count = (st) => S.pieces.filter((p) => p.d.status === st).length;
   const todo = count("todo");
   const waiting = waitingPages().length;
-  $("#progress").textContent = `${S.pieces.length - todo} of ${S.pieces.length} decided · ${count("use")} to write · ${count("held")} held back · ${count("skip")} skipped` + (waiting ? ` · ${waiting} page${waiting > 1 ? "s" : ""} suggested, waiting for you` : "");
+  const counts = $("#counts");
+  if (counts) counts.textContent = `${count("use")} to write · ${count("held")} held back · ${count("skip")} skipped · ${todo} to do` + (waiting ? ` · ${waiting} page${waiting > 1 ? "s" : ""} suggested, waiting for you` : "");
+  updateSteps();
   if (editor) typing() ? updateDerived() : renderEditor();
 }
 
@@ -309,7 +319,7 @@ function renderEditor() {
   if (focus) { const el = ed.querySelector(`[data-f="${focus}"]`); if (el && el.tagName !== "SELECT") { el.focus(); if (el.setSelectionRange && el.value) el.setSelectionRange(el.value.length, el.value.length); } }
 }
 
-const keysHelp = () => `<p class="muted small">Keys: <kbd>←</kbd> <kbd>→</kbd> previous / next · <kbd>A</kbd> accept the suggestion and go on · <kbd>U</kbd> use · <kbd>S</kbd> skip · <kbd>H</kbd> held back · <kbd>C</kbd> continues · <kbd>R</kbd> turn right · <kbd>Del</kbd> remove the selected black-out box</p>`;
+const keysHelp = () => `<details class="keys" ${S.keysOpen ? "open" : ""}><summary>Keyboard shortcuts</summary><p class="muted small"> <kbd>←</kbd> <kbd>→</kbd> previous / next · <kbd>A</kbd> accept the suggestion and go on · <kbd>U</kbd> use · <kbd>S</kbd> skip · <kbd>H</kbd> held back · <kbd>C</kbd> continues · <kbd>R</kbd> turn right · <kbd>Del</kbd> remove the selected black-out box</p></details>`;
 
 function pageToolsHTML(key, ps) {
   const pg = pageOf(key), [src, n] = splitKey(key);
@@ -544,23 +554,28 @@ async function fetchRead() {
 }
 
 function showReadProgress() {
-  const r = S.read, el = $("#read-progress"), btn = $("#btn-read");
-  if (!r) return;
-  const failed = r.failed ? ` · ${r.failed} could not be read` : "";
-  if (r.running) el.textContent = `Reading ${r.done} of ${r.total} pages…${failed}`;
-  else if (r.stopped) el.textContent = r.stopped === "stopped" ? `Reading stopped after ${r.done} pages` : `Reading stopped: ${r.stopped}`;
-  else if (r.total) el.textContent = `Read ${r.done} pages${failed}`;
-  else el.textContent = r.dupes_ready ? "" : "Comparing pages…";
-  btn.textContent = r.running ? "Stop reading" : "Read pages";
-  btn.disabled = false;
+  const r = S.read, el = $("#read-progress");
+  const off = S.info && S.info.reader.problem;
+  $("#btn-read b").textContent = r && r.running ? "Stop reading" : "Read pages";
+  if (!r) {
+    el.textContent = off ? `off: ${off}` : "not read yet";
+    return;
+  }
+  const failed = r.failed ? ` · ${r.failed} not read` : "";
+  if (r.running) el.textContent = `reading ${r.done} of ${r.total}…${failed}`;
+  else if (r.stopped) el.textContent = r.stopped === "stopped" ? `stopped after ${r.done} pages` : `stopped: ${r.stopped}`;
+  else if (r.total) el.textContent = `read ${r.done} pages${failed}`;
+  else el.textContent = !r.dupes_ready ? "comparing pages…" : off ? `off: ${off}` : "not read yet";
+  el.title = el.textContent;
+  updateSteps();
 }
 
 async function startReading(pages) {
   try {
     const r = await api("POST", "/api/read", pages ? { pages } : {});
-    if (!pages && !r.queued) alert("Every undecided page has been read already (use “Read again” on a page to read it again).");
+    if (!pages && !r.queued) toast("Every undecided page has been read already. Use “Read again” on a page to read it again.");
   } catch (e) {
-    return alert(e.message);
+    return toast(e.message, true);
   }
   fetchRead();
 }
@@ -572,11 +587,11 @@ $("#btn-read").addEventListener("click", async () => {
     return showReadProgress();
   }
   const r = S.info.reader;
-  if (r.problem) return alert(`The desk cannot read pages yet: ${r.problem}.\n\nEverything else works without it.`);
+  if (r.problem) return toast(`The desk cannot read pages yet: ${r.problem}. This step is optional: everything else works without it.`, true);
   const n = pageKeys().filter((k) => undecided(k) && !(S.sugs[k] && !S.sugs[k].error)).length;
-  if (!n) return alert("Every undecided page has a suggestion already (use “Read again” on a page to read it again).");
+  if (!n) return toast("Every undecided page has a suggestion already. Use “Read again” on a page to read it again.");
   await save();
-  if (!confirm(`Read the ${n} undecided page${n > 1 ? "s" : ""} with ${r.model}?\n\nAbout one model call per page (two for a page that comes in sideways). Answers are cached in data/work/cache, so pages read before cost nothing.\n\nThe pages are sent as they are now: names and roll numbers you have not blacked out yet are sent too.\n\nWhat the model reads is only a suggestion: you accept or change each page.`)) return;
+  if (!(await ask(`Read ${n} page${n > 1 ? "s" : ""} with the model?`, `${r.model} reads each undecided page and suggests its course, subject and exam. About one model call per page (two for a page that comes in sideways). Answers are cached in data/work/cache, so pages read before cost nothing.\n\nThe pages are sent as they are now: names and roll numbers you have not blacked out yet are sent too.\n\nWhat the model reads is only a suggestion: you accept or change each page.`, `Read ${n} page${n > 1 ? "s" : ""}`))) return;
   startReading(null);
 });
 
@@ -714,7 +729,7 @@ function addSubject() {
 function sameAsPrevious() {
   const first = S.pieces.findIndex((p) => S.sel.includes(p.id));
   const prev = S.pieces.slice(0, first).reverse().find((p) => p.d.status === "use" || p.d.status === "held");
-  if (!prev) return alert("No used or held-back page before this one.");
+  if (!prev) return toast("No used or held-back page before this one.", true);
   for (const p of selected()) {
     if (p.raw.continues && p.follows) continue;
     const part = editPage(p.key).parts[p.part];
@@ -838,7 +853,7 @@ function attachCanvas(cv, key) {
 window.addEventListener("resize", () => { const p = selected()[0]; if (p) drawCanvas(p.key); });
 
 document.addEventListener("keydown", (e) => {
-  if (!S.info || $("#opener").open || $("#sheet").open) return;
+  if (!S.info || $("#desk").hidden || $("#sheet").open || $("#ask").open) return;
   const t = e.target;
   if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -856,16 +871,135 @@ document.addEventListener("keydown", (e) => {
   if ((k === "delete" || k === "backspace") && S.box !== null) { e.preventDefault(); return removeBox(); }
 });
 
-// ------------------------------------------------------------------ opening a folder
+// ------------------------------------------------------------------ the page around the desk: views, steps, messages
 
-async function showOpener() {
-  const dlg = $("#opener");
-  if (!dlg.open) dlg.showModal();
-  $("#open-error").textContent = "";
-  const st = await api("GET", "/api/start");
-  $("#open-recent").innerHTML = st.recent.length ? `<h3>Recent</h3>${st.recent.map((r) => `<button type="button" data-open="${esc(r)}">${esc(r)}</button>`).join("")}` : "";
+function show(view) {
+  $("#not-started").hidden = true;
+  $("#closed").hidden = view !== "closed";
+  $("#bar").hidden = view === "closed";
+  $("#steps").hidden = view !== "desk";
+  $("#start").hidden = view !== "start";
+  $("#desk").hidden = view !== "desk";
+}
+
+function toast(msg, bad = false, stay = false) {
+  const el = $("#toast");
+  el.className = bad ? "bad" : "";
+  $("span", el).textContent = msg;
+  el.hidden = false;
+  clearTimeout(S.toastTimer);
+  if (!stay) S.toastTimer = setTimeout(() => { el.hidden = true; }, 9000);
+}
+$("#toast-close").addEventListener("click", () => { $("#toast").hidden = true; });
+
+/** A yes/no question in the desk's own dialog. Resolves true for yes. */
+function ask(title, body, yes = "OK") {
+  const d = $("#ask");
+  $("#ask-title").textContent = title;
+  $("#ask-body").textContent = body;
+  $("#ask-yes").textContent = yes;
+  d.returnValue = "";
+  d.showModal();
+  $("#ask-yes").focus();
+  return new Promise((done) => d.addEventListener("close", () => done(d.returnValue === "yes"), { once: true }));
+}
+
+/** The step bar: what is done, and the one thing to do next. */
+function updateSteps() {
+  if (!S.info || !S.state) return;
+  const todo = S.pieces.filter((p) => p.d.status === "todo").length, total = S.pieces.length;
+  const waiting = waitingPages().length, r = S.read || {}, canRead = !S.info.reader.problem;
+  const run = S.run && S.run.last, running = !!S.run && !(run && run.done), ran = !!run && run.done && run.code === 0;
+  const unread = pageKeys().filter((k) => undecided(k) && !S.sugs[k]).length;
+  const s = (n) => (n === 1 ? "" : "s");
+  let next;
+  if (r.running) next = ["read", `The model is reading page ${Math.min(r.done + 1, r.total)} of ${r.total}. Check the pages it has read meanwhile.`, waiting ? ["Next suggested page", "waiting"] : null];
+  else if (waiting) next = ["check", `${waiting} page${s(waiting)} suggested: check each against its picture, then accept (A) or fix it.`, ["Next suggested page", "waiting"]];
+  else if (todo && canRead && unread && !r.total) next = ["read", `${todo} to sort. Let the model read the pages first, or start yourself.`, ["Read pages", "read"]];
+  else if (todo) next = ["check", `${todo} left to decide: use, skip or held back.`, ["Next page to do", "todo"]];
+  else if (!S.writtenFresh) next = ["write", "Every page is decided. Write the PDFs and manifests: you see what will be written first.", ["Write…", "write"]];
+  else if (running) next = ["run", "The pipeline is running.", ["Show it", "run"]];
+  else if (!ran) next = ["run", "Written. Run the pipeline to turn the papers into the pack the site shows.", ["Run…", "run"]];
+  else next = ["run", "Done: the pipeline finished. Its report is in step 5.", null];
+
+  const done = { open: true, read: !!r.total && !r.running, check: total > 0 && !todo, write: S.writtenFresh, run: ran };
+  const els = { open: "#step-open", read: "#btn-read", check: "#step-check", write: "#btn-write", run: "#btn-run" };
+  for (const [k, sel] of Object.entries(els)) $(sel).className = ["step", done[k] ? "done" : "", next[0] === k ? "now" : "", k === "read" && !canRead ? "skip" : ""].join(" ");
+  const pages = S.info.sources.reduce((n, x) => n + x.pages, 0);
+  $("#sub-open").textContent = `${S.info.sources.length} file${s(S.info.sources.length)} · ${pages} page${s(pages)}`;
+  $("#progress").textContent = `${total - todo} of ${total} decided`;
+  $("#sub-write").textContent = S.writtenFresh ? `${S.written.length} manifest${s(S.written.length)} written` : S.written.length ? "changed: write again" : "not yet";
+  $("#sub-run").textContent = running ? "running…" : run && run.done ? (ran ? "finished" : "stopped with an error") : "not yet";
+  $("#next-text").textContent = next[1];
+  const go = $("#next-go");
+  go.hidden = !next[2];
+  if (next[2]) [go.textContent, go.dataset.go] = next[2];
+}
+
+function gotoFirst(test) {
+  const at = S.sel.length ? S.pieces.findIndex((p) => p.id === S.sel[S.sel.length - 1]) : -1;
+  const p = S.pieces.slice(at + 1).find(test) || S.pieces.find(test);
+  if (p) select([p.id], p.id);
+}
+const GO = {
+  waiting: () => gotoFirst((p) => undecided(p.key) && acceptable(p.key)),
+  todo: () => gotoFirst((p) => p.d.status === "todo"),
+  read: () => $("#btn-read").click(),
+  write: () => $("#btn-write").click(),
+  run: () => showRunSheet(),
+};
+$("#next-go").addEventListener("click", () => GO[$("#next-go").dataset.go]());
+$("#step-check").addEventListener("click", () => (waitingPages().length ? GO.waiting() : GO.todo()));
+$("#btn-run").addEventListener("click", () => showRunSheet());
+
+$("#btn-close").addEventListener("click", async () => {
+  await save();
+  const busy = (S.read && S.read.running) || (S.run && !(S.run.last && S.run.last.done));
+  if (busy && !(await ask("Close the desk?", "The page reading or the pipeline is still running: closing the desk stops it. Your decisions are saved.", "Close anyway"))) return;
+  try {
+    await api("POST", "/api/quit");
+  } catch { /* stopped already */ }
+  clearTimeout(S.readTimer);
+  clearInterval(S.ping);
+  $("#toast").hidden = true;
+  show("closed");
+  document.title = "Intake desk (closed)";
+});
+
+/** The page calls every minute while it is open; the desk stops itself half an hour after the last call. */
+function ping() {
+  fetch("/api/ping").then((r) => { if (!r.ok) throw new Error(r.statusText); })
+    .catch(() => toast("The desk has stopped, so changes are not saved now. Double-click intake-desk.cmd to start it again, then reload this page.", true, true));
+}
+
+// ------------------------------------------------------------------ the start screen: drop files, carry on, open a folder
+
+async function showStart(st) {
+  try {
+    st = st || (await api("GET", "/api/start"));
+  } catch (e) {
+    return toast(e.message, true);
+  }
+  show("start");
+  $("#start").scrollTop = 0;
+  $("#btn-back").hidden = !S.info;
+  if (S.info) $("#btn-back").textContent = `← Back to ${S.info.name}`;
+  $("#recent-wrap").hidden = !st.recent.length;
+  $("#recent").innerHTML = st.recent.map(recentHTML).join("");
   if (!$("#open-path").value) $("#open-path").value = st.folder || "";
-  browse(st.folder || st.home);
+  S.browseFrom = st.folder || st.home;
+  $("#open-error").textContent = "";
+  if ($("#local").open) browse(S.browseFrom);
+}
+
+function recentHTML(r) {
+  const pct = r.parts ? Math.round((100 * r.decided) / r.parts) : 0;
+  return `<button type="button" class="card" data-open="${esc(r.path)}">
+    <span class="row"><b>${esc(r.name)}</b><span class="grow"></span>${r.inbox ? `<span class="tag">dropped here</span>` : ""}${r.written ? `<span class="tag lime">written</span>` : ""}</span>
+    <span class="path">${esc(r.path)}</span>
+    <span class="meter"><i style="width:${pct}%"></i></span>
+    <span class="row"><span>${r.decided} of ${r.parts} decided</span><span class="grow"></span><span>${r.pages} page${r.pages === 1 ? "" : "s"}${r.file ? " · one file" : ""}</span></span>
+  </button>`;
 }
 
 async function browse(path) {
@@ -881,25 +1015,71 @@ async function browse(path) {
   }
 }
 
-async function openFolder(folder) {
-  $("#open-error").textContent = "Opening…";
+/** Open a folder or a file; `msg` shows "Opening…" and any error. */
+async function openFolder(folder, msg) {
+  msg.textContent = "Opening…";
   try {
     load(await api("POST", "/api/open", { folder }));
-    $("#opener").close();
+    msg.textContent = "";
   } catch (e) {
-    $("#open-error").textContent = e.message;
+    msg.innerHTML = `<span class="error">${esc(e.message)}</span>`;
   }
 }
 
-$("#opener").addEventListener("click", (e) => {
+const readAsBase64 = (f) => new Promise((done, fail) => {
+  const r = new FileReader();
+  r.onload = () => done(String(r.result).split(",", 2)[1] || "");
+  r.onerror = () => fail(r.error);
+  r.readAsDataURL(f);
+});
+
+/** Copy dropped or chosen files into a new folder in data/inbox/, then open it. */
+async function upload(files) {
+  if (S.uploading) return;
+  const status = $("#upload-status");
+  const ok = files.filter((f) => /\.(pdf|jpe?g|png|webp)$/i.test(f.name)), skipped = files.length - ok.length;
+  if (!ok.length) {
+    status.innerHTML = `<span class="error">${files.length ? "None of those is a PDF or a photo (.jpg, .png, .webp)." : "Drop files, not a folder: open a folder below instead."}</span>`;
+    return;
+  }
+  S.uploading = true;
+  const size = ok.reduce((n, f) => n + f.size, 0) || 1;
+  let folder = null, sent = 0;
+  try {
+    for (const [i, f] of ok.entries()) {
+      status.innerHTML = `Copying ${i + 1} of ${ok.length}: ${esc(f.name)}<div class="bar-progress"><i style="width:${Math.round((100 * sent) / size)}%"></i></div>`;
+      const r = await api("POST", "/api/upload", { name: f.name, data: await readAsBase64(f), ...(folder ? { folder } : {}) });
+      folder = r.folder;
+      sent += f.size;
+    }
+  } catch (e) {
+    status.innerHTML = `<span class="error">Could not copy them: ${esc(e.message)}</span>`;
+    S.uploading = false;
+    return;
+  }
+  S.uploading = false;
+  status.textContent = skipped ? `${skipped} file${skipped > 1 ? "s were" : " was"} not a PDF or a photo and stayed out.` : "";
+  await openFolder(folder, status);
+}
+
+$("#start").addEventListener("click", (e) => {
   const b = e.target.closest("[data-browse],[data-open]");
   if (!b) return;
-  if (b.dataset.open) openFolder(b.dataset.open);
+  if (b.dataset.open) openFolder(b.dataset.open, b.classList.contains("card") ? $(".path", b) : $("#open-error"));
   else browse(b.dataset.browse);
 });
-$("#open-go").addEventListener("click", () => openFolder($("#open-path").value.trim()));
-$("#open-path").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); openFolder($("#open-path").value.trim()); } });
-$("#btn-open").addEventListener("click", async () => { await save(); showOpener(); });
+$("#open-go").addEventListener("click", () => openFolder($("#open-path").value.trim(), $("#open-error")));
+$("#open-path").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); openFolder($("#open-path").value.trim(), $("#open-error")); } });
+$("#local").addEventListener("toggle", () => { if ($("#local").open && !$("#open-browse").innerHTML) browse(S.browseFrom); });
+$("#editor").addEventListener("toggle", (e) => { if (e.target.classList.contains("keys")) S.keysOpen = e.target.open; }, true);
+for (const b of ["#btn-home", "#step-open"]) $(b).addEventListener("click", async () => { await save(); showStart(); });
+$("#btn-back").addEventListener("click", () => show("desk"));
+$("#pick").addEventListener("click", () => $("#files").click());
+$("#files").addEventListener("change", (e) => { upload([...e.target.files]); e.target.value = ""; });
+for (const ev of ["dragenter", "dragover"]) $("#start").addEventListener(ev, (e) => { e.preventDefault(); $("#drop").classList.add("over"); });
+$("#start").addEventListener("dragleave", (e) => { if (!$("#start").contains(e.relatedTarget)) $("#drop").classList.remove("over"); });
+$("#start").addEventListener("drop", (e) => { e.preventDefault(); $("#drop").classList.remove("over"); upload([...e.dataTransfer.files]); });
+for (const ev of ["dragover", "drop"]) window.addEventListener(ev, (e) => e.preventDefault()); // a file dropped elsewhere must not replace the page
 
 function load(info) {
   S.info = info;
@@ -911,12 +1091,15 @@ function load(info) {
   S.box = null;
   S.sugs = {};
   S.read = null;
-  $("#read-progress").textContent = "";
+  S.written = info.written;
+  S.writtenFresh = info.written.length > 0;
+  if (S.run && S.run.last && S.run.last.done) S.run = null;
+  show("desk");
+  showReadProgress();
   resolve();
   for (const p of S.pieces) ensureManifest(p.d.course, p.d.semester);
   document.title = `${info.name} · Intake desk`;
   $("#folder-name").textContent = info.folder;
-  $("#btn-write").disabled = false;
   $("#saved").textContent = "";
   renderGrid();
   const first = S.pieces.find((p) => p.d.status === "todo") || S.pieces[0];
@@ -984,6 +1167,9 @@ $("#sheet").addEventListener("click", async (e) => {
       const r = await api("POST", "/api/write");
       if (!r.results.length) return showPlan(r.plan, true);
       showResults(r);
+      S.written = r.written;
+      S.writtenFresh = true;
+      updateSteps();
       // Subjects and exams now live in the manifests: reload them.
       S.manifests = {};
       for (const p of S.pieces) ensureManifest(p.d.course, p.d.semester);
@@ -1007,35 +1193,53 @@ function showResults(r) {
 }
 
 async function startRun(manifest) {
-  if (!confirm(`Run the pipeline on ${manifest}?\n\nIt calls the model with the API key in .env: about 8 calls per page. Answers already received are cached, so only new pages cost calls.`)) return;
+  if (!(await ask("Run the pipeline?", `On ${manifest}. It calls the model with the API key in .env: about 8 calls per page. Answers already received are cached, so only new pages cost calls.`, "Run it"))) return;
   try {
     await api("POST", "/api/run", { manifest });
   } catch (e) {
-    return alert(e.message);
+    return toast(e.message, true);
   }
-  S.run = { next: 0, text: "" };
+  S.run = { next: 0, text: "", last: null };
+  for (const b of document.querySelectorAll("[data-run]")) b.disabled = true;
+  updateSteps();
   pollRun();
 }
 
 async function pollRun() {
-  const box = $("#run");
   let r;
   try {
     r = await api("GET", `/api/run?from=${S.run.next}`);
   } catch (e) {
+    const box = $("#run");
     if (box) box.insertAdjacentHTML("beforeend", `<p class="error">${esc(e.message)}</p>`);
     return;
   }
   S.run.next = r.next;
   S.run.text += r.lines.map((l) => l + "\n").join("");
-  $("#progress").textContent = r.done ? $("#progress").textContent : "Pipeline running…";
-  if (box) {
-    box.innerHTML = `<h3>Pipeline: <code>${esc(r.manifest)}</code> ${r.done ? (r.code === 0 ? `<span class="ok">finished</span>` : `<span class="error">stopped with an error (exit ${r.code})</span>`) : "running…"}</h3><pre class="log" id="run-log">${esc(S.run.text)}</pre>${r.done ? reportHTML(r.report) : ""}`;
-    const log = $("#run-log");
-    log.scrollTop = log.scrollHeight;
-  }
+  S.run.last = r;
+  renderRun();
   if (!r.done) setTimeout(pollRun, 800);
   else refresh(false);
+}
+
+/** The run's log and report, in the sheet when it is open. */
+function renderRun() {
+  const box = $("#run"), r = S.run && S.run.last;
+  if (!box || !r) return;
+  box.innerHTML = `<h3>Pipeline: <code>${esc(r.manifest)}</code> ${r.done ? (r.code === 0 ? `<span class="ok">finished</span>` : `<span class="error">stopped with an error (exit ${r.code})</span>`) : "running…"}</h3><pre class="log" id="run-log">${esc(S.run.text)}</pre>${r.done ? reportHTML(r.report) : ""}`;
+  const log = $("#run-log");
+  log.scrollTop = log.scrollHeight;
+}
+
+function showRunSheet() {
+  if (!$("#sheet").open) $("#sheet").showModal();
+  $("#sheet-title").textContent = "Run the pipeline";
+  const running = S.run && !(S.run.last && S.run.last.done);
+  sheetBody().innerHTML = S.written.length
+    ? `<p class="muted">The pipeline reads the PDFs of a manifest and builds the pack the site shows. It calls the model with the API key in <code>.env</code>: about 8 calls per page; answers already received are cached in <code>data/work/cache</code>, so running again is cheap.</p>
+      ${S.written.map((m) => `<div class="target row"><code>${esc(m)}</code><span class="grow"></span><button type="button" class="primary small" data-run="${esc(m)}" ${running ? "disabled" : ""}>Run the pipeline</button></div>`).join("")}<div id="run"></div>`
+    : `<p class="muted">Nothing is written yet: write the PDFs and manifests first (step 4).</p>`;
+  renderRun();
 }
 
 function reportHTML(rep) {
@@ -1049,11 +1253,19 @@ function reportHTML(rep) {
 // ------------------------------------------------------------------ start
 
 (async () => {
+  let st;
   try {
-    const st = await api("GET", "/api/start");
-    if (st.folder) load(await api("GET", "/api/folder"));
-    else showOpener();
-  } catch (e) {
-    $("#editor").innerHTML = `<p class="error pad">${esc(e.message)}</p>`;
+    st = await api("GET", "/api/start");
+  } catch {
+    return; // opened straight from disk, or the desk is not running: the page says what to do
   }
+  S.ping = setInterval(ping, 60000);
+  if (st.folder) {
+    try {
+      return load(await api("GET", "/api/folder"));
+    } catch (e) {
+      toast(e.message, true);
+    }
+  }
+  showStart(st);
 })();
