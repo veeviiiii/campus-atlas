@@ -410,7 +410,8 @@ class Server(Write):
         self.httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.make_handler(self.app, 0))
         port = self.httpd.server_address[1]
         self.httpd.RequestHandlerClass = server.make_handler(self.app, port)
-        threading.Thread(target=self.httpd.serve_forever, daemon=True).start()
+        self.serving = threading.Thread(target=self.httpd.serve_forever, daemon=True)
+        self.serving.start()
         self.addCleanup(self.httpd.server_close)
         self.addCleanup(self.httpd.shutdown)
         self.conn = lambda: http.client.HTTPConnection("127.0.0.1", port, timeout=10)
@@ -531,6 +532,85 @@ class Server(Write):
             status, body = self.request("POST", "/api/read", {})
             self.assertEqual((status, json.loads(body)["error"]), (400, "cannot read pages: no GEMINI_API_KEY in .env"))
             self.assertEqual(json.loads(self.request("GET", "/api/folder")[1])["reader"]["problem"], "no GEMINI_API_KEY in .env")
+
+    def test_the_page_comes_whole_with_the_sites_fonts(self):
+        from pipeline.desk import server
+
+        status, body = self.request("GET", "/")
+        page = body.decode("utf-8")
+        self.assertEqual(status, 200)
+        self.assertIn("<style>", page)
+        self.assertIn("function updateSteps", page)
+        self.assertNotIn('href="desk.css"', page)  # one response: never a page without its look
+        self.assertNotIn('src="desk.js"', page)
+        repo = Path(__file__).resolve().parents[2]
+        for name in server.FONTS:
+            self.assertTrue((repo / "web" / "src" / "app" / "fonts" / name).exists(), name)
+        fonts = self.root / "web" / "src" / "app" / "fonts"
+        fonts.mkdir(parents=True)
+        (fonts / "inter-latin.woff2").write_bytes(b"wOF2 stand-in")
+        self.assertEqual(self.request("GET", "/fonts/inter-latin.woff2"), (200, b"wOF2 stand-in"))
+        self.assertEqual(self.request("GET", "/fonts/../../../.env")[0], 404)
+
+    def test_dropped_files_go_into_the_inbox(self):
+        import base64
+
+        data = base64.b64encode((self.src / "tests.pdf").read_bytes()).decode()
+        status, body = self.request("POST", "/api/upload", {"name": "MST 1.pdf", "data": data})
+        self.assertEqual(status, 200, body)
+        folder = Path(json.loads(body)["folder"])
+        self.assertEqual(folder.parent, (self.root / "data" / "inbox").resolve())
+        again = {"data": data, "folder": str(folder)}
+        self.assertEqual(json.loads(self.request("POST", "/api/upload", {**again, "name": "MST 1.pdf"})[1])["file"], "MST 1 (2).pdf")
+        self.assertEqual(json.loads(self.request("POST", "/api/upload", {**again, "name": "../../End Sem.pdf"})[1])["file"], "End Sem.pdf")
+        self.assertEqual(sorted(p.name for p in folder.iterdir()), ["End Sem.pdf", "MST 1 (2).pdf", "MST 1.pdf"])
+        for bad in ({**again, "name": "run.cmd"}, {**again, "name": "x.pdf", "folder": str(self.src)}, {**again, "name": "x.pdf", "data": "not base64!"}):
+            self.assertEqual(self.request("POST", "/api/upload", bad)[0], 400, bad)
+        self.assertFalse((self.src / "x.pdf").exists())
+        info = json.loads(self.request("POST", "/api/open", {"folder": str(folder)})[1])
+        self.assertEqual((info["inbox"], len(info["sources"])), (True, 3))
+
+    def test_the_start_screen_shows_how_far_each_folder_got(self):
+        self.request("PUT", "/api/state", {"pages": {"tests.pdf#1": {"parts": [{"status": "skip"}]}}})
+        st = json.loads(self.request("GET", "/api/start")[1])
+        self.assertEqual(st["root"], str(self.root))
+        mine = next(r for r in st["recent"] if r["path"] == str(self.src))
+        self.assertEqual({k: mine[k] for k in ("name", "file", "inbox", "pages", "parts", "decided", "written")},
+                         {"name": "Senior folder", "file": False, "inbox": False, "pages": 4, "parts": 4, "decided": 1, "written": 0})
+
+    def test_close_stops_the_desk(self):
+        self.assertEqual(self.request("POST", "/api/quit", {}), (200, b'{"closed": true}'))
+        self.serving.join(5)
+        self.assertFalse(self.serving.is_alive())
+
+    def test_a_second_start_opens_the_desk_already_running(self):
+        from pipeline.desk import server
+
+        port = int(self.host.split(":")[1])
+        self.assertIsNone(server.running_desk())  # nothing written: no desk running
+        (self.root / server.RUNNING).parent.mkdir(parents=True, exist_ok=True)
+        (self.root / server.RUNNING).write_text(json.dumps({"port": port}), encoding="utf-8")
+        self.assertEqual(server.running_desk(), port)
+        with mock.patch.object(server, "ThreadingHTTPServer", side_effect=AssertionError("started a second desk")), mock.patch("webbrowser.open") as browser:
+            server.serve(self.src / "tests.pdf", 8790, True)
+        browser.assert_called_once_with(f"http://127.0.0.1:{port}/")
+        self.assertEqual(self.app.only, "tests.pdf")  # the file given to the second start opened in the first
+
+    def test_the_desk_stops_itself_when_no_page_is_open(self):
+        import socket
+        import threading
+
+        from pipeline.desk import server
+
+        with socket.socket() as s:
+            s.bind(("127.0.0.1", 0))
+            port = s.getsockname()[1]
+        with mock.patch("sys.stdout", io.StringIO()):
+            t = threading.Thread(target=server.serve, args=(None, port, False, 0.3), daemon=True)
+            t.start()
+            t.join(10)
+        self.assertFalse(t.is_alive())
+        self.assertFalse((self.root / server.RUNNING).exists())
 
     def test_other_sites_cannot_use_it(self):
         self.assertEqual(self.request("GET", "/api/folder", Host="evil.example:80")[0], 403)
