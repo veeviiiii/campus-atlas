@@ -505,6 +505,38 @@ function suggestionHTML(keys) {
   </div>`;
 }
 
+/** Undecided pages whose suggestion is sure on every part, in order. A page that continues the paper
+ *  before it counts only when that paper's page is decided or sure too (else it would join the wrong paper). */
+function surePages() {
+  const out = [];
+  let paperOk = false; // the paper a continuing page would join is decided or accepted with these
+  for (const key of pageKeys()) {
+    const pg = pageOf(key), sug = S.sugs[key];
+    if (!undecided(key)) {
+      for (const p of pg.parts) if (p.status === "use" || p.status === "held") paperOk = true;
+      continue;
+    }
+    const reading = S.read && S.read.reading.includes(key);
+    let ok = !!sug && !reading && acceptable(key) && sug.parts.every((s) => s.sure), after = paperOk;
+    if (ok) for (const s of sug.parts) {
+      if (s.continues && !after) ok = false;
+      if (s.status === "use" && !s.continues) after = true;
+    }
+    if (ok) { out.push(key); paperOk = after; } else paperOk = false;
+  }
+  return out;
+}
+
+async function acceptSure() {
+  const keys = surePages();
+  if (!keys.length) return toast("No page is sure: check the suggested ones one by one (A accepts and goes on).");
+  const left = waitingPages().length - keys.length;
+  if (!(await ask(`Accept ${keys.length} sure page${keys.length > 1 ? "s" : ""}?`, `Every field of these matched what is printed on them, or they continue the paper before them, or they are copies of another page.${left ? ` The other ${left} suggested page${left > 1 ? "s stay" : " stays"} for you to check.` : ""}\n\nYou can still change any page afterwards: its small picture shows what was accepted.`, `Accept ${keys.length}`))) return;
+  const n = acceptPages(keys);
+  toast(`Accepted ${n} page${n === 1 ? "" : "s"}.` + (left ? ` ${left} left to check.` : ""));
+  GO.waiting();
+}
+
 /** Take the suggestions of these pages as decisions (only pages not decided yet). Returns how many. */
 function acceptPages(keys) {
   let n = 0;
@@ -912,9 +944,12 @@ function updateSteps() {
   const run = S.run && S.run.last, running = !!S.run && !(run && run.done), ran = !!run && run.done && run.code === 0;
   const unread = pageKeys().filter((k) => undecided(k) && !S.sugs[k]).length;
   const s = (n) => (n === 1 ? "" : "s");
+  const sure = waiting ? surePages().length : 0;
+  const take = sure ? [`Accept ${sure} sure page${s(sure)}`, "sure"] : waiting ? ["Next suggested page", "waiting"] : null;
   let next;
-  if (r.running) next = ["read", `The model is reading page ${Math.min(r.done + 1, r.total)} of ${r.total}. Check the pages it has read meanwhile.`, waiting ? ["Next suggested page", "waiting"] : null];
-  else if (waiting) next = ["check", `${waiting} page${s(waiting)} suggested: check each against its picture, then accept (A) or fix it.`, ["Next suggested page", "waiting"]];
+  if (r.running) next = ["read", `The model is reading page ${Math.min(r.done + 1, r.total)} of ${r.total}.` + (sure ? ` ${sure} read so far are sure.` : " Check the pages it has read meanwhile."), take];
+  else if (sure) next = ["check", `${waiting} page${s(waiting)} suggested, ${sure} of them sure. Accept those at once, then check the other ${waiting - sure}.`, take];
+  else if (waiting) next = ["check", `${waiting} page${s(waiting)} suggested: check each against its picture, then accept (A) or fix it.`, take];
   else if (todo && canRead && unread && !r.total) next = ["read", `${todo} to sort. Let the model read the pages first, or start yourself.`, ["Read pages", "read"]];
   else if (todo) next = ["check", `${todo} left to decide: use, skip or held back.`, ["Next page to do", "todo"]];
   else if (!S.writtenFresh) next = ["write", "Every page is decided. Write the PDFs and manifests: you see what will be written first.", ["Write…", "write"]];
@@ -944,6 +979,7 @@ function gotoFirst(test) {
 const GO = {
   waiting: () => gotoFirst((p) => undecided(p.key) && acceptable(p.key)),
   todo: () => gotoFirst((p) => p.d.status === "todo"),
+  sure: () => acceptSure(),
   read: () => $("#btn-read").click(),
   write: () => $("#btn-write").click(),
   run: () => showRunSheet(),

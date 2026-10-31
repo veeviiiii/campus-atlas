@@ -113,6 +113,23 @@ class Suggestions(unittest.TestCase):
         s = out["a.pdf#2"]["parts"][0]
         self.assertEqual((s["status"], s["reason"]), ("skip", "duplicate"))
         self.assertIn('looks the same as "a.pdf" page 1 in this folder', s["notes"])
+        self.assertTrue(s["sure"])  # a copy by its picture: taken by "Accept all sure pages"
+
+    def test_only_a_suggestion_with_nothing_to_doubt_is_sure(self):
+        full = dict(exam_title="TEST-II", subject_name="DE", course_name="M.Tech (AIDS)", semester="Semester-V")
+        desk = decisions.Desk(reads={
+            "a.pdf#1": reading(("question paper", paper(**full, date="Feb 2025"))),  # every field matched
+            "a.pdf#2": reading(("question paper", paper(has_header=False))),  # the next page of that paper
+            "a.pdf#3": reading(("question paper", paper(**full, date="2025"))),  # only a year: session worked out
+            "a.pdf#4": reading(("question paper", paper(**{**full, "subject_name": "Quantum Basket Weaving"}, date="Feb 2025"))),
+            "a.pdf#5": reading(("question paper", paper(**full))),  # no year: held back
+            "a.pdf#6": reading(("answer sheet", None)),  # the model's word only
+            "a.pdf#7": reading(("", None), error="model call failed after retries"),
+        })
+        keys = [f"a.pdf#{n}" for n in range(1, 8)]
+        sure = {k: [s["sure"] for s in v["parts"]] for k, v in self.suggestions(desk, keys).items()}
+        self.assertEqual(sure, {"a.pdf#1": [True], "a.pdf#2": [True], "a.pdf#3": [False], "a.pdf#4": [False],
+                                "a.pdf#5": [False], "a.pdf#6": [False], "a.pdf#7": [False]})
 
 
 class StandIn(Provider):

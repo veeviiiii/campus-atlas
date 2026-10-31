@@ -1,5 +1,9 @@
 """Turn the model's readings (reader.py) and the picture matches (dupes.py) into suggested decisions.
 
+A suggestion is "sure" when nothing about it needs a second look: every field matched, nothing
+worked out from a guess, or a page that only continues the paper before it, or a copy found by its
+picture. "Accept all sure pages" takes those in one go and leaves the doubtful ones to the maintainer.
+
 No model calls here. The printed exam title, subject, course, semester and date become an exam kind,
 a subject id, a course id, a semester, a session and an exam date, matched the way the pipeline
 matches them (subjects by name and aliases, never by course code). What cannot be matched stays
@@ -111,7 +115,7 @@ def match_course(name: str | None, courses: list[dict]) -> str | None:
 
 def _blank(rotation: int = 0) -> dict:
     return {"status": "todo", "reason": "", "continues": False, "course": "", "semester": None, "subject": "", "kind": "",
-            "session": "", "rotation": rotation, "date": "", "printed": "", "new_subject": "", "notes": [], "error": ""}
+            "session": "", "rotation": rotation, "date": "", "printed": "", "new_subject": "", "notes": [], "error": "", "sure": False}
 
 
 def part_suggestion(reading: dict, ctx: dict, courses: list[dict], subjects_for: Callable[[str, int], list[dict]]) -> dict:
@@ -128,11 +132,12 @@ def part_suggestion(reading: dict, ctx: dict, courses: list[dict], subjects_for:
         return s
     paper = reading.get("paper") or {}
     if not paper.get("has_header", True):
-        s.update(status="use", continues=True)
+        s.update(status="use", continues=True, sure=not s["error"])
         s["notes"].append("no printed header: the next page of the paper before it")
         return s
     s["printed"] = " · ".join(paper[k] for k in ("exam_title", "subject_name", "course_name", "semester", "date", "year") if paper.get(k))
     sems = {c["id"]: c["years"] * 2 for c in courses}
+    doubts = 0  # things worked out from a guess or not matching what is printed
 
     course = match_course(paper.get("course_name"), courses)
     if not course and ctx.get("course"):
@@ -144,6 +149,7 @@ def part_suggestion(reading: dict, ctx: dict, courses: list[dict], subjects_for:
     if sem and course and sem > sems.get(course, 12):
         s["notes"].append(f"semester {sem} is printed, but the course has {sems[course]}")
         sem = None
+        doubts += 1
     if not sem and course and ctx.get("course") == course and ctx.get("semester"):
         sem = ctx["semester"]
         s["notes"].append("semester as the page before")
@@ -157,9 +163,11 @@ def part_suggestion(reading: dict, ctx: dict, courses: list[dict], subjects_for:
         session = session_of(date)
     elif session and date and len(date) == 7 and session_of(date) != session:
         s["notes"].append(f"the date {date} is not in the printed session {session}")
+        doubts += 1
     if not session and date:
         session = session_from_year(int(date), sem, s["kind"])
         s["notes"].append(f"only the year {date} is printed: " + (f"session {session} worked out from the semester" if session else "pick the session"))
+        doubts += 1
     s["session"], s["date"] = session or "", date or ""
 
     name = paper.get("subject_name")
@@ -178,6 +186,8 @@ def part_suggestion(reading: dict, ctx: dict, courses: list[dict], subjects_for:
     if not name:
         held.append("no subject")
     s.update(status="held" if held else "use", reason=", ".join(held))
+    s["sure"] = (not held and not doubts and not s["error"] and not s["new_subject"]
+                 and all(s[k] for k in ("course", "semester", "subject", "kind", "session")))
     return s
 
 
@@ -207,7 +217,7 @@ def suggestions(desk: Desk, keys: list[str], courses: list[dict], subjects_for: 
             if dup:
                 sug["duplicate"] = dup
                 for s in sug["parts"]:
-                    s.update(status="skip", reason="duplicate", continues=False)
+                    s.update(status="skip", reason="duplicate", continues=False, sure=True)
                     s["notes"].insert(0, f"looks the same as {dup['label']}")
             out[key] = sug
         if any(p.decision.status != "todo" for p in decided.get(key, [])):  # what the maintainer decided wins
