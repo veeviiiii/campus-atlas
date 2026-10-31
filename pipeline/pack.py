@@ -164,7 +164,7 @@ def build_pack(manifest_path: Path, workers: int = 4) -> Path:
             "papers": papers,
             "questions": len(all_q),
             # questions that came back in an End Sem (word for word or nearly) from an earlier paper
-            "repeats": sum(1 for q, r in back if r["type"] in ("exact", "near")),
+            "repeats": len({q["id"] for q, r in back if r["type"] in ("exact", "near")}),  # once each, however many earlier papers had it
             "same_topic_links": sum(1 for q, r in back if r["type"] == "same-topic"),
             "dropped_bleed_through": len(dropped),
         },

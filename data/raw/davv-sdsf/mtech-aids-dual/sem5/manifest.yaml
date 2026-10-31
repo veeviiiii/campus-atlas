@@ -1,0 +1,122 @@
+# Human ground truth for the Semester 5 papers. The pipeline reads every page header too, but this
+# file wins and the run report lists every disagreement.
+#
+# Sources: "5th sem question paper.pdf" (2025-26, batch 2023-28) and a senior's "Sem-5 End Sem Papers.pdf"
+# and "Sem-5 Test Papers.pdf" (2024-25, batch 2022-27). A student's handwritten name and roll number
+# were blacked out on five 2024-25 End Sem pages before these PDFs were made; pages that held two
+# papers were split in two.
+#
+# Waiting for the maintainer (not listed here): papers that print no test number. 2025-26: Statistical
+# Inference (a 20-mark test), Python "MID Test", Computer Network "MID Test", and a Data Engineering
+# case study with no header. 2024-25: Software Engineering "Test-I" dated 17/11/24 (after Test-2 on
+# 21-10-2024), Computer Network "MID Test", and a Statistical Inference test with no name.
+
+schema_version: "1.0"
+
+college:
+  id: davv-sdsf
+  name: School of Data Science & Forecasting, DAVV
+  city: Indore
+  # Takshashila Campus, DAVV (campus-level point, OpenStreetMap / Nominatim)
+  lat: 22.6880762
+  lng: 75.8749798
+
+course:
+  id: mtech-aids-dual
+  name: M.Tech (Dual Degree) AI & DS
+  semester: 5
+
+exams:
+  # 2025-26: "SEP-2025", "October- 2025", "December 2025" on the papers that print a date.
+  - {id: mst1, name: MST-1, date: "2025-09", session: "2025-26"}
+  - {id: mst2, name: MST-2, date: "2025-10", session: "2025-26"}
+  - {id: end, name: End Sem, date: "2025-12", session: "2025-26"}
+  # 2024-25: Software Engineering Test-2 is dated 21-10-2024; the End Sems "December 2024".
+  - {id: mst1-2024-25, name: MST-1, date: "2024", session: "2024-25"}
+  - {id: mst2-2024-25, name: MST-2, date: "2024-10", session: "2024-25"}
+  - {id: mst3-2024-25, name: MST-3, date: "2024", session: "2024-25"}
+  - {id: end-2024-25, name: End Sem, date: "2024-12", session: "2024-25"}
+
+subjects:
+  - id: software-engineering
+    name: Software Engineering
+    aliases: []
+  - id: soft-computing
+    name: Soft Computing
+    aliases: []
+  - id: data-engineering
+    name: Data Engineering
+    aliases: []
+  - id: statistical-inference
+    name: Statistical Inference
+    aliases: []
+  - id: java-programming
+    name: Java Programming
+    aliases: [JAVA, Java]
+  - id: computer-networks
+    name: Computer Networks
+    aliases: [Computer Network]
+  - id: python-programming
+    name: Python Programming
+    aliases: [Python]
+
+files:
+  # ---- 2025-26 (batch 2023-28) ----
+  - file: mtech-aids-dual-sem5_2025-26_mst1.pdf
+    exam: mst1
+    pages:
+      - {page: 1, subject: software-engineering}   # "Mid Semester Test I - SEP-2025"
+      - {page: 2, subject: java-programming}       # "UT-1 Examination, September- 2025"
+      - {page: 3, subject: soft-computing}         # "First Class Test"
+
+  - file: mtech-aids-dual-sem5_2025-26_mst2.pdf
+    exam: mst2
+    pages:
+      - {page: 1, subject: computer-networks}      # "MID Test - 2", DS6A-323
+      - {page: 2, subject: java-programming}       # "UT-2 Examination, October- 2025"
+      - {page: 3, subject: software-engineering}   # "Mid Semester Test II - OCT-2025"
+      - {page: 4, subject: python-programming}     # "MID Test - 2", Python (DS6A-204)
+      - {page: 5, subject: soft-computing}         # "Second Class Test"
+      - {page: 6, subject: statistical-inference}  # "(MST-II)"
+      - {page: 7, subject: data-engineering}       # "Second Internal Test"
+
+  - file: mtech-aids-dual-sem5_2025-26_end.pdf
+    exam: end
+    pages:
+      - {page: 1, subject: soft-computing}         # "End Semester Examination - December 2025"
+      - {page: 2, subject: statistical-inference}  # V Sem, 3 hours, 60 marks; prints no date
+      - {page: 3, subject: python-programming}     # "December 2025", DS6A204: PYTHON
+      - {page: 4, subject: data-engineering}       # "December 2025"
+      - {page: 5, subject: java-programming}       # "December 2025"
+      - {page: 6, subject: software-engineering}   # "December 2025"
+      - {page: 7, subject: computer-networks}      # "December 2025"
+
+  # ---- 2024-25 (batch 2022-27) ----
+  - file: mtech-aids-dual-sem5_2024-25_mst1.pdf
+    exam: mst1-2024-25
+    pages:
+      - {page: 1, subject: java-programming}       # "TEST-I" (top half of a photo)
+      - {page: 2, subject: computer-networks}      # "Class Test - I" (top half of a photo)
+
+  - file: mtech-aids-dual-sem5_2024-25_mst2.pdf
+    exam: mst2-2024-25
+    pages:
+      - {page: 1, subject: java-programming}       # "TEST-II" (bottom half of a photo)
+      - {page: 2, subject: software-engineering}   # "Test-2, Date: 21-10-2024" (bottom half of a photo)
+      - {page: 3, subject: data-engineering}       # "Second Mid-Term Exam"
+
+  - file: mtech-aids-dual-sem5_2024-25_mst3.pdf
+    exam: mst3-2024-25
+    pages:
+      - {page: 1, subject: statistical-inference}  # "MST III - Statistical Inference" (top half of a photo)
+
+  - file: mtech-aids-dual-sem5_2024-25_end.pdf
+    exam: end-2024-25
+    pages:
+      - {page: 1, subject: software-engineering}   # "December 2024"; name and roll number blacked out
+      - {page: 2, subject: soft-computing}         # name and roll number blacked out
+      - {page: 3, subject: data-engineering}       # roll number blacked out
+      - {page: 4, subject: statistical-inference}  # name and roll number blacked out
+      - {page: 5, subject: java-programming}       # name and roll number blacked out
+      - {page: 6, subject: computer-networks}      # "Page 1 of 2"
+      - {page: 7, subject: computer-networks, continues_previous: true}

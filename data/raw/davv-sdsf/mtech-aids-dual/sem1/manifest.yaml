@@ -21,11 +21,17 @@ course:
   semester: 1
 
 # Every year of this course-semester goes in this one manifest. The first year added uses the ids
-# mst1 / mst2 / end; any other year adds its session, e.g. {id: mst1-2024-25, ..., session: "2024-25"}.
+# mst1 / mst2 / mst3 / end; any other year adds its session, e.g. {id: mst1-2024-25, ..., session: "2024-25"}.
 exams:
   - {id: mst1, name: MST-1, date: "2025-10", session: "2025-26"}
   - {id: mst2, name: MST-2, date: "2025-12", session: "2025-26"}
   - {id: end, name: End Sem, date: "2026-01", session: "2025-26"}
+  # 2022-23 (batch 2022-27). Month only where a paper prints it: Maths Test-I 06.01.2023 and Intro to
+  # CS "First Test (January, 2023)"; End Sems "March, 2023" and 24-03-2023. MST-2 and MST-3 print no date.
+  - {id: mst1-2022-23, name: MST-1, date: "2023-01", session: "2022-23"}
+  - {id: mst2-2022-23, name: MST-2, date: "2023", session: "2022-23"}
+  - {id: mst3-2022-23, name: MST-3, date: "2023", session: "2022-23"}
+  - {id: end-2022-23, name: End Sem, date: "2023-03", session: "2022-23"}
 
 # Subjects are identified by normalized name + aliases, never by course code
 # (codes are unreliable: DS6A-101 appears on both Mathematics-I and the Programming End Sem).
@@ -121,3 +127,43 @@ files:
         subject: intro-to-cs
       - page: 7
         subject: fundamentals-of-programming
+
+  # ---- 2022-23 (batch 2022-27) ----
+  # From one student's CamScanner PDF (paper.pdf, 23 pages). Its sideways pages were turned upright
+  # when these PDFs were made. Left out: two duplicate pages (the Basic Electronics test and the
+  # Environmental Science Second Test again), a Semester 2 paper (sem2/), and two Basic Electronics
+  # tests that print no test number (waiting for the maintainer). The year comes from the pages that
+  # print it (batch 2022-27, 2023 dates); every other page is the same student's Semester 1 set.
+  - file: mtech-aids-dual-sem1_2022-23_mst1.pdf
+    exam: mst1-2022-23
+    pages:
+      - {page: 1, subject: descriptive-statistics}       # "Descriptive Statistics TEST I", batch 2022-27
+      - {page: 2, subject: fundamentals-of-programming}  # "First Test, Fundamental of Programming"
+      - {page: 3, subject: physics-1}                    # "Physics - Internal - 1"
+      - {page: 4, subject: environmental-science}        # "First Test, Environmental Science"
+      - {page: 5, subject: mathematics-1}                # "Mathematics-I, Test-I (06.01.2023)"
+      - {page: 6, subject: intro-to-cs}                  # "First Test (January, 2023)"
+
+  - file: mtech-aids-dual-sem1_2022-23_mst2.pdf
+    exam: mst2-2022-23
+    pages:
+      - {page: 1, subject: descriptive-statistics}       # "(TEST-2)"
+      - {page: 2, subject: fundamentals-of-programming}  # "Second Test"
+      - {page: 3, subject: environmental-science}        # "First semester Second Test"
+
+  - file: mtech-aids-dual-sem1_2022-23_mst3.pdf
+    exam: mst3-2022-23
+    pages:
+      - {page: 1, subject: physics-1}                    # "Internal Exam - III"
+      - {page: 2, subject: mathematics-1}                # "Internal Test-III"
+
+  - file: mtech-aids-dual-sem1_2022-23_end.pdf
+    exam: end-2022-23
+    pages:
+      - {page: 1, subject: descriptive-statistics, rotation: 0}  # "(SEMESTER EXAM)", 60 marks; the model turned this upright page sideways
+      - {page: 2, subject: fundamentals-of-electronics}  # DS6A-121, batch 2022-27, 24-03-2023
+      - {page: 3, subject: fundamentals-of-programming}  # 3 hours, 60 marks
+      - {page: 4, subject: physics-1}                    # "First Semester End Examination"
+      - {page: 5, subject: environmental-science}        # DS6A-141, batch 2022-27
+      - {page: 6, subject: mathematics-1}                # "Semester-I, Mathematics-I", 3 hours, 60 marks
+      - {page: 7, subject: intro-to-cs}                  # "End Semester Examination (March, 2023)"

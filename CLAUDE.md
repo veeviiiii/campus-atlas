@@ -12,7 +12,7 @@ sentence. We are now turning it into a simple, useful product. When in doubt, cu
 
 ## 2. The product: three things, nothing else
 1. **Past papers (PYQs).** Browse department -> course -> semester -> subject. Every paper shows its
-   exam (MST-1, MST-2, End Sem), month and year, the questions as text (LaTeX for maths, tables as
+   exam (MST-1, MST-2, MST-3, End Sem), month and year, the questions as text (LaTeX for maths, tables as
    markdown) and a link to the original photo of each page.
 2. **Likely topics.** Per subject, topics ranked by a transparent score, each with its reasons
    ("asked in 2 of 3 exams", "came back from MST-2 in the End Sem, word for word", "12 marks").
@@ -37,9 +37,10 @@ to navigate.
 ## 3. Build order
 1. Simplify: remove the cut features; course page (subject cards with mini planets) and subject page
    (Papers, Likely topics). Static site. Done.
-2. More papers: one pack holds every year of a course-semester (done: exam ids mst1/mst2/end for the
+2. More papers: one pack holds every year of a course-semester (done: exam ids mst1/mst2/mst3/end for the
    first year added, <kind>-<session> such as mst1-2024-25 for every other year; year chips on the
-   Papers tab); collect older papers from seniors. <- current
+   Papers tab; a date is just the year when no paper prints the month); collect older papers from
+   seniors. <- current
 3. Community: sign-in, PYQ uploads into a review queue (an admin approves, then the pipeline runs),
    notes exchange. Until then, papers come in through a Google Form owned by the maintainer (link in
    web/src/lib/site.ts, shown on /send/); the maintainer runs the pipeline on the uploads
@@ -48,10 +49,13 @@ to navigate.
 Ask before starting a new phase. Ask before adding a backend, auth or any paid service.
 
 ## 4. Data we have
-Path: data/raw/davv-sdsf/mtech-aids-dual/sem1/ — 3 PDFs of phone photos (MST-1 Oct 2025, MST-2 Dec
-2025, End Sem Jan 2026) x 7 subjects = 21 papers, plus manifest.yaml (page -> subject/exam, human
-ground truth). The PDFs stay local (gitignored); every page is public as a photo in
-packs/<college>/pages/. No syllabus was used: units and topics are grouped bottom-up from the questions.
+Path: data/raw/davv-sdsf/mtech-aids-dual/sem<N>/ — PDFs of phone photos plus one manifest.yaml per
+semester (page -> subject/exam, human ground truth). Sem 1: 2025-26 (MST-1 Oct 2025, MST-2 Dec 2025,
+End Sem Jan 2026, 7 subjects) and 2022-23 (MST-1/2/3, End Sem). Sem 2: one Physics-II test. Sem 4:
+2024-25, 2023-24 and one 2022-23 End Sem. Sem 5: 2025-26 and 2024-25. Sem 7: 2025-26 mid-sems. Each
+manifest notes the papers held back because they print no year, test number or subject.
+The PDFs stay local (gitignored); every page is public as a photo in packs/<college>/pages/.
+Handwritten names and roll numbers are blacked out before the PDFs are made. No syllabus was used: units and topics are grouped bottom-up from the questions.
 Known data problems the pipeline handles (keep it that way): unreliable course codes (match subjects
 by name + alias table), name variants, bleed-through fragments of other papers (drop and log),
 an upside-down page, handwritten ticks/renumbering (match by text, never by question number),
