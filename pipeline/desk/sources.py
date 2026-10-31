@@ -23,8 +23,13 @@ class Source:
     pages: int
 
 
+def is_source_name(name: str) -> bool:
+    suffix = Path(name).suffix.lower()
+    return (suffix == ".pdf" or suffix in PHOTOS) and not name.startswith(".")
+
+
 def is_source(p: Path) -> bool:
-    return p.is_file() and (p.suffix.lower() == ".pdf" or p.suffix.lower() in PHOTOS) and not p.name.startswith(".")
+    return p.is_file() and is_source_name(p.name)
 
 
 def list_sources(folder: Path, only: str = "") -> tuple[list[Source], list[str]]:

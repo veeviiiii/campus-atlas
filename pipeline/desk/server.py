@@ -2,10 +2,14 @@
 
 One folder of sources (or one file) is open at a time. The page holds the decisions and sends them
 after every change (PUT /api/state); everything that reads or writes files happens here, and so do
-the model readings ("Read pages", in the background) and the picture matches.
+the model readings ("Read pages", in the background) and the picture matches. Files dropped on the
+start screen are saved into data/inbox/. The desk stops on "Close the desk", or by itself once no page
+has called for half an hour.
 """
 
+import base64
 import copy
+import http.client
 import io
 import json
 import os
@@ -25,12 +29,26 @@ from PIL import Image
 from pipeline import intake
 from pipeline.desk import decisions, dupes, export, reader, suggest
 from pipeline.desk.geometry import render_part
-from pipeline.desk.sources import PREVIEW_SIDE, is_source, list_sources, load_page, page_key
+from pipeline.desk.sources import PREVIEW_SIDE, is_source, is_source_name, list_sources, load_page, page_key
 from pipeline.manifest import EXAM_KINDS
 
 STATIC = Path(__file__).resolve().parent / "static"
 RECENT = "data/work/desk/recent.json"  # folders and files opened before, newest first
-TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8"}
+RUNNING = "data/work/desk/running.json"  # {"port"} of the desk while it runs, so a second start opens it instead
+INBOX = "data/inbox"  # files dropped on the desk page: one folder per drop (gitignored)
+FONTS = ("inter-latin.woff2", "space-grotesk-latin.woff2", "ibm-plex-mono-400-latin.woff2", "ibm-plex-mono-500-latin.woff2",
+         "silkscreen-700-latin.woff2")  # the site's own fonts, from web/src/app/fonts
+PORTS = 20  # the desk takes the first free port from --port on
+IDLE = 30 * 60  # seconds without the page open (it calls /api/ping every minute) before the desk stops itself
+
+
+def page() -> bytes:
+    """desk.html with its stylesheet and script inside it: one response, so the page is never unstyled."""
+    html = (STATIC / "desk.html").read_text(encoding="utf-8")
+    css = (STATIC / "desk.css").read_text(encoding="utf-8")
+    js = (STATIC / "desk.js").read_text(encoding="utf-8")
+    html = html.replace('<link rel="stylesheet" href="desk.css">', f"<style>\n{css}</style>")
+    return html.replace('<script src="desk.js"></script>', f"<script>\n{js}</script>").encode("utf-8")
 
 
 class Run:
@@ -44,12 +62,14 @@ class Run:
         cmd = cmd or [sys.executable, "-m", "pipeline.build_pack", "--manifest", manifest, "--all"]
         self.lines.append("$ " + " ".join(f'"{c}"' if " " in c else c for c in cmd))
         self.proc = subprocess.Popen(cmd, cwd=intake.ROOT, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                     text=True, encoding="utf-8", errors="replace", bufsize=1)
+                                     text=True, encoding="utf-8", errors="replace", bufsize=1,
+                                     creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))  # no console window from intake-desk.cmd
         threading.Thread(target=self._drain, daemon=True).start()
 
     def _drain(self) -> None:
         for line in self.proc.stdout:
             self.lines.append(line.rstrip("\n"))
+        self.proc.stdout.close()
         self.code = self.proc.wait()
 
     def report(self) -> dict | None:
@@ -81,6 +101,11 @@ class App:
         self.reader: reader.Reader | None = None
         self.dupes: dict[str, dict] = {}
         self.dupes_ready = False
+        self.seen = time.time()  # the page's last request
+
+    def busy(self) -> bool:
+        """Reading pages or running the pipeline: the desk does not stop itself then."""
+        return bool((self.reader and self.reader.status()["running"]) or (self.run and self.run.code is None))
 
     # ------------------------------------------------------------ folder and state
 
@@ -119,6 +144,43 @@ class App:
         except (OSError, ValueError):
             return []
 
+    def recent_info(self) -> list[dict]:
+        """The recent folders and files with how far their work has got, for the start screen."""
+        out = []
+        for r in self.recent():
+            path = Path(r)
+            folder, only = (path.parent, path.name) if path.is_file() else (path, "")
+            try:
+                sources, _ = list_sources(folder, only)
+                desk = decisions.load(folder, only)
+            except Exception:  # a folder that no longer opens is simply not offered
+                continue
+            parts = [part for s in sources for n in range(1, s.pages + 1) for part in desk.page(page_key(s.id, n)).parts]
+            out.append({"path": r, "name": only or folder.name, "file": bool(only), "inbox": self.in_inbox(folder),
+                        "pages": sum(s.pages for s in sources), "parts": len(parts), "decided": sum(p.status != "todo" for p in parts),
+                        "written": len(desk.written)})
+        return out
+
+    def in_inbox(self, folder: Path) -> bool:
+        inbox = (intake.ROOT / INBOX).resolve()
+        return inbox in folder.resolve().parents
+
+    def upload(self, body: dict) -> dict:
+        """Save one dropped file into data/inbox/<date time>/ (or into the inbox folder given)."""
+        name = Path(str(body.get("name", ""))).name
+        if not name or not is_source_name(name):
+            raise ValueError(f"{name or 'that'} is not a PDF or a photo (.jpg / .png / .webp)")
+        inbox = (intake.ROOT / INBOX).resolve()
+        folder = Path(body["folder"]).resolve() if body.get("folder") else inbox / time.strftime("%Y-%m-%d %H.%M.%S")
+        if inbox not in folder.parents:
+            raise ValueError("dropped files go into data/inbox/ only")
+        folder.mkdir(parents=True, exist_ok=True)
+        target, n = folder / name, 2
+        while target.exists():
+            target, n = folder / f"{Path(name).stem} ({n}){Path(name).suffix}", n + 1
+        target.write_bytes(base64.b64decode(body["data"], validate=True))
+        return {"folder": str(folder), "file": target.name}
+
     def keys(self) -> list[str]:
         return [page_key(s.id, n) for s in self.sources for n in range(1, s.pages + 1)]
 
@@ -131,7 +193,8 @@ class App:
         state.pop("reads")
         return {
             "folder": str(self.folder / self.only) if self.only else str(self.folder), "name": self.only or self.folder.name,
-            "only": self.only, "state_file": decisions.state_file(self.folder, self.only).name,
+            "only": self.only, "state_file": decisions.state_file(self.folder, self.only).name, "inbox": self.in_inbox(self.folder),
+            "written": sorted(self.desk.written),
             "sources": [{"id": s.id, "kind": s.kind, "pages": s.pages} for s in self.sources], "broken": self.broken,
             "state": state, "reader": {"model": reader.model_name(), "problem": reader.problem()},
             "courses": [{"id": c["id"], "name": c["name"], "school": c["school"], "semesters": c["years"] * 2} for c in self.courses()],
@@ -294,6 +357,7 @@ def make_handler(app: App, port: int):
             self.raw = self.rfile.read(int(self.headers.get("Content-Length") or 0))  # always read it: closing on unread data resets the connection
             if not self.allowed():
                 return self.json({"error": "not allowed"}, 403)
+            app.seen = time.time()
             url = urlparse(self.path)
             q = {k: v[0] for k, v in parse_qs(url.query).items()}
             try:
@@ -306,11 +370,26 @@ def make_handler(app: App, port: int):
 
         def route(self, path: str, q: dict) -> None:
             m = (self.command, path)
-            if self.command == "GET" and path in ("/", "/desk.js", "/desk.css"):
-                f = STATIC / ("desk.html" if path == "/" else path[1:])
-                return self.send(200, f.read_bytes(), TYPES[f.suffix])
+            if m == ("GET", "/"):
+                return self.send(200, page(), "text/html; charset=utf-8")
+            if self.command == "GET" and path.startswith("/fonts/") and path[7:] in FONTS:
+                f = intake.ROOT / "web" / "src" / "app" / "fonts" / path[7:]
+                return self.send(200, f.read_bytes(), "font/woff2", cache=True) if f.exists() else self.json({"error": "no font"}, 404)
+            if m == ("GET", "/api/ping"):
+                return self.json({"busy": app.busy()})
             if m == ("GET", "/api/start"):
-                return self.json({"root": str(intake.ROOT), "folder": str(app.folder) if app.folder else None, "recent": app.recent(), "home": str(Path.home())})
+                return self.json({"root": str(intake.ROOT), "folder": str(app.folder) if app.folder else None, "recent": app.recent_info(),
+                                  "home": str(Path.home()), "inbox": str(intake.ROOT / INBOX)})
+            if m == ("POST", "/api/upload"):
+                return self.json(app.upload(self.body()))
+            if m == ("POST", "/api/quit"):
+                if app.run and app.run.code is None:
+                    app.run.proc.terminate()
+                if app.reader:
+                    app.reader.stop("the desk was closed")
+                self.json({"closed": True})
+                threading.Thread(target=self.server.shutdown, daemon=True).start()
+                return
             if m == ("GET", "/api/browse"):
                 return self.json(browse(q.get("path", "")))
             if m == ("POST", "/api/open"):
@@ -348,7 +427,7 @@ def make_handler(app: App, port: int):
             if m == ("POST", "/api/write"):
                 with app.lock:
                     plan, results = export.write(app.folder, app.desk, app.sources, log=lambda s: print(s, flush=True), only=app.only)
-                return self.json({"plan": export.summary(plan), "results": results})
+                return self.json({"plan": export.summary(plan), "results": results, "written": sorted(app.desk.written)})
             if m == ("POST", "/api/run"):
                 rel = self.body()["manifest"]
                 if not (intake.ROOT / rel).is_file() or not rel.startswith("data/raw/"):
@@ -394,21 +473,46 @@ def browse(path: str) -> dict:
     return {"path": str(p), "parent": parent, "dirs": dirs, "files": files, "here": len(files)}
 
 
-def serve(folder: Path | None, port: int, open_browser: bool) -> None:
+def running_desk() -> int | None:
+    """The port this repository's desk already runs on, if one does. (Double-clicking the launcher
+    twice then opens the same desk instead of starting a second one.)"""
+    try:
+        p = int(json.loads((intake.ROOT / RUNNING).read_text(encoding="utf-8"))["port"])
+        c = http.client.HTTPConnection("127.0.0.1", p, timeout=2)
+        c.request("GET", "/api/start", headers={"Host": f"127.0.0.1:{p}"})
+        r = c.getresponse()
+        return p if r.status == 200 and json.loads(r.read()).get("root") == str(intake.ROOT) else None
+    except (OSError, ValueError, KeyError, TypeError):  # none written, or left by a desk that is gone
+        return None
+
+
+def serve(folder: Path | None, port: int, open_browser: bool, idle: float = IDLE) -> None:
+    if (p := running_desk()) is not None:
+        url = f"http://127.0.0.1:{p}/"
+        if folder:
+            c = http.client.HTTPConnection("127.0.0.1", p, timeout=60)
+            c.request("POST", "/api/open", body=json.dumps({"folder": str(folder.resolve())}),
+                      headers={"Host": f"127.0.0.1:{p}", "Content-Type": "application/json"})
+            c.getresponse().read()
+        print(f"The intake desk is already running: {url}", flush=True)
+        if open_browser:
+            import webbrowser
+            webbrowser.open(url)
+        return
     app = App()
     if folder:
         try:
             app.open(folder)
         except ValueError as e:
             sys.exit(f"error: {e}")
-    for p in range(port, port + 20):
+    for p in range(port, port + PORTS):
         try:
             server = ThreadingHTTPServer(("127.0.0.1", p), make_handler(app, p))
             break
         except OSError:
             continue
     else:
-        sys.exit(f"error: ports {port} to {port + 19} are all busy")
+        sys.exit(f"error: ports {port} to {port + PORTS - 1} are all busy")
     url = f"http://127.0.0.1:{p}/"
     print(f"Intake desk: {url}  (Ctrl+C to stop)", flush=True)
     if folder:
@@ -418,7 +522,28 @@ def serve(folder: Path | None, port: int, open_browser: bool) -> None:
     if open_browser:
         import webbrowser
         webbrowser.open(url)
+
+    def watch() -> None:  # stop when the page has been closed for a while and nothing is running
+        last = time.time()
+        while True:
+            time.sleep(min(30, idle / 3))
+            if time.time() - last > 120:  # the laptop slept: give the open page time to call again
+                app.seen = time.time()
+            last = time.time()
+            if time.time() - app.seen > idle and not app.busy():
+                print(f"no page open for {idle / 60:.0f} minutes: stopping", flush=True)
+                server.shutdown()
+                return
+
+    threading.Thread(target=watch, daemon=True).start()
+    running = intake.ROOT / RUNNING
+    running.parent.mkdir(parents=True, exist_ok=True)
+    running.write_text(json.dumps({"port": p}), encoding="utf-8")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("stopped")
+        pass
+    finally:
+        server.server_close()
+        running.unlink(missing_ok=True)
+    print("stopped", flush=True)

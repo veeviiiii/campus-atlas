@@ -18,6 +18,8 @@ data/work/
 
 # Scanned papers stay local (35 MB); every page is in git as a photo in packs/<college>/pages/
 data/raw/**/*.pdf
+# Files dropped on the intake desk (students' uploads, names and all)
+data/inbox/
 
 # Run reports: keep only the sample
 runs/*
