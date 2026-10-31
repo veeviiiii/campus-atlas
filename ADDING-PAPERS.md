@@ -60,14 +60,18 @@ The step bar at the top shows what is done and the one thing to do next: **Open*
 (optional), **Check** every page, **Write** the PDFs and manifests, **Run** the pipeline. Click a card, then:
 
 - **Turn** it upright: ↺ / ↻ (or `R`).
-- **Split** a photo of two papers: **Top / bottom** or **Left / right**, then drag the dashed line.
-  Each half gets its own fields; **Turn this half** if one half is the other way up.
+- **Split** a photo of two papers: **✂ 2 papers** on its card (top and bottom), or in the editor
+  **2 papers: top / bottom** or **2 papers: left / right**, then drag the dashed line. **1 paper** on
+  the card undoes it. Each half gets its own fields; **Turn this half** if one half is the other way up.
 - **Black out** names, roll numbers and signatures: drag a box on the page. The box is burned into
   the PDF's pixels and the new PDFs keep no hidden text layer from the scanner app, so nothing is left
   under it. The small cards show exactly what will be written.
 - **Use**, **Skip** (duplicates, answer sheets, anything that isn't a question paper) or **Held back**
   (a real paper with no year, no test number or no subject). Held-back pages are listed, with their
-  reason, at the top of that semester's manifest until you know more.
+  reason, at the top of that semester's manifest until you know more. **Held back** above the pages
+  shows only those, each with its reason (the other filters: **To do**, **Use**, **Skip**, **All**).
+  Fill in what is missing (the year goes in Session) and the paper becomes **Use** by itself;
+  shift-click several to fill a field for all of them.
 - **Course, semester, subject, exam, session, date.** Shift-click a range (or **Select all** on a file)
   to set course, semester, exam and session for many pages at once, then the subject page by page.
   **+ New** adds a subject with the other names printed on its papers. The date belongs to the exam:
