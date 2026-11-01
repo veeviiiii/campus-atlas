@@ -249,7 +249,7 @@ function renderGrid() {
     }
     if (!cards.length) return "";
     const of = S.filter === "all" ? `${s.pages} page${s.pages > 1 ? "s" : ""}` : `${cards.length} of ${s.pages} pages`;
-    return `<div class="source"><h3>${esc(s.id)} <span class="muted small">${of}</span><button type="button" class="small" data-select-source="${esc(s.id)}">Select ${S.filter === "all" ? "all" : "these"}</button></h3><div class="pages">${cards.join("")}</div></div>`;
+    return `<div class="source"><h3>${esc(s.id)} <span class="muted small">${of}</span><button type="button" class="small" data-select-source="${esc(s.id)}">Select ${S.filter === "all" ? "all" : "these"}</button><span data-accept-slot="${esc(s.id)}"></span></h3><div class="pages">${cards.join("")}</div></div>`;
   }).join("");
   const empty = { todo: "Nothing left to do.", held: "No paper is held back.", use: "No page is marked Use yet.", skip: "No page is skipped." }[S.filter];
   const intro = S.filter === "held" && files ? `<p class="muted small held-intro">Real papers kept out because something is not printed on them. Click one, fill in what is missing (year, exam or subject) and it becomes <b>Use</b>. Shift-click several to fill a field for all of them.</p>` : "";
@@ -282,6 +282,11 @@ function refresh(editor = true) {
   if (counts) counts.innerHTML = FILTERS.map(([f, name]) => `<button type="button" class="small ${S.filter === f ? "on" : ""}" data-filter="${f}" aria-pressed="${S.filter === f}">${name} <span>${f === "all" ? S.pieces.length : count(f)}</span></button>`).join("")
     + (waiting ? `<span class="muted small">${waiting} page${waiting > 1 ? "s" : ""} suggested, waiting for you</span>` : "")
     + ((fill) => (fill ? `<button type="button" class="small primary" data-fill-held title="Held-back papers whose suggestion knows some of what was missing (the year from the file name, say)">Fill ${fill} held back</button>` : ""))(fillablePages().reduce((a, k) => a + fillable(k).length, 0));
+  for (const slot of document.querySelectorAll("[data-accept-slot]")) {
+    const n = sourceWaiting(slot.dataset.acceptSlot).length;
+    const html = n ? `<button type="button" class="small primary" data-accept-source="${esc(slot.dataset.acceptSlot)}" title="Take the suggestion of every page of this file not decided yet">Accept all ${n}</button>` : "";
+    if (slot.innerHTML !== html) slot.innerHTML = html;
+  }
   updateSteps();
   if (editor) typing() ? updateDerived() : renderEditor();
 }
@@ -314,6 +319,8 @@ $("#grid").addEventListener("click", async (e) => {
     setSplit(key, pg.split ? "" : "h");
     return select([`${key}:0`], `${key}:0`);
   }
+  const acc = e.target.closest("[data-accept-source]");
+  if (acc) return acceptSource(acc.dataset.acceptSource);
   const src = e.target.closest("[data-select-source]");
   if (src) return select(S.pieces.filter((p) => splitKey(p.key)[0] === src.dataset.selectSource && S.shown.has(p.key)).map((p) => p.id), null);
   const tile = e.target.closest(".tile");
@@ -574,6 +581,24 @@ async function acceptSure() {
   const n = acceptPages(keys);
   toast(`Accepted ${n} page${n === 1 ? "" : "s"}.` + (left ? ` ${left} left to check.` : ""));
   GO.waiting();
+}
+
+/** Undecided pages of this file with a suggestion to accept (not the ones the model is reading now). */
+const sourceWaiting = (id) => waitingPages().filter((k) => splitKey(k)[0] === id && !(S.read && S.read.reading.includes(k)));
+
+/** Accept every suggestion waiting in one file, sure or not, after saying how many have something to check. */
+async function acceptSource(id) {
+  const keys = sourceWaiting(id);
+  if (!keys.length) return;
+  const sure = new Set(surePages()), check = keys.filter((k) => !sure.has(k)).length;
+  const parts = keys.flatMap((k) => S.sugs[k].parts), held = parts.filter((s) => s.status === "held").length, skip = parts.filter((s) => s.status === "skip").length;
+  const s = (n) => (n === 1 ? "" : "s");
+  const what = [held ? `${held} held back` : "", skip ? `${skip} skipped` : ""].filter(Boolean).join(", ");
+  if (!(await ask(`Accept all ${keys.length} suggested page${s(keys.length)} of ${id}?`,
+    (check ? `${check} of them ${check === 1 ? "is" : "are"} not sure: the model may have misread something, or a field was worked out (its notes say what). ` : "Every one of them is sure. ")
+    + (what ? `As suggested, ${what}. ` : "") + "\n\nLook over the small pictures afterwards: you can still change any page.", `Accept ${keys.length}`))) return;
+  const n = acceptPages(keys);
+  toast(`Accepted ${n} page${s(n)} of ${id}.`);
 }
 
 /** What the suggestion can add to a held-back part: the empty fields it has a value for (often the
