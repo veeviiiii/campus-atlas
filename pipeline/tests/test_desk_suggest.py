@@ -38,6 +38,27 @@ def reading(*parts, split: str = "", rotation: int = 0, error: str = "") -> dict
 
 
 class Parsing(unittest.TestCase):
+    def test_file_names(self):
+        """Names seniors gave their PDFs: semester, exam and year when they say them, nothing guessed."""
+        cases = {  # name: (semester, kind, session, date)
+            "M.tech_Sem1_ENDSEMQP_2k24-25.pdf": (1, "end", "2024-25", None),
+            "M.tech_1stSem_Internal1_2k24.pdf": (1, "mst1", None, "2024"),
+            "Sem 3 Int1 2k25.pdf": (3, "mst1", None, "2025"),
+            "Sem-3 End Sem 2k25.pdf": (3, "end", None, "2025"),
+            "1st sem ll-internal.pdf": (1, "mst2", None, None),  # "ll": II typed with two l's
+            "2nd sem end sem 2024 (1).pdf": (2, "end", None, "2024"),
+            "2nd sem internal 2024 (1).pdf": (2, None, None, "2024"),  # which internal: not said
+            "Second Sem Internal papers.pdf": (2, None, None, None),  # "Second" is the semester, not the test
+            "sem 3rd internal papers.pdf": (3, None, None, None),
+            "Third Semester Test-II 2024.pdf": (3, "mst2", None, "2024"),
+            "Sem 4/2023-24/MST 2.pdf": (4, "mst2", "2023-24", None),  # folders count too
+            "MST-1 Dec 2024.pdf": (None, "mst1", None, "2024-12"),
+            "II Sem Mid Term 2023 2024.pdf": (2, None, None, None),  # two years: neither
+            "PYQ.pdf": (None, None, None, None),
+        }
+        got = {k: tuple(suggest.from_name(k)[f] for f in ("semester", "kind", "session", "date")) for k in cases}
+        self.assertEqual(got, cases)
+
     def test_semesters(self):
         cases = {"Semester-III": 3, "III Sem": 3, "5th Semester": 5, "Fifth Semester": 5, "Sem. V": 5, "VII": 7, "B.Tech. VII Sem": 7,
                  "semester 10": 10, "Mid Semester Test": None, "Second Mid-Sem Exam": None, "": None, None: None}
@@ -114,6 +135,26 @@ class Suggestions(unittest.TestCase):
         self.assertEqual((s["status"], s["reason"]), ("skip", "duplicate"))
         self.assertIn('looks the same as "a.pdf" page 1 in this folder', s["notes"])
         self.assertTrue(s["sure"])  # a copy by its picture: taken by "Accept all sure pages"
+
+    def test_the_file_name_fills_in_what_the_paper_does_not_print(self):
+        printed = dict(subject_name="DE", course_name="M.Tech (AIDS)")  # no exam, semester or year on the paper
+        desk = decisions.Desk(reads={
+            "Sem 5/M.tech_Sem5_ENDSEMQP_2k24-25.pdf#1": reading(("question paper", paper(**printed))),
+            "Sem-5 Int1 2k25.pdf#1": reading(("question paper", paper(**printed))),
+            "Sem 5 MST-2 2024-25.pdf#1": reading(("question paper", paper(**printed, exam_title="TEST-I", date="Sept 2024"))),
+        })
+        out = self.suggestions(desk, list(desk.reads))
+        end = out["Sem 5/M.tech_Sem5_ENDSEMQP_2k24-25.pdf#1"]["parts"][0]
+        self.assertEqual({k: end[k] for k in ("status", "semester", "subject", "kind", "session", "sure")},
+                         {"status": "use", "semester": 5, "subject": "data-engineering", "kind": "end", "session": "2024-25", "sure": True})
+        self.assertIn("year from the file name", end["notes"])
+        mst = out["Sem-5 Int1 2k25.pdf#1"]["parts"][0]  # only a year: the session is worked out, so it is not sure
+        self.assertEqual((mst["status"], mst["kind"], mst["session"], mst["date"], mst["sure"]), ("use", "mst1", "2025-26", "2025", False))
+        self.assertIn("only the year 2025 is in the file name: session 2025-26 worked out from the semester", mst["notes"])
+        # What the paper prints wins; the file name only adds a note to look at.
+        both = out["Sem 5 MST-2 2024-25.pdf#1"]["parts"][0]
+        self.assertEqual((both["kind"], both["session"], both["sure"]), ("mst1", "2024-25", False))
+        self.assertIn("the file name says mst2, the paper mst1", both["notes"])
 
     def test_only_a_suggestion_with_nothing_to_doubt_is_sure(self):
         full = dict(exam_title="TEST-II", subject_name="DE", course_name="M.Tech (AIDS)", semester="Semester-V")

@@ -7,7 +7,8 @@ picture. "Accept all sure pages" takes those in one go and leaves the doubtful o
 No model calls here. The printed exam title, subject, course, semester and date become an exam kind,
 a subject id, a course id, a semester, a session and an exam date, matched the way the pipeline
 matches them (subjects by name and aliases, never by course code). What cannot be matched stays
-empty, with a note saying what was printed. The maintainer accepts or changes every suggestion.
+empty, with a note saying what was printed. The maintainer accepts or changes every suggestion. What the paper does not print (often the year) is taken
+from the file's name and folders when they say it ('Sem 3 Int1 2k25.pdf'), with a note saying so.
 """
 
 import re
@@ -93,6 +94,28 @@ def session_from_year(year: int, semester: int | None, kind: str) -> str | None:
     return None
 
 
+def from_name(source: str) -> dict:
+    """What a source's path inside the folder says: {"semester", "kind", "session", "date"}, None where
+    it says nothing. 'M.tech_Sem1_ENDSEMQP_2k24-25.pdf' -> semester 1, end, session 2024-25;
+    'Sem 3 Int1 2k25.pdf' -> semester 3, mst1, date 2025; '1st sem ll-internal.pdf' -> semester 1, mst2."""
+    s = source.lower()
+    s = re.sub(r"\.(pdf|jpe?g|png|webp)$", "", s)
+    s = re.sub(r"\(\d+\)", " ", s)  # "(1)": a second download of the same file
+    s = re.sub(r"[_./\\]+", " ", s)
+    s = re.sub(r"(?<![a-z0-9])2k(\d{2})(?!\d)", r"20\1", s)  # 2k24 -> 2024
+    s = re.sub(r"endsem\w*", " end sem ", s)  # ENDSEMQP
+    s = re.sub(r"(\d)(st|nd|rd|th)?(sem)", r"\1\2 \3", s)  # 1stSem -> 1st sem
+    s = re.sub(r"(sem|semester)(\d)", r"\1 \2", s)  # Sem1 -> sem 1
+    s = re.sub(r"\b(int|internal|mst|test|ut)\s*-?\s*(\d)\b", r"internal \2", s)  # Int1 -> internal 1
+    s = re.sub(r"\b(i{1,3}|l{1,3})\s*-?\s*(int|internal|mst|test)\b", lambda m: f"internal {len(m[1])}", s)  # "ll-internal": II
+    session = parse_session(s)
+    years = set(re.findall(r"(?<!\d)((?:19|20)\d{2})(?!\d)", re.sub(SESSION, " ", s)))
+    date = parse_date(s) if not session and len(years) == 1 else None
+    nth = r"(?:\d{1,2}(?:st|nd|rd|th)?|[ivx]+|" + "|".join(WORDS) + ")"
+    exam = re.sub(rf"(?:\b{nth}\s+)?\bsem(?:ester)?\b(?:\s+{nth}\b)?", " ", s)  # "Second Sem", "sem 3rd": the semester, not a test number
+    return {"semester": parse_semester(s), "kind": match_exam(exam), "session": session, "date": date}
+
+
 def course_words(name: str) -> set[str]:
     s = re.sub(r"[^a-z0-9]+", " ", name.lower().replace(".", "").replace("&", " and "))
     words = " ".join(COURSE_WORDS.get(t, t) for t in s.split())
@@ -118,9 +141,11 @@ def _blank(rotation: int = 0) -> dict:
             "session": "", "rotation": rotation, "date": "", "printed": "", "new_subject": "", "notes": [], "error": "", "sure": False}
 
 
-def part_suggestion(reading: dict, ctx: dict, courses: list[dict], subjects_for: Callable[[str, int], list[dict]]) -> dict:
+def part_suggestion(reading: dict, ctx: dict, courses: list[dict], subjects_for: Callable[[str, int], list[dict]],
+                    source: str = "") -> dict:
     """Suggested fields for one part from its reading {"rotation", "kind", "paper", "error"}.
-    ctx: the course and semester of the page before, for a paper that does not print them."""
+    ctx: the course and semester of the page before, for a paper that does not print them.
+    source: the file's path in the folder, for what the paper does not print (from_name)."""
     s = _blank(reading.get("rotation", 0))
     s["error"] = reading.get("error", "")
     kind = reading.get("kind", "")
@@ -145,7 +170,14 @@ def part_suggestion(reading: dict, ctx: dict, courses: list[dict], subjects_for:
         s["notes"].append("course as the page before" + (f' (printed: "{paper["course_name"]}")' if paper.get("course_name") else ""))
     s["course"] = course or ""
 
+    named = from_name(source)
     sem = parse_semester(paper.get("semester")) or parse_semester(paper.get("course_name"))
+    if sem and named["semester"] and named["semester"] != sem:
+        s["notes"].append(f"the file name says semester {named['semester']}, the paper {sem}")
+        doubts += 1
+    if not sem and named["semester"]:
+        sem = named["semester"]
+        s["notes"].append("semester from the file name")
     if sem and course and sem > sems.get(course, 12):
         s["notes"].append(f"semester {sem} is printed, but the course has {sems[course]}")
         sem = None
@@ -156,9 +188,19 @@ def part_suggestion(reading: dict, ctx: dict, courses: list[dict], subjects_for:
     s["semester"] = sem
 
     s["kind"] = match_exam(paper.get("exam_title")) or ""
+    if s["kind"] and named["kind"] and named["kind"] != s["kind"]:
+        s["notes"].append(f"the file name says {named['kind']}, the paper {s['kind']}")
+        doubts += 1
+    if not s["kind"] and named["kind"]:
+        s["kind"] = named["kind"]
+        s["notes"].append("exam from the file name")
 
     date = parse_date(paper.get("date"))
     session = parse_session(paper.get("year")) or parse_session(paper.get("date"))
+    where = "printed"
+    if not date and not session and (named["session"] or named["date"]):
+        date, session, where = named["date"], named["session"], "in the file name"
+        s["notes"].append("year from the file name")
     if not session and date and len(date) == 7:
         session = session_of(date)
     elif session and date and len(date) == 7 and session_of(date) != session:
@@ -166,7 +208,7 @@ def part_suggestion(reading: dict, ctx: dict, courses: list[dict], subjects_for:
         doubts += 1
     if not session and date:
         session = session_from_year(int(date), sem, s["kind"])
-        s["notes"].append(f"only the year {date} is printed: " + (f"session {session} worked out from the semester" if session else "pick the session"))
+        s["notes"].append(f"only the year {date} is {where}: " + (f"session {session} worked out from the semester" if session else "pick the session"))
         doubts += 1
     s["session"], s["date"] = session or "", date or ""
 
@@ -207,7 +249,7 @@ def suggestions(desk: Desk, keys: list[str], courses: list[dict], subjects_for: 
             if reading:
                 parts = []
                 for r in reading.get("parts") or []:  # the lower half of a page follows the upper one
-                    parts.append(part_suggestion(r, ctx, courses, subjects_for))
+                    parts.append(part_suggestion(r, ctx, courses, subjects_for, key[:key.rindex("#")]))
                     ctx = _follow(ctx, parts[-1])
                 parts = parts or [_blank(pg.rotation)]
                 sug = {"model": reading.get("model", ""), "rotation": reading.get("rotation", pg.rotation),
