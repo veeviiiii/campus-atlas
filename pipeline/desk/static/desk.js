@@ -280,7 +280,8 @@ function refresh(editor = true) {
   const waiting = waitingPages().length;
   const counts = $("#counts");
   if (counts) counts.innerHTML = FILTERS.map(([f, name]) => `<button type="button" class="small ${S.filter === f ? "on" : ""}" data-filter="${f}" aria-pressed="${S.filter === f}">${name} <span>${f === "all" ? S.pieces.length : count(f)}</span></button>`).join("")
-    + (waiting ? `<span class="muted small">${waiting} page${waiting > 1 ? "s" : ""} suggested, waiting for you</span>` : "");
+    + (waiting ? `<span class="muted small">${waiting} page${waiting > 1 ? "s" : ""} suggested, waiting for you</span>` : "")
+    + ((fill) => (fill ? `<button type="button" class="small primary" data-fill-held title="Held-back papers whose suggestion knows some of what was missing (the year from the file name, say)">Fill ${fill} held back</button>` : ""))(fillablePages().reduce((a, k) => a + fillable(k).length, 0));
   updateSteps();
   if (editor) typing() ? updateDerived() : renderEditor();
 }
@@ -305,6 +306,7 @@ function select(ids, anchor) {
 $("#grid").addEventListener("click", async (e) => {
   const f = e.target.closest("[data-filter]");
   if (f) return setFilter(f.dataset.filter);
+  if (e.target.closest("[data-fill-held]")) return fillAllHeld();
   const cut = e.target.closest("[data-cut]");
   if (cut) {
     const key = cut.dataset.cut, pg = pageOf(key);
@@ -537,6 +539,7 @@ function suggestionHTML(keys) {
     ${sug.error && !acceptable(key) ? `<p class="error small">Could not read it: ${esc(sug.error)}</p>` : ""}
     ${page.length ? `<div class="small">Page: ${page.map(esc).join(" · ")}</div>` : ""}
     <ul>${parts}</ul>${other}
+    ${!open && fillable(key).length ? `<div class="row"><button type="button" class="small primary" data-act="fill">Fill in what is missing</button><span class="muted small">Held back: this suggestion knows some of what is missing.</span></div>` : ""}
     <p class="muted small">${open ? "Only a suggestion: check it against the picture. Nothing counts until you accept it." : "You decided this page already; this is only for comparison."}</p>
   </div>`;
 }
@@ -571,6 +574,50 @@ async function acceptSure() {
   const n = acceptPages(keys);
   toast(`Accepted ${n} page${n === 1 ? "" : "s"}.` + (left ? ` ${left} left to check.` : ""));
   GO.waiting();
+}
+
+/** What the suggestion can add to a held-back part: the empty fields it has a value for (often the
+ *  year or exam from the file name). */
+function gains(part, s) {
+  if (!s || s.status === "skip" || s.continues) return [];
+  return PAPER_FIELDS.filter((f) => !part[f] && s[f] && (f !== "session" || validSession(s[f])));
+}
+/** The held-back parts of this page that their suggestion can add something to. */
+function fillable(key) {
+  const pg = pageOf(key), sug = S.sugs[key];
+  if (!sug || sug.parts.length !== pg.parts.length) return [];
+  return pg.parts.map((p, i) => (p.status === "held" && gains(p, sug.parts[i]).length ? i : -1)).filter((i) => i >= 0);
+}
+const fillablePages = () => (S.info ? pageKeys().filter((k) => fillable(k).length) : []);
+const MISSING = [["session", "no year"], ["kind", "no test number"], ["subject", "no subject"]];
+
+/** Fill the empty fields of those held-back parts from their suggestion; what the maintainer set stays.
+ *  A part with nothing missing any more is Use; the others stay held back, their reason saying what is
+ *  still missing. Returns [filled, now use]. */
+function fillHeld(keys) {
+  let filled = 0, use = 0;
+  for (const key of keys) for (const i of fillable(key)) {
+    const s = S.sugs[key].parts[i], part = editPage(key).parts[i];
+    for (const f of gains(part, s)) part[f] = s[f];
+    filled++;
+    if (PAPER_FIELDS.every((f) => part[f]) && validSession(part.session)) {
+      Object.assign(part, { status: "use", reason: "" });
+      use++;
+      if (s.date && !S.state.exam_dates[examKey(part)] && !examInManifest(part.course, part.semester, part.session, part.kind)) S.state.exam_dates[examKey(part)] = s.date;
+    } else {
+      const still = MISSING.filter(([f]) => !part[f]).map(([, why]) => why).join(", ");
+      if (still) part.reason = still;
+    }
+  }
+  if (filled) changed();
+  return [filled, use];
+}
+
+async function fillAllHeld() {
+  const keys = fillablePages(), n = keys.reduce((a, k) => a + fillable(k).length, 0);
+  if (!(await ask(`Fill ${n} held-back paper${n > 1 ? "s" : ""}?`, "Their suggestion knows some of what was missing, most often the year or the exam from the file name (the notes on each page say where it came from). Only empty fields are filled; what you set stays.\n\nA paper with nothing missing any more becomes Use; the others stay held back with what is still missing as the reason.", `Fill ${n}`))) return;
+  const [filled, use] = fillHeld(keys);
+  toast(`Filled ${filled} held-back paper${filled === 1 ? "" : "s"}: ${use} ${use === 1 ? "is" : "are"} Use now` + (filled - use ? `, ${filled - use} still miss something (see Held back).` : "."));
 }
 
 /** Take the suggestions of these pages as decisions (only pages not decided yet). Returns how many. */
@@ -736,6 +783,7 @@ $("#editor").addEventListener("click", async (e) => {
   if (act === "add-subject") return addSubject();
   if (act === "same-as-previous") return sameAsPrevious();
   if (act === "accept") return acceptAndGoOn();
+  if (act === "fill") return fillHeld([...new Set(ps.map((p) => p.key))]);
   if (act === "read-again") {
     await save();
     return startReading([...new Set(ps.map((p) => p.key))]);
