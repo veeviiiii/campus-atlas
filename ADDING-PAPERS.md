@@ -91,6 +91,17 @@ border. A paper that prints no year is suggested as held back "no year" (likewis
 "no subject"); a page with no printed header continues the paper before it; a paper that prints no
 course takes the course and semester of the page before it.
 
+- **File names count too.** Many papers print no year, but the PDF is called something like
+  `M.tech_Sem1_ENDSEMQP_2k24-25.pdf` or `Sem 3 Int1 2k25.pdf`. When the paper does not print the
+  semester, the exam or the year, the suggestion takes it from the file name, and its notes say so
+  ("year from the file name"). What the paper prints always wins; a file name that disagrees adds a
+  note to look at. A file name with only a year (`2k25`) is never sure: check the session it worked out.
+- **Fill N held back** (above the pages) is for pages you held back before the desk read file names:
+  it fills only the empty fields from each page's suggestion and keeps what you set. A paper with
+  nothing missing any more becomes **Use**; the others stay held back with what is still missing as
+  the reason (often "no subject": pick it page by page). One page at a time: **Fill in what is
+  missing** under its suggestion.
+
 - **Accept all sure pages** (in the bar at the top) takes, in one go, every suggestion with nothing to
   doubt: course, semester, subject, exam and session all matched what is printed (no year-only date,
   no new subject, nothing that disagrees), a page that continues a paper already taken, or a copy
