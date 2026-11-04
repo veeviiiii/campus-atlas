@@ -113,8 +113,12 @@ course takes the course and semester of the page before it.
 - **Nothing counts until you accept it.** Look at the picture, then **Accept** (`A` accepts and moves
   on), or set the fields yourself. Shift-click a range and **Accept** to take several at once. A subject
   printed on the paper that the semester does not have yet is added to it when you accept (or **Fill**),
-  named as printed, so the next papers printing that name match it. Printed names differ ("MATHS-II",
-  "Mathematics-II"): to name it yourself, with its other names, use **+ Add "…" as a subject** instead.
+  named as printed without its course code, so the next papers printing that name match it. Printed
+  variants of the name join that subject as its other names: case, plural, I or 1, Maths or Mathematics,
+  -isation or -ization, a course code ("IT-105A (Fundamentals of Computer)") and an all-capitals short form
+  ("DCC" for Data and Computer Communication) do not make a second subject; C++ stays apart from C. Look
+  over a semester's subjects in the Subject list: to name one yourself, with its other names, use
+  **+ Add "…" as a subject** instead.
 - One model call per page (two when a page comes in sideways: it is read again upright), a few at a
   time in the background; **Stop reading** stops it. Answers are cached in `data/work/cache`, so
   reading again costs nothing. **Read again** on a page reads it as it is now (turned or split as you
