@@ -112,15 +112,19 @@ course takes the course and semester of the page before it.
   small pictures afterwards.
 - **Nothing counts until you accept it.** Look at the picture, then **Accept** (`A` accepts and moves
   on), or set the fields yourself. Shift-click a range and **Accept** to take several at once. A subject
-  the semester does not have yet comes with **+ Add "…" as a subject**.
+  printed on the paper that the semester does not have yet is added to it when you accept (or **Fill**),
+  named as printed, so the next papers printing that name match it. Printed names differ ("MATHS-II",
+  "Mathematics-II"): to name it yourself, with its other names, use **+ Add "…" as a subject** instead.
 - One model call per page (two when a page comes in sideways: it is read again upright), a few at a
   time in the background; **Stop reading** stops it. Answers are cached in `data/work/cache`, so
   reading again costs nothing. **Read again** on a page reads it as it is now (turned or split as you
   set it). A page the model could not read says why.
 - It needs `GEMINI_API_KEY` in `.env` (everything else works without it). It uses `DESK_MODEL_ID` from
-  `.env` when set, otherwise `MODEL_ID`. A faster model helps on big folders: `gemma-4-26b-a4b-it`, or a
-  Gemini Flash id from the AI Studio model list (not open weights; check its price and free limits).
-  Packs are always built with `MODEL_ID`.
+  `.env` when set, otherwise `MODEL_ID`. Reading a header is a small job, so a fast model does it well:
+  a Gemini Flash id from the AI Studio model list, such as `gemini-3.5-flash` (not open weights; check
+  its price and free limits), or `gemma-4-26b-a4b-it`. When it is busy the desk falls back to
+  `FALLBACK_MODEL_ID`. The questions on the site are always copied by `MODEL_ID` (Gemma) when the
+  pipeline builds the pack.
 - Pages are sent as they are: black out names first if you don't want them sent.
 
 **Copies:** when a folder opens, the desk compares a small picture fingerprint of every page (no model,
