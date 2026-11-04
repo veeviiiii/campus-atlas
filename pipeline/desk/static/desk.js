@@ -604,26 +604,48 @@ async function acceptSource(id) {
 }
 
 const ROMAN = { i: "1", ii: "2", iii: "3", iv: "4", v: "5" };
-const CODE = /\b[a-z]{2,4}\s*-?\s*\d{3}[a-z]?\b/gi; // a course code printed with the name: IT-201, IC-101A
-/** A printed subject name without its course code or brackets: "IC-101A: Mathematics I" -> "Mathematics I". */
-const cleanSubject = (n) => n.replace(/\(.*?\)/g, " ").replace(CODE, " ").replace(/\s+/g, " ").replace(/^[\s:;,.\-–]+|[\s:;,.\-–]+$/g, "");
+const CODE = /\b[a-z]{2,4}\s*[-–—]?\s*\d{3}[a-z]?\b/gi; // a course code printed with the name: IT-201, IC-101A, IT – 203A
+const EDGE = /^[\s:;,.\-–—]+|[\s:;,.\-–—]+$/g;
+/** A printed subject name without its course code or brackets: "IC-101A: Mathematics I" -> "Mathematics I";
+ *  a code with the name in brackets, "IT – 203A (Data & Computer Communications)", is that name. */
+function cleanSubject(n) {
+  const rest = n.replace(CODE, " "), inner = (rest.match(/\((.*?)\)/) || [])[1] || "";
+  const out = rest.replace(/\(.*?\)/g, " ").replace(/\s+/g, " ").replace(EDGE, "");
+  return /[a-z]/i.test(out) ? out : inner.replace(EDGE, "");
+}
 /** What stays the same across printed variants of one name: case, "&", I or 1, a plural s, course codes.
  *  "Data Structures" and "Data structure", "Mathematics - 1 (IT-101)" and "Mathematics-I" have the same key. */
-const subjectKey = (n) => cleanSubject(n).toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ").trim().split(" ")
-  .map((w) => ROMAN[w] || (w.length > 3 && w.endsWith("s") && !w.endsWith("ss") ? w.slice(0, -1) : w)).join(" ");
+const SHORT = { maths: "mathematic", math: "mathematic", mathematics: "mathematic" };
+const subjectKey = (n) => cleanSubject(n).toLowerCase().replace(/&/g, " and ").replace(/\+\+/g, " plus plus ").replace(/[^a-z0-9]+/g, " ").trim().split(" ")
+  .map((w) => ROMAN[w] || SHORT[w] || (w.length > 3 && w.endsWith("s") && !w.endsWith("ss") ? w.slice(0, -1) : w).replace(/isation$/, "ization")).join(" ");
+/** "DCC" printed for "Data and Computer Communication": an all-capitals short form and the initials of a name. */
+const initials = (n) => subjectKey(n).split(" ").filter((w) => !["and", "of", "the", "in", "to", "for"].includes(w)).map((w) => w[0]).join("");
+const shortForm = (n) => (/^[A-Z]{2,5}$/.test(cleanSubject(n)) ? cleanSubject(n).toLowerCase() : "");
+/** Two printed names of one subject. */
+function sameSubject(a, b) {
+  if (subjectKey(a) === subjectKey(b)) return true;
+  const sa = shortForm(a), sb = shortForm(b);
+  return (!!sa && !sb && sa === initials(b)) || (!!sb && !sa && sb === initials(a));
+}
 
 /** The subject of a suggested part. A subject printed on the paper that its semester does not have yet is
  *  added to that semester (named as printed, without its course code), so the next papers printing that
  *  name match it; a variant of a name added before joins that subject as another name (alias). */
 function suggestedSubject(s) {
   if (s.subject || !s.new_subject || !s.course || !s.semester) return s.subject || "";
-  const key = subjectKey(s.new_subject), printed = s.new_subject.trim();
-  if (!key) return "";
-  const hit = subjectsFor(s.course, s.semester).find((x) => [x.name, ...(x.aliases || [])].some((n) => subjectKey(n) === key));
+  const printed = s.new_subject.trim();
+  if (!subjectKey(printed)) return "";
+  const subs = subjectsFor(s.course, s.semester);
+  const same = (n) => subjectKey(n) === subjectKey(printed);
+  const hit = subs.find((x) => [x.name, ...(x.aliases || [])].some(same))
+    || ((hits) => (hits.length === 1 ? hits[0] : null))(subs.filter((x) => [x.name, ...(x.aliases || [])].some((n) => sameSubject(n, printed))));
   const mine = (S.state.subjects[`${s.course}/${s.semester}`] ||= []);
   if (hit) {
     const own = mine.find((x) => x.id === hit.id);
-    if (own && ![own.name, ...own.aliases].includes(printed)) own.aliases.push(printed);
+    if (own && ![own.name, ...own.aliases].includes(printed)) {
+      if (shortForm(own.name) && !shortForm(printed)) [own.name, own.aliases] = [cleanSubject(printed) || printed, [...own.aliases, own.name]];
+      else own.aliases.push(printed);
+    }
     return hit.id;
   }
   const name = cleanSubject(printed) || printed, id = slug(name);
@@ -770,7 +792,7 @@ $("#btn-read").addEventListener("click", async () => {
 function validSession(s) {
   return /^\d{4}-\d{2}$/.test(s) && Number(s.slice(5)) === (Number(s.slice(0, 4)) + 1) % 100;
 }
-const slug = (s) => s.toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const slug = (s) => s.toLowerCase().replace(/&/g, " and ").replace(/\+\+/g, " plus plus ").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 /** Set a field on every selected part that is not continuing another (those take it from the page before). */
 function setField(f, value) {
