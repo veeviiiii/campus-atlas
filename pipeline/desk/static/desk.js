@@ -603,13 +603,32 @@ async function acceptSource(id) {
   toast(`Accepted ${n} page${s(n)} of ${id}.`);
 }
 
+const ROMAN = { i: "1", ii: "2", iii: "3", iv: "4", v: "5" };
+const CODE = /\b[a-z]{2,4}\s*-?\s*\d{3}[a-z]?\b/gi; // a course code printed with the name: IT-201, IC-101A
+/** A printed subject name without its course code or brackets: "IC-101A: Mathematics I" -> "Mathematics I". */
+const cleanSubject = (n) => n.replace(/\(.*?\)/g, " ").replace(CODE, " ").replace(/\s+/g, " ").replace(/^[\s:;,.\-–]+|[\s:;,.\-–]+$/g, "");
+/** What stays the same across printed variants of one name: case, "&", I or 1, a plural s, course codes.
+ *  "Data Structures" and "Data structure", "Mathematics - 1 (IT-101)" and "Mathematics-I" have the same key. */
+const subjectKey = (n) => cleanSubject(n).toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ").trim().split(" ")
+  .map((w) => ROMAN[w] || (w.length > 3 && w.endsWith("s") && !w.endsWith("ss") ? w.slice(0, -1) : w)).join(" ");
+
 /** The subject of a suggested part. A subject printed on the paper that its semester does not have yet is
- *  added to that semester (named as printed), so the next papers printing that name match it. */
+ *  added to that semester (named as printed, without its course code), so the next papers printing that
+ *  name match it; a variant of a name added before joins that subject as another name (alias). */
 function suggestedSubject(s) {
   if (s.subject || !s.new_subject || !s.course || !s.semester) return s.subject || "";
-  const id = slug(s.new_subject);
-  if (!id) return "";
-  if (!subjectsFor(s.course, s.semester).some((x) => x.id === id)) (S.state.subjects[`${s.course}/${s.semester}`] ||= []).push({ id, name: s.new_subject, aliases: [] });
+  const key = subjectKey(s.new_subject), printed = s.new_subject.trim();
+  if (!key) return "";
+  const hit = subjectsFor(s.course, s.semester).find((x) => [x.name, ...(x.aliases || [])].some((n) => subjectKey(n) === key));
+  const mine = (S.state.subjects[`${s.course}/${s.semester}`] ||= []);
+  if (hit) {
+    const own = mine.find((x) => x.id === hit.id);
+    if (own && ![own.name, ...own.aliases].includes(printed)) own.aliases.push(printed);
+    return hit.id;
+  }
+  const name = cleanSubject(printed) || printed, id = slug(name);
+  if (!id || subjectsFor(s.course, s.semester).some((x) => x.id === id)) return id;
+  mine.push({ id, name, aliases: name === printed ? [] : [printed] });
   return id;
 }
 
