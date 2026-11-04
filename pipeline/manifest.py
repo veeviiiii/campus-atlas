@@ -154,12 +154,20 @@ def match_subject(m: dict, name: str | None) -> str | None:
 
 
 def match_exam(title: str | None) -> str | None:
-    """Map an exam title read from a header ('Mid Semester -1 Test', 'TEST-II', ...) to its kind: mst1 / mst2 / mst3 / end."""
+    """Map an exam title read from a header ('Mid Semester -1 Test', 'TEST-II', ...) to its kind: mst1 / mst2 / mst3 / end.
+    An internal test is a mid-semester test: 'II Internal Test' is mst2."""
     if not title:
         return None
     s = normalize(title)
     # A number glued to the word: 'TestI', 'TESTII', 'MSTI' (normalize splits only 'Test-I' and 'Test I').
-    s = re.sub(r"\b(test|mst|ut|internal)(iii|ii|i)\b", lambda m: f"{m[1]} {len(m[2])}", s)
+    s = re.sub(r"\binternaltest", "internal test ", s)
+    s = re.sub(r"\b(test|mst|ut|internal)(iii|ii|i|\d)\b", r"\1 \2", s)
+    s = re.sub(r"\b(iii|ii|i)(st|nd|rd|th)\b", r"\1", s)  # 'IInd Internal'
+    s = normalize(s)  # the roman numerals split off above become digits
+    s = re.sub(r"\b(no|number)\s+(\d)\b", r"\2", s)  # 'Internal Test No. 2'
+    # An internal test is a mid-semester test: 'II Internal Test' (normalized '2 internal test') is internal 2.
+    # Not a semester number: 'Semester II Internal Test I' is internal 1.
+    s = re.sub(r"(?<!sem )(?<!semester )\b([1-3])(?:st|nd|rd|th)?\s+(internal|mst|ut)\b", r"\2 \1", s)
     if re.search(r"\bend\b", s):
         return "end"
     for n, word, nth in (("3", "third", "3rd"), ("2", "second", "2nd"), ("1", "first", "1st")):

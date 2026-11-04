@@ -112,7 +112,7 @@ def from_name(source: str) -> dict:
     years = set(re.findall(r"(?<!\d)((?:19|20)\d{2})(?!\d)", re.sub(SESSION, " ", s)))
     date = parse_date(s) if not session and len(years) == 1 else None
     nth = r"(?:\d{1,2}(?:st|nd|rd|th)?|[ivx]+|" + "|".join(WORDS) + ")"
-    exam = re.sub(rf"(?:\b{nth}\s+)?\bsem(?:ester)?\b(?:\s+{nth}\b)?", " ", s)  # "Second Sem", "sem 3rd": the semester, not a test number
+    exam = re.sub(rf"(?:\b{nth}[\s-]+)?\bsem(?:ester)?\b(?:[\s-]+{nth}\b)?", " ", s)  # "Second Sem", "sem 3rd": the semester, not a test number
     return {"semester": parse_semester(s), "kind": match_exam(exam), "session": session, "date": date}
 
 

@@ -133,6 +133,14 @@ class Matching(unittest.TestCase):
         self.assertEqual(match_exam("TESTII"), "mst2")
         self.assertEqual(match_exam("MSTIII"), "mst3")
         self.assertIsNone(match_exam("Testing"))
+        # An internal test is a mid-semester test, however the number is written.
+        for title, kind in [("Internal Test 1", "mst1"), ("II Internal Test", "mst2"), ("IInd Internal Test", "mst2"),
+                            ("I Internal", "mst1"), ("IIIrd Internal", "mst3"), ("Internal Test No. 2", "mst2"),
+                            ("InternalTestII", "mst2"), ("Second Internal Examination", "mst2"), ("2nd Internal", "mst2")]:
+            self.assertEqual(match_exam(title), kind, title)
+        self.assertIsNone(match_exam("Internal Test"))  # no number: held back "no test number"
+        self.assertIsNone(match_exam("3 Semester Examination"))
+        self.assertEqual(match_exam("Semester II Internal Test I"), "mst1")  # II is the semester
         self.assertEqual(match_exam("3rd Semester Class Test 1"), "mst1")
         self.assertEqual(match_exam("End Semester Examination"), "end")
         self.assertIsNone(match_exam("Quiz"))
