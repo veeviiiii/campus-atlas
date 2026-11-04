@@ -171,7 +171,7 @@ def match_exam(title: str | None) -> str | None:
     if re.search(r"\bend\b", s):
         return "end"
     for n, word, nth in (("3", "third", "3rd"), ("2", "second", "2nd"), ("1", "first", "1st")):
-        if (re.search(rf"\b(test|mst|ut|internal|mid semester|exam)\s*{n}\b", s) or re.search(rf"\b{word}\b", s)
+        if (re.search(rf"\b(test|mst|ut|internal|mid semester|exam)\s*{n}(st|nd|rd|th)?\b", s) or re.search(rf"\b{word}\b", s)
                 or re.search(rf"\b{nth}\s+(term|test|class|mid|internal)", s)):  # "1st Term exam", not "3rd semester"
             return f"mst{n}"
     return None

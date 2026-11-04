@@ -141,6 +141,7 @@ class Matching(unittest.TestCase):
         self.assertIsNone(match_exam("Internal Test"))  # no number: held back "no test number"
         self.assertIsNone(match_exam("3 Semester Examination"))
         self.assertEqual(match_exam("Semester II Internal Test I"), "mst1")  # II is the semester
+        self.assertEqual(match_exam("INTERNAL TEST - 2nd"), "mst2")
         self.assertEqual(match_exam("3rd Semester Class Test 1"), "mst1")
         self.assertEqual(match_exam("End Semester Examination"), "end")
         self.assertIsNone(match_exam("Quiz"))
