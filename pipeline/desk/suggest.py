@@ -218,7 +218,7 @@ def part_suggestion(reading: dict, ctx: dict, courses: list[dict], subjects_for:
         s["subject"] = (match_subject({"subjects": subs}, name) if subs else None) or ""
         if not s["subject"]:
             s["new_subject"] = name
-            s["notes"].append(f'"{name}" is not a subject of this semester yet')
+            s["notes"].append(f'"{name}" is not a subject of this semester yet: accepting adds it')
 
     held = []
     if not date and not session:

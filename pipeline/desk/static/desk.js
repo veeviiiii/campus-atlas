@@ -534,7 +534,9 @@ function suggestionHTML(keys) {
     const printed = s.printed ? `<div class="small">Printed: <i>${esc(s.printed)}</i></div>` : "";
     const notes = s.notes.length ? `<div class="small muted">${s.notes.map(esc).join(" · ")}</div>` : "";
     const err = s.error && sug.parts.length > 1 ? `<div class="small error">${esc(s.error)}</div>` : "";
-    const add = open && s.new_subject && s.course && s.semester ? `<button type="button" class="small" data-act="add-suggested-subject" data-part="${i}">+ Add “${esc(s.new_subject)}” as a subject</button>` : "";
+    const mine = pg.parts[i] || {}; // decided already: offered while that paper has no subject, in the suggestion's course and semester
+    const add = s.new_subject && s.course && s.semester && (open || (sug.parts.length === pg.parts.length && !mine.subject && mine.status !== "skip"
+      && mine.course === s.course && mine.semester === s.semester)) ? `<button type="button" class="small" data-act="add-suggested-subject" data-part="${i}">+ Add “${esc(s.new_subject)}” as a subject</button>` : "";
     return `<li>${side}${sugLine(s)}${printed}${notes}${err}${add}</li>`;
   }).join("");
   const other = sug.duplicate && S.byId[`${sug.duplicate.of}:0`] ? `<button type="button" class="small" data-goto-page="${esc(sug.duplicate.of)}">Show the other copy</button>` : "";
@@ -601,11 +603,22 @@ async function acceptSource(id) {
   toast(`Accepted ${n} page${s(n)} of ${id}.`);
 }
 
+/** The subject of a suggested part. A subject printed on the paper that its semester does not have yet is
+ *  added to that semester (named as printed), so the next papers printing that name match it. */
+function suggestedSubject(s) {
+  if (s.subject || !s.new_subject || !s.course || !s.semester) return s.subject || "";
+  const id = slug(s.new_subject);
+  if (!id) return "";
+  if (!subjectsFor(s.course, s.semester).some((x) => x.id === id)) (S.state.subjects[`${s.course}/${s.semester}`] ||= []).push({ id, name: s.new_subject, aliases: [] });
+  return id;
+}
+
 /** What the suggestion can add to a held-back part: the empty fields it has a value for (often the
  *  year or exam from the file name). */
 function gains(part, s) {
   if (!s || s.status === "skip" || s.continues) return [];
-  return PAPER_FIELDS.filter((f) => !part[f] && s[f] && (f !== "session" || validSession(s[f])));
+  const here = (part.course || s.course) === s.course && (part.semester || s.semester) === s.semester;
+  return PAPER_FIELDS.filter((f) => !part[f] && (f === "subject" ? s.subject || (s.new_subject && here) : s[f]) && (f !== "session" || validSession(s[f])));
 }
 /** The held-back parts of this page that their suggestion can add something to. */
 function fillable(key) {
@@ -623,7 +636,7 @@ function fillHeld(keys) {
   let filled = 0, use = 0;
   for (const key of keys) for (const i of fillable(key)) {
     const s = S.sugs[key].parts[i], part = editPage(key).parts[i];
-    for (const f of gains(part, s)) part[f] = s[f];
+    for (const f of gains(part, s)) part[f] = f === "subject" ? suggestedSubject(s) : s[f];
     filled++;
     if (PAPER_FIELDS.every((f) => part[f]) && validSession(part.session)) {
       Object.assign(part, { status: "use", reason: "" });
@@ -655,7 +668,7 @@ function acceptPages(keys) {
     pg.rotation = sug.rotation;
     if (sug.split !== pg.split) { pg.split = sug.split; pg.at = 0.5; }
     pg.parts = sug.parts.map((s, i) => ({ ...blankPart(), note: (pg.parts[i] || {}).note || "", status: s.status, reason: s.reason, continues: s.continues,
-      course: s.course, semester: s.semester, subject: s.subject, kind: s.kind, session: s.session, rotation: s.rotation }));
+      course: s.course, semester: s.semester, subject: s.continues ? "" : suggestedSubject(s), kind: s.kind, session: s.session, rotation: s.rotation }));
     for (const s of sug.parts) {
       if (s.date && s.course && s.semester && s.kind && validSession(s.session) && !S.state.exam_dates[examKey(s)] && !examInManifest(s.course, s.semester, s.session, s.kind)) {
         S.state.exam_dates[examKey(s)] = s.date;
