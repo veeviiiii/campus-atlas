@@ -158,6 +158,8 @@ def match_exam(title: str | None) -> str | None:
     if not title:
         return None
     s = normalize(title)
+    # A number glued to the word: 'TestI', 'TESTII', 'MSTI' (normalize splits only 'Test-I' and 'Test I').
+    s = re.sub(r"\b(test|mst|ut|internal)(iii|ii|i)\b", lambda m: f"{m[1]} {len(m[2])}", s)
     if re.search(r"\bend\b", s):
         return "end"
     for n, word, nth in (("3", "third", "3rd"), ("2", "second", "2nd"), ("1", "first", "1st")):

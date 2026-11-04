@@ -129,6 +129,10 @@ class Matching(unittest.TestCase):
         self.assertEqual(match_exam("2nd Term exam"), "mst2")
         self.assertEqual(match_exam("UT-1 Examination"), "mst1")
         self.assertEqual(match_exam("Internal -1"), "mst1")
+        self.assertEqual(match_exam("TestI"), "mst1")  # the number glued to the word
+        self.assertEqual(match_exam("TESTII"), "mst2")
+        self.assertEqual(match_exam("MSTIII"), "mst3")
+        self.assertIsNone(match_exam("Testing"))
         self.assertEqual(match_exam("3rd Semester Class Test 1"), "mst1")
         self.assertEqual(match_exam("End Semester Examination"), "end")
         self.assertIsNone(match_exam("Quiz"))
