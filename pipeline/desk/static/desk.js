@@ -220,8 +220,9 @@ function tileHTML(key, i) {
   const p = S.byId[`${key}:${i}`];
   const bad = S.problems[p.id];
   const sug = p.d.status === "todo" && !bad ? suggested(p) : null;
-  const cls = ["tile", p.d.status, S.sel.includes(p.id) ? "sel" : "", bad ? "bad" : "", sug ? "sug" : ""].join(" ");
-  const text = bad ? "⚠ " + chip(p) : sug ? "✦ " + sug.text : chip(p);
+  const reading = !!S.read && S.read.reading.includes(key);
+  const cls = ["tile", p.d.status, S.sel.includes(p.id) ? "sel" : "", bad ? "bad" : "", sug ? "sug" : "", reading ? "reading" : ""].join(" ");
+  const text = reading ? "✦ reading…" : bad ? "⚠ " + chip(p) : sug ? "✦ " + sug.text : chip(p);
   return `<button type="button" class="${cls}" data-id="${esc(p.id)}" title="${esc(bad || label(p))}"><img loading="lazy" alt="" src="${thumbURL(key, i, 240)}"><span class="chip">${esc(text)}</span></button>`;
 }
 
@@ -1127,7 +1128,7 @@ function updateSteps() {
 
   const done = { open: true, read: !!r.total && !r.running, check: total > 0 && !todo, write: S.writtenFresh, run: ran };
   const els = { open: "#step-open", read: "#btn-read", check: "#step-check", write: "#btn-write", run: "#btn-run" };
-  for (const [k, sel] of Object.entries(els)) $(sel).className = ["step", done[k] ? "done" : "", next[0] === k ? "now" : "", k === "read" && !canRead ? "skip" : ""].join(" ");
+  for (const [k, sel] of Object.entries(els)) $(sel).className = ["step", done[k] ? "done" : "", next[0] === k ? "now" : "", k === "read" && !canRead ? "skip" : "", k === "read" && r.running ? "busy" : ""].join(" ");
   const pages = S.info.sources.reduce((n, x) => n + x.pages, 0);
   $("#sub-open").textContent = `${S.info.sources.length} file${s(S.info.sources.length)} · ${pages} page${s(pages)}`;
   $("#progress").textContent = `${total - todo} of ${total} decided`;
