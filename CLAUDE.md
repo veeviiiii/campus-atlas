@@ -89,7 +89,9 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    preview). Deploy: Vercel, project Root Directory web (Next.js
    preset; the build reads ../packs and ../catalog). Live: https://campus-atlas.vercel.app
    Design: keep the current look (dark theme, lime/violet palette, Space Grotesk / Inter / Plex Mono,
-   pixel accents). Must stay readable on a phone.
+   pixel accents). Must stay readable on a phone. Every colour has a name at the top of
+   web/src/app/globals.css (the canvas planets take theirs from web/src/lib/colors.ts): use the names,
+   do not write a new hex value in a rule. Motion goes off under prefers-reduced-motion.
 D. Tests (no API key, no model calls): `python -m unittest discover -s pipeline/tests -t .` and, in
    web/, `npm test` (node --test on web/tests; Node 22.18+). `npm run check` = lint + tests + build.
    .github/workflows/check.yml runs both on pushes to main and on pull requests.

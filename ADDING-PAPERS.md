@@ -50,7 +50,9 @@ It runs only on this laptop: no sign-in, and nothing leaves it except the pages 
 read. On the start screen:
 
 - **Drop the PDFs or photos** students sent (or **Choose files**). They are copied into a new folder
-  in `data/inbox/` (never committed) and opened.
+  in `data/inbox/` (never committed) and opened. You can also drop a whole **folder** (it keeps its
+  subfolders, so "Sem 5/..." still tells the desk the semester) or a **.zip**, such as a Google Drive
+  download: the desk unpacks its PDFs and photos and leaves everything else out.
 - **Carry on** with a folder you opened before; each card shows how many pages are decided.
 - **Open a folder or a PDF already on this laptop.** Every page of every PDF and photo in a folder
   (subfolders too) is a card. A single PDF is worked on alone; its work is saved next to it as
@@ -119,8 +121,9 @@ course takes the course and semester of the page before it.
   ("DCC" for Data and Computer Communication) do not make a second subject; C++ stays apart from C. Look
   over a semester's subjects in the Subject list: to name one yourself, with its other names, use
   **+ Add "…" as a subject** instead.
-- One model call per page (two when a page comes in sideways: it is read again upright), a few at a
-  time in the background; **Stop reading** stops it. Answers are cached in `data/work/cache`, so
+- One model call per page (two when a page comes in sideways: it is read again upright), three at a
+  time in the background (`DESK_READ_WORKERS` in `.env` sets another number, 1 to 8, when your model's
+  rate limit allows it); the page being read pulses. **Stop reading** stops it. Answers are cached in `data/work/cache`, so
   reading again costs nothing. **Read again** on a page reads it as it is now (turned or split as you
   set it). A page the model could not read says why.
 - It needs `GEMINI_API_KEY` in `.env` (everything else works without it). It uses `DESK_MODEL_ID` from
@@ -136,6 +139,12 @@ no cost) and suggests **Skip: duplicate** for a page that is the same scan or ph
 of the folder, or as a page already in `data/raw/`, even turned or saved again as JPEG. Two different
 photos of one paper don't match by picture; once they have a subject and exam, Write warns that the
 manifest already has that subject in that exam.
+
+**Opening a folder again is quick:** the fingerprints and a small picture of every page (what the
+cards show) are kept in `data/work/desk/` (never committed), by each file's size and time. A changed
+file is looked at again; small pictures not made for a month are removed when the desk starts. The
+pictures are of the pages as they came, before any black-out: they stay on this laptop like the
+sources themselves.
 
 **Write PDFs and manifests** first lists what it will write and anything to fix (a page with no
 subject, a date outside its session, a subject the manifest already has in that exam). Then it:
