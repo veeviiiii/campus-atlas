@@ -73,40 +73,24 @@ export function SiteNav() {
   );
 }
 
-export function SiteFooter() {
+/** The bar at the bottom of the screen on a phone (hidden on wider screens, where the top bar has the links). */
+export function BottomBar() {
   const section = sectionOf(usePathname());
   const on = (s: string) => (section === s ? "on" : undefined);
   return (
-    <>
-      <footer>
-        <div className="mono" style={{ color: "var(--muted)" }}>
-          Campus Atlas · past papers of DAVV, Indore, read by an open-weight AI model and checked by our pipeline. Not an official
-          university site.
-        </div>
-        <div className="mono" style={{ color: "var(--muted)", marginTop: 14, display: "flex", gap: 18, flexWrap: "wrap" }}>
-          <a href={REPO_URL} target="_blank" rel="noreferrer">
-            GitHub ↗
-          </a>
-          <Link href="/send/">Send us your papers</Link>
-          <a href={`${REPO_URL}/blob/main/LICENSE`} target="_blank" rel="noreferrer">
-            Apache-2.0
-          </a>
-        </div>
-      </footer>
-      <div className="bn">
-        <Link href="/" className={on("home")}>
-          Home
-        </Link>
-        <Link href="/#browse" className={on("papers")}>
-          Papers
-        </Link>
-        <Link href="/search/" className={on("search")}>
-          Search
-        </Link>
-        <Link href="/send/" className={on("send")}>
-          Send
-        </Link>
-      </div>
-    </>
+    <div className="bn">
+      <Link href="/" className={on("home")}>
+        Home
+      </Link>
+      <Link href="/#browse" className={on("papers")}>
+        Papers
+      </Link>
+      <Link href="/search/" className={on("search")}>
+        Search
+      </Link>
+      <Link href="/send/" className={on("send")}>
+        Send
+      </Link>
+    </div>
   );
 }

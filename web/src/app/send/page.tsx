@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { BackBar, REPO_URL, SiteFooter, SiteNav } from "@/components/Chrome";
+import { BackBar, REPO_URL, BottomBar, SiteNav } from "@/components/Chrome";
 import { SEND_PAPERS_FORM } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -80,7 +80,7 @@ export default function SendPage() {
           </a>
         </p>
       </main>
-      <SiteFooter />
+      <BottomBar />
     </>
   );
 }

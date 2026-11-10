@@ -2,7 +2,7 @@
 
 /* ------------------------------------------------------------------------------------------
    Campus Atlas design (ported from the premade "Campus Atlas.html"): tokens, type, pills,
-   nav, hero, marquee, course cards, footer, bottom nav. Additions for the real data (map
+   nav, hero, marquee, course cards, bottom nav. Additions for the real data (map
    tooltips, badges, question cards) and the course / subject pages are marked.
    ------------------------------------------------------------------------------------------ */
 
@@ -380,9 +380,6 @@ nav.top ul a[aria-current]::after {
 .page-enter > .mq {
   animation-delay: 140ms;
 }
-.page-enter > footer {
-  animation: page-fade 750ms ease-out 300ms backwards;
-}
 /* a tab's content (Papers / Likely topics) fades without moving, so scrolling to a topic lands exactly */
 .page-enter > main > .fade-in,
 .fade-in {
@@ -424,6 +421,7 @@ html[data-deep-tab="marks"] .tabs button:nth-child(3) {
   .crt,
   .score i,
   .how-card,
+  .cards,
   .cards > .card {
     animation: none !important;
   }
@@ -645,38 +643,62 @@ a.card:active {
   background: var(--accent);
   border-color: transparent;
 }
-.field-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: -8px 0 24px;
+/* home: the fields first; a picked field's courses under "← All fields" */
+#course-list {
+  overflow-anchor: none; /* swapping the list must not drag the scroll position with it */
 }
-.field-chips button {
+.field-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: -8px 0 22px;
+}
+.field-head h3 {
+  font-size: clamp(22px, 3vw, 30px);
+  line-height: 1.1;
+}
+.field-head h3 i {
+  width: 14px;
+  height: 14px;
+  margin-right: 10px;
+  vertical-align: 2px;
+}
+.field-back {
   border: 1px solid var(--taupe);
-  background: #fff;
   color: var(--ink);
   border-radius: 999px;
-  padding: 8px 14px;
-  font: 600 14px var(--font-space-grotesk), sans-serif;
-  cursor: pointer;
+  padding: 8px 16px;
+  font: 600 15px var(--font-space-grotesk), sans-serif;
+  white-space: nowrap;
   transition:
     background-color 0.2s,
     border-color 0.2s,
-    color 0.2s;
+    color 0.2s,
+    transform 0.15s var(--ease-out);
 }
-.field-chips button:hover {
-  border-color: var(--ink);
-}
-.field-chips button span {
-  font: 500 12px var(--font-plex-mono), monospace;
-  opacity: 0.6;
-}
-.field-chips button[aria-pressed="true"] {
+.field-back:hover,
+.field-back:focus-visible {
   background: var(--ink);
   border-color: var(--ink);
-  color: #fff;
+  color: var(--ivory);
 }
-.field-chips i,
+.field-back:active {
+  transform: scale(0.96);
+}
+.cards.swap {
+  animation: swap-in 0.45s var(--ease-out) backwards;
+}
+@keyframes swap-in {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+}
+.field-card h3 {
+  font-size: 24px;
+}
+.field-head i,
 .field-tag i,
 .chip .dot {
   display: inline-block;
@@ -703,11 +725,6 @@ a.card:active {
 }
 .course-card.empty .course-status {
   color: var(--ink-faint);
-}
-.catalog-source {
-  font-size: 12px;
-  margin-top: 22px;
-  max-width: 80ch;
 }
 
 /* course page: years and semesters */
@@ -792,6 +809,22 @@ a.card:active {
   .course-card h3 {
     font-size: 19px;
   }
+  /* the fields fit two to a row on a phone, each with its small planet */
+  .cards.fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .field-card .orb {
+    display: block;
+    width: 34px;
+    height: 34px;
+    margin-bottom: 6px;
+  }
+  .field-card h3 {
+    font-size: 17px;
+  }
+  .field-card .mono {
+    font-size: 11px;
+  }
   .year-row {
     grid-template-columns: 1fr;
     gap: 8px;
@@ -801,16 +834,6 @@ a.card:active {
   }
 }
 
-footer {
-  background: var(--background);
-  padding: 40px 5vw 120px;
-}
-footer a {
-  transition: color 0.2s;
-}
-footer a:hover {
-  color: var(--foreground);
-}
 .bn {
   position: fixed;
   left: 50%;
@@ -841,6 +864,9 @@ footer a:hover {
 @media (max-width: 820px) {
   .bn {
     display: flex;
+  }
+  body {
+    padding-bottom: 84px; /* the end of every page stays above the bar */
   }
 }
 
@@ -1511,7 +1537,6 @@ footer a:hover {
   }
   nav.top,
   .bn,
-  footer,
   .crumbs,
   .tabs,
   .year-chips,

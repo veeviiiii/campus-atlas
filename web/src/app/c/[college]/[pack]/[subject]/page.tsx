@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { BackBar, SiteFooter, SiteNav } from "@/components/Chrome";
+import { BackBar, BottomBar, SiteNav } from "@/components/Chrome";
 import SubjectView from "@/components/SubjectView";
 import { findEntry, loadPacks } from "@/lib/packs";
 import type { Subject } from "@/lib/types";
@@ -73,7 +73,7 @@ export default async function SubjectPage({ params }: { params: Promise<Params> 
           photos of the papers by an AI model and checked by our pipeline; if something looks off, open the original page on the site.
         </p>
       </main>
-      <SiteFooter />
+      <BottomBar />
     </>
   );
 }

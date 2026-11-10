@@ -9,6 +9,5 @@ export const metadata: Metadata = { alternates: { canonical: "/" } };
 export default function Home() {
   // Read at build time; the site never calls an AI model.
   const entries = loadPacks();
-  const catalog = loadCatalog();
-  return <Site entries={entries} courses={courseCards(entries)} fields={catalog.fields} source={catalog.source} />;
+  return <Site entries={entries} courses={courseCards(entries)} fields={loadCatalog().fields} />;
 }

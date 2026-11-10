@@ -2,20 +2,21 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { type MouseEvent, useMemo, useState, useSyncExternalStore } from "react";
+import { flushSync } from "react-dom";
 
-import { SiteFooter, SiteNav } from "./Chrome";
+import { BottomBar, SiteNav } from "./Chrome";
 import HeroPlanet from "./HeroPlanet";
 import { FIELD_COLORS } from "@/lib/colors";
 import { programmeHref, topicHref } from "@/lib/paths";
 import { buildPlanet } from "@/lib/planet";
+import { softScrollToElement } from "@/lib/scroll";
 import type { CourseCard, Field, PackEntry } from "@/lib/types";
 
 interface Props {
   entries: PackEntry[];
   courses: CourseCard[];
   fields: Field[];
-  source: string;
 }
 
 /** "Sem 1 papers" / "Sem 1 and 3 papers" / "No papers yet". */
@@ -25,11 +26,31 @@ function paperStatus(c: CourseCard): string {
   return `Sem ${have.length > 1 ? `${have.slice(0, -1).join(", ")} and ${have[have.length - 1]}` : have[0]} papers →`;
 }
 
-/** Home: what this is in one line, then straight to the list of courses. */
-export default function Site({ entries, courses, fields, source }: Props) {
+const hasPapers = (c: CourseCard) => c.semesters.some((s) => s.key);
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+// The field picked on the home page lives in the address (/?field=engineering#browse), so Back from a
+// course and a shared link open the same list. The static page has no field: it shows the fields.
+const FIELD_EVENT = "atlas:field";
+function onFieldChange(update: () => void) {
+  addEventListener("popstate", update);
+  addEventListener(FIELD_EVENT, update);
+  return () => {
+    removeEventListener("popstate", update);
+    removeEventListener(FIELD_EVENT, update);
+  };
+}
+const fieldInAddress = () => new URLSearchParams(location.search).get("field");
+
+/** A plain click on a field link changes the list in place (Link skips a click whose default is
+ *  prevented); ctrl/cmd/middle-click still opens a new tab. */
+const plainClick = (e: MouseEvent) => e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
+
+/** Home: what this is in one line, then the fields; pick one to see its courses. */
+export default function Site({ entries, courses, fields }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [field, setField] = useState<string | null>(null); // null = all fields
+  const picked = useSyncExternalStore(onFieldChange, fieldInAddress, () => null);
 
   const first = entries[0];
   const heroPlanet = useMemo(() => (first ? buildPlanet(first.pack) : null), [first]);
@@ -42,15 +63,39 @@ export default function Site({ entries, courses, fields, source }: Props) {
 
   const allFields = courses.some((c) => c.field === "other") ? [...fields, { id: "other", name: "Other courses", short: "Other" }] : fields;
   const fieldName = Object.fromEntries(allFields.map((f) => [f.id, f.name]));
+  const field = allFields.find((f) => f.id === picked) ?? null;
   const q = query.trim().toLowerCase();
-  const matches = courses.filter((c) =>
-    `${c.name} ${c.school} ${c.schoolShort ?? ""} ${fieldName[c.field]} ${c.subjects.join(" ")}`.toLowerCase().includes(q),
-  );
+  // Typing searches every course, whichever field is open; otherwise the open field's courses.
+  const shown = q
+    ? courses.filter((c) =>
+        `${c.name} ${c.school} ${c.schoolShort ?? ""} ${fieldName[c.field]} ${c.subjects.join(" ")}`.toLowerCase().includes(q),
+      )
+    : field
+      ? courses.filter((c) => c.field === field.id)
+      : null; // null: show the fields
   // Courses that have papers first; otherwise the catalogue's order (grouped by field).
-  const cards = (field ? matches.filter((c) => c.field === field) : matches)
-    .map((c, i) => ({ c, i, ready: c.semesters.some((s) => s.key) }))
+  const cards = (shown ?? [])
+    .map((c, i) => ({ c, i, ready: hasPapers(c) }))
     .sort((x, y) => Number(y.ready) - Number(x.ready) || x.i - y.i)
     .map(({ c }) => c);
+  const tiles = allFields
+    .map((f) => {
+      const mine = courses.filter((c) => c.field === f.id);
+      return { f, n: mine.length, ready: mine.filter(hasPapers).length };
+    })
+    .filter((t) => t.n);
+
+  function pick(e: MouseEvent, id: string | null) {
+    if (!plainClick(e)) return;
+    e.preventDefault();
+    // No #browse here: Next would scroll to it on every switch.
+    history.replaceState(null, "", id ? `/?field=${id}` : "/");
+    flushSync(() => dispatchEvent(new Event(FIELD_EVENT))); // the new list is on the page before it is measured
+    // A field picked low in the grid: bring the search box and the top of the new list into view.
+    const list = document.getElementById("course-list");
+    const search = document.getElementById("course-search");
+    if (list && search && list.getBoundingClientRect().top < 100) softScrollToElement(search);
+  }
 
   return (
     <>
@@ -116,9 +161,9 @@ export default function Site({ entries, courses, fields, source }: Props) {
           <br />
           course
         </div>
-        <h2 style={{ marginTop: 20 }}>Pick your course, then your semester.</h2>
-        <form className="search" role="search" onSubmit={(e) => e.preventDefault()}>
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Course, school or subject" aria-label="Search courses" />
+        <h2 style={{ marginTop: 20 }}>Pick your field, then your course.</h2>
+        <form id="course-search" className="search" role="search" onSubmit={(e) => e.preventDefault()}>
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Or type a course, school or subject" aria-label="Search courses" />
           <button type="button" onClick={() => setQuery("")}>
             Clear
           </button>
@@ -128,46 +173,74 @@ export default function Site({ entries, courses, fields, source }: Props) {
             <Link href={`/search/?q=${encodeURIComponent(query.trim())}`}>Search the questions for “{query.trim()}” →</Link>
           </p>
         )}
-        <div className="field-chips" role="group" aria-label="Field">
-          {[null, ...allFields.map((f) => f.id)].map((id) => {
-            const n = id ? matches.filter((c) => c.field === id).length : matches.length;
-            return (
-              <button key={id ?? "all"} type="button" aria-pressed={field === id} onClick={() => setField(id)}>
-                {id && <i style={{ background: FIELD_COLORS[id]?.[0] }} />}
-                {id ? allFields.find((f) => f.id === id)?.short : "All"} <span>{n}</span>
-              </button>
-            );
-          })}
-        </div>
-        <div className="cards">
-          {cards.map((c) => {
-            const [a, b] = FIELD_COLORS[c.field] ?? FIELD_COLORS.other;
-            const ready = c.semesters.some((s) => s.key);
-            const mock = c.semesters.some((s) => s.mock);
-            return (
-              <Link key={c.id} className={`card course-card ${ready ? "" : "empty"}`} href={programmeHref(c.id)}>
-                <div className="orb" style={{ background: `linear-gradient(135deg,${a},${b})` }} />
-                <span className="field-tag">
-                  <i style={{ background: a }} />
-                  {fieldName[c.field]}
-                </span>
-                <h3>{c.name}</h3>
-                <span className="mono">{c.schoolShort ? `${c.school} (${c.schoolShort})` : c.school}</span>
-                {c.years && (
-                  <span className="mono">
-                    {c.years} years · {c.years * 2} semesters{c.honoursYear ? " · 4th year optional" : ""}
-                  </span>
-                )}
-                <span className="mono course-status">{mock ? "Mock data · dev only" : paperStatus(c)}</span>
+
+        <div id="course-list">
+          {!q && field && (
+            <div className="field-head">
+              <Link className="field-back" href="/#browse" prefetch={false} onClick={(e) => pick(e, null)}>
+                ← All fields
               </Link>
-            );
-          })}
-          <Link className="card add" href="/send/">
-            <h3>{cards.length ? "Have papers for your course?" : "No match yet."}</h3>
-            <span>Send us photos of your past papers and we&apos;ll add them →</span>
-          </Link>
+              <h3>
+                <i style={{ background: (FIELD_COLORS[field.id] ?? FIELD_COLORS.other)[0] }} />
+                {field.name}
+              </h3>
+              <span className="mono">{plural(cards.length, "course")}</span>
+            </div>
+          )}
+          {q && <p className="mono field-head">{cards.length ? `${plural(cards.length, "course")} match` : "No course matches"}</p>}
+
+          {shown === null ? (
+            <div className="cards fields swap" key="fields">
+              {tiles.map(({ f, n, ready }) => {
+                const [a, b] = FIELD_COLORS[f.id] ?? FIELD_COLORS.other;
+                return (
+                  <Link
+                    key={f.id}
+                    className={`card course-card field-card ${ready ? "" : "empty"}`}
+                    href={`/?field=${f.id}#browse`}
+                    prefetch={false}
+                    onClick={(e) => pick(e, f.id)}
+                  >
+                    <div className="orb" style={{ background: `linear-gradient(135deg,${a},${b})` }} />
+                    <h3>{f.name}</h3>
+                    <span className="mono">{plural(n, "course")}</span>
+                    <span className="mono course-status">{ready ? `Papers for ${plural(ready, "course")} →` : "No papers yet"}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="cards swap" key={q ? "search" : field?.id}>
+              {cards.map((c) => {
+                const [a, b] = FIELD_COLORS[c.field] ?? FIELD_COLORS.other;
+                const mock = c.semesters.some((s) => s.mock);
+                return (
+                  <Link key={c.id} className={`card course-card ${hasPapers(c) ? "" : "empty"}`} href={programmeHref(c.id)}>
+                    <div className="orb" style={{ background: `linear-gradient(135deg,${a},${b})` }} />
+                    {q && (
+                      <span className="field-tag">
+                        <i style={{ background: a }} />
+                        {fieldName[c.field]}
+                      </span>
+                    )}
+                    <h3>{c.name}</h3>
+                    <span className="mono">{c.schoolShort ? `${c.school} (${c.schoolShort})` : c.school}</span>
+                    {c.years && (
+                      <span className="mono">
+                        {c.years} years · {c.years * 2} semesters{c.honoursYear ? " · 4th year optional" : ""}
+                      </span>
+                    )}
+                    <span className="mono course-status">{mock ? "Mock data · dev only" : paperStatus(c)}</span>
+                  </Link>
+                );
+              })}
+              <Link className="card add" href="/send/">
+                <h3>{cards.length ? "Have papers for your course?" : "No match yet."}</h3>
+                <span>Send us photos of your past papers and we&apos;ll add them →</span>
+              </Link>
+            </div>
+          )}
         </div>
-        <p className="mono catalog-source">Course list: {source}.</p>
       </section>
 
       {p && (
@@ -215,7 +288,7 @@ export default function Site({ entries, courses, fields, source }: Props) {
         </section>
       )}
 
-      <SiteFooter />
+      <BottomBar />
     </>
   );
 }

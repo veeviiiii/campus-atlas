@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { BackBar, SiteFooter, SiteNav } from "@/components/Chrome";
+import { BackBar, BottomBar, SiteNav } from "@/components/Chrome";
 import CourseView from "@/components/CourseView";
 import { courseOf } from "@/lib/catalog";
 import { findEntry, loadPacks } from "@/lib/packs";
@@ -73,7 +73,7 @@ export default async function CoursePage({ params }: { params: Promise<Params> }
         </div>
         <CourseView entry={entry} />
       </main>
-      <SiteFooter />
+      <BottomBar />
     </>
   );
 }
