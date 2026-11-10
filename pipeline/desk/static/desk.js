@@ -1232,31 +1232,50 @@ async function openFolder(folder, msg) {
   }
 }
 
-const readAsBase64 = (f) => new Promise((done, fail) => {
-  const r = new FileReader();
-  r.onload = () => done(String(r.result).split(",", 2)[1] || "");
-  r.onerror = () => fail(r.error);
-  r.readAsDataURL(f);
-});
+/** What was dropped, as [{file, path}]: a dropped folder is walked, and its files keep their path inside it
+ *  ("Sem 5/MST 1.pdf"), which the desk reads the semester, exam and year from. */
+async function droppedFiles(dt) {
+  const entries = [...dt.items].map((it) => (it.webkitGetAsEntry ? it.webkitGetAsEntry() : null)).filter(Boolean); // before any await: the drop is gone after it
+  if (!entries.length) return [...dt.files].map((file) => ({ file, path: file.name }));
+  const out = [];
+  const walk = async (entry) => {
+    if (entry.isFile) return out.push({ file: await new Promise((ok, no) => entry.file(ok, no)), path: entry.fullPath.replace(/^\//, "") });
+    const reader = entry.createReader();
+    for (;;) { // a folder is listed a batch at a time
+      const batch = await new Promise((ok, no) => reader.readEntries(ok, no));
+      if (!batch.length) break;
+      for (const e of batch) await walk(e);
+    }
+  };
+  for (const e of entries) await walk(e);
+  // One dropped folder: its own name is left off, so the cards read "Sem 5/MST 1.pdf", not "Papers/Sem 5/MST 1.pdf".
+  if (entries.length === 1 && entries[0].isDirectory) for (const f of out) f.path = f.path.slice(f.path.indexOf("/") + 1);
+  return out.sort((a, b) => a.path.localeCompare(b.path, undefined, { numeric: true }));
+}
 
-/** Copy dropped or chosen files into a new folder in data/inbox/, then open it. */
-async function upload(files) {
+/** Copy dropped or chosen files ([{file, path}]) into a new folder in data/inbox/, then open it. Each file
+ *  goes as its own bytes, straight from the disk; a .zip is unpacked by the desk. */
+async function upload(items) {
   if (S.uploading) return;
   const status = $("#upload-status");
-  const ok = files.filter((f) => /\.(pdf|jpe?g|png|webp)$/i.test(f.name)), skipped = files.length - ok.length;
+  const ok = items.filter((it) => /\.(pdf|jpe?g|png|webp|zip)$/i.test(it.path) && !/(^|\/)\./.test(it.path)), skipped = items.length - ok.length;
   if (!ok.length) {
-    status.innerHTML = `<span class="error">${files.length ? "None of those is a PDF or a photo (.jpg, .png, .webp)." : "Drop files, not a folder: open a folder below instead."}</span>`;
+    status.innerHTML = `<span class="error">${items.length ? "None of those is a PDF, a photo (.jpg, .png, .webp) or a .zip of them." : "Nothing to copy in that."}</span>`;
     return;
   }
   S.uploading = true;
-  const size = ok.reduce((n, f) => n + f.size, 0) || 1;
-  let folder = null, sent = 0;
+  const size = ok.reduce((n, it) => n + it.file.size, 0) || 1, t0 = performance.now();
+  let folder = null, sent = 0, unpacked = 0;
   try {
-    for (const [i, f] of ok.entries()) {
-      status.innerHTML = `Copying ${i + 1} of ${ok.length}: ${esc(f.name)}<div class="bar-progress"><i style="width:${Math.round((100 * sent) / size)}%"></i></div>`;
-      const r = await api("POST", "/api/upload", { name: f.name, data: await readAsBase64(f), ...(folder ? { folder } : {}) });
+    for (const [i, it] of ok.entries()) {
+      status.innerHTML = `Copying ${i + 1} of ${ok.length}: ${esc(it.path)}<div class="bar-progress"><i style="width:${Math.round((100 * sent) / size)}%"></i></div>`;
+      const q = new URLSearchParams({ name: it.path, ...(folder ? { folder } : {}) });
+      const res = await fetch(`/api/upload?${q}`, { method: "POST", headers: { "Content-Type": "application/octet-stream" }, body: it.file });
+      const r = await res.json().catch(() => ({ error: res.statusText }));
+      if (!res.ok) throw new Error(r.error || res.statusText);
       folder = r.folder;
-      sent += f.size;
+      sent += it.file.size;
+      unpacked += r.files || 0;
     }
   } catch (e) {
     status.innerHTML = `<span class="error">Could not copy them: ${esc(e.message)}</span>`;
@@ -1264,7 +1283,10 @@ async function upload(files) {
     return;
   }
   S.uploading = false;
-  status.textContent = skipped ? `${skipped} file${skipped > 1 ? "s were" : " was"} not a PDF or a photo and stayed out.` : "";
+  const n = ok.length - ok.filter((it) => /\.zip$/i.test(it.path)).length + unpacked;
+  toast(`Copied ${n} file${n === 1 ? "" : "s"} (${(size / 1e6).toFixed(size < 1e7 ? 1 : 0)} MB) in ${((performance.now() - t0) / 1000).toFixed(1)} s.`
+    + (skipped ? ` ${skipped} other file${skipped > 1 ? "s" : ""} stayed out (not a PDF or a photo).` : ""));
+  status.textContent = "";
   await openFolder(folder, status);
 }
 
@@ -1281,10 +1303,18 @@ $("#editor").addEventListener("toggle", (e) => { if (e.target.classList.contains
 for (const b of ["#btn-home", "#step-open"]) $(b).addEventListener("click", async () => { await save(); showStart(); });
 $("#btn-back").addEventListener("click", () => show("desk"));
 $("#pick").addEventListener("click", () => $("#files").click());
-$("#files").addEventListener("change", (e) => { upload([...e.target.files]); e.target.value = ""; });
+$("#files").addEventListener("change", (e) => { upload([...e.target.files].map((file) => ({ file, path: file.name }))); e.target.value = ""; });
 for (const ev of ["dragenter", "dragover"]) $("#start").addEventListener(ev, (e) => { e.preventDefault(); $("#drop").classList.add("over"); });
 $("#start").addEventListener("dragleave", (e) => { if (!$("#start").contains(e.relatedTarget)) $("#drop").classList.remove("over"); });
-$("#start").addEventListener("drop", (e) => { e.preventDefault(); $("#drop").classList.remove("over"); upload([...e.dataTransfer.files]); });
+$("#start").addEventListener("drop", async (e) => {
+  e.preventDefault();
+  $("#drop").classList.remove("over");
+  try {
+    upload(await droppedFiles(e.dataTransfer));
+  } catch (err) {
+    $("#upload-status").innerHTML = `<span class="error">Could not read what was dropped: ${esc(err.message || String(err))}</span>`;
+  }
+});
 for (const ev of ["dragover", "drop"]) window.addEventListener(ev, (e) => e.preventDefault()); // a file dropped elsewhere must not replace the page
 
 function load(info) {

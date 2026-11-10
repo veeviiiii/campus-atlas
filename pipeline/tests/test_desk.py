@@ -426,12 +426,20 @@ class Server(Write):
             time.sleep(0.02)
         self.fail("timed out")
 
-    def request(self, method, path, body=None, **headers):
+    def request(self, method, path, body=None, raw=None, **headers):
+        """`body`: sent as JSON. `raw`: bytes sent as they are (a dropped file)."""
         c = self.conn()
-        data = json.dumps(body).encode() if body is not None else None
-        c.request(method, path, body=data, headers={"Host": self.host, **({"Content-Type": "application/json"} if data else {}), **headers})
+        data = raw if raw is not None else json.dumps(body).encode() if body is not None else None
+        kind = "application/octet-stream" if raw is not None else "application/json"
+        c.request(method, path, body=data, headers={"Host": self.host, **({"Content-Type": kind} if data is not None else {}), **headers})
         r = c.getresponse()
         return r.status, r.read()
+
+    def drop(self, name, data, folder=""):
+        from urllib.parse import urlencode
+
+        status, body = self.request("POST", "/api/upload?" + urlencode({"name": name, **({"folder": folder} if folder else {})}), raw=data)
+        return status, json.loads(body)
 
     def test_saving_keeps_what_the_desk_wrote_and_reopening_restores_it(self):
         self.app.desk.written = {"data/raw/x/manifest.yaml": {"files": ["f.pdf"], "exams": [], "subjects": []}}
@@ -451,10 +459,38 @@ class Server(Write):
         self.assertEqual(decisions.load(self.src).pages["tests.pdf#1"].rotation, 270)  # a bad state is not saved
 
     def test_pictures(self):
-        status, body = self.request("GET", "/api/thumb?src=tests.pdf&page=1&rot=90&split=h&at=0.5&part=1&prot=0&boxes=0.1,0.1,0.5,0.2&w=100")
+        thumb = "/api/thumb?src=tests.pdf&page=1&rot=90&split=h&at=0.5&part=1&prot=0&boxes=0.1,0.1,0.5,0.2&w=100"
+        status, body = self.request("GET", thumb)
         self.assertEqual(status, 200)
         self.assertEqual(Image.open(io.BytesIO(body)).format, "JPEG")
         self.assertEqual(self.request("GET", "/api/image?src=../secret.pdf&page=1")[0], 400)
+        self.assertEqual(self.request("GET", "/api/thumb?src=../secret.pdf&page=1")[0], 400)
+
+    def test_small_pictures_are_kept_so_a_folder_opened_again_renders_nothing(self):
+        from pipeline.desk import server
+
+        thumb = "/api/thumb?src=tests.pdf&page=2&w=240"
+        first = self.request("GET", thumb)[1]
+        self.wait(lambda: len(list((self.root / server.THUMBS).glob("*.jpg"))) == 4)  # every page of the folder, made in the background
+        self.app.open(self.src)  # opened again: nothing is rendered, the pictures come from data/work/desk/thumbs/
+        self.wait(lambda: self.app.dupes_ready)
+        with mock.patch.object(server, "load_page", side_effect=AssertionError("rendered again")), \
+                mock.patch.object(server, "load_pages", side_effect=AssertionError("rendered again")):
+            self.assertEqual(self.request("GET", thumb), (200, first))
+            self.app.warm(self.app.gen)
+        # The file changed (another size or time): its old pictures are not used.
+        before = server.App.small_file(self.src, "tests.pdf", 2)
+        make_pdf(self.src / "tests.pdf", 3, landscape=True)
+        self.assertNotEqual(server.App.small_file(self.src, "tests.pdf", 2), before)
+        # Pictures not made for a month go when the desk starts.
+        import os
+        import time
+
+        old = time.time() - 40 * 86400
+        os.utime(before, (old, old))
+        server.prune_thumbs()
+        self.assertFalse(before.exists())
+        self.assertEqual(len(list((self.root / server.THUMBS).glob("*.jpg"))), 3)
 
     def test_a_run_shows_the_reports_unsure_list(self):
         import sys
@@ -553,22 +589,57 @@ class Server(Write):
         self.assertEqual(self.request("GET", "/fonts/../../../.env")[0], 404)
 
     def test_dropped_files_go_into_the_inbox(self):
-        import base64
-
-        data = base64.b64encode((self.src / "tests.pdf").read_bytes()).decode()
-        status, body = self.request("POST", "/api/upload", {"name": "MST 1.pdf", "data": data})
-        self.assertEqual(status, 200, body)
-        folder = Path(json.loads(body)["folder"])
+        data = (self.src / "tests.pdf").read_bytes()
+        status, r = self.drop("MST 1.pdf", data)
+        self.assertEqual(status, 200, r)
+        folder = Path(r["folder"])
         self.assertEqual(folder.parent, (self.root / "data" / "inbox").resolve())
-        again = {"data": data, "folder": str(folder)}
-        self.assertEqual(json.loads(self.request("POST", "/api/upload", {**again, "name": "MST 1.pdf"})[1])["file"], "MST 1 (2).pdf")
-        self.assertEqual(json.loads(self.request("POST", "/api/upload", {**again, "name": "../../End Sem.pdf"})[1])["file"], "End Sem.pdf")
-        self.assertEqual(sorted(p.name for p in folder.iterdir()), ["End Sem.pdf", "MST 1 (2).pdf", "MST 1.pdf"])
-        for bad in ({**again, "name": "run.cmd"}, {**again, "name": "x.pdf", "folder": str(self.src)}, {**again, "name": "x.pdf", "data": "not base64!"}):
-            self.assertEqual(self.request("POST", "/api/upload", bad)[0], 400, bad)
+        self.assertEqual((folder / "MST 1.pdf").read_bytes(), data)
+        self.assertEqual(self.drop("MST 1.pdf", data, str(folder))[1]["file"], "MST 1 (2).pdf")
+        self.assertEqual(self.drop("../../End Sem.pdf", data, str(folder))[1]["file"], "End Sem.pdf")
+        # A dropped folder keeps its layout: the semester is read from "Sem 5/...".
+        self.assertEqual(self.drop("Sem 5\\Internal 1 2k24.pdf", data, str(folder))[1]["file"], "Sem 5/Internal 1 2k24.pdf")
+        self.assertEqual(sorted(p.relative_to(folder).as_posix() for p in folder.rglob("*.pdf")),
+                         ["End Sem.pdf", "MST 1 (2).pdf", "MST 1.pdf", "Sem 5/Internal 1 2k24.pdf"])
+        for name, where in (("run.cmd", str(folder)), ("x.pdf", str(self.src)), ("..", str(folder))):
+            self.assertEqual(self.drop(name, data, where)[0], 400, name)
         self.assertFalse((self.src / "x.pdf").exists())
+        # Only a dropped file comes as bytes, and only as bytes: nothing else may be posted that way.
+        self.assertEqual(self.request("PUT", "/api/state", raw=b"{}")[0], 403)
+        self.assertEqual(self.request("POST", "/api/upload?name=x.pdf", {"data": "x"})[0], 400)
         info = json.loads(self.request("POST", "/api/open", {"folder": str(folder)})[1])
-        self.assertEqual((info["inbox"], len(info["sources"])), (True, 3))
+        self.assertEqual((info["inbox"], [s["id"] for s in info["sources"]]),
+                         (True, ["End Sem.pdf", "MST 1 (2).pdf", "MST 1.pdf", "Sem 5/Internal 1 2k24.pdf"]))
+
+    def test_a_dropped_zip_is_unpacked_to_its_pdfs_and_photos(self):
+        import zipfile
+
+        pdf = (self.src / "tests.pdf").read_bytes()
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as z:
+            z.writestr("Papers/Sem 3/End Sem 2k25.pdf", pdf)
+            z.writestr("Papers/notes.txt", "not a paper")
+            z.writestr("../../outside.pdf", pdf)  # never leaves the inbox folder
+            z.writestr("__MACOSX/Papers/._End Sem 2k25.pdf", b"mac metadata")
+            z.writestr(".hidden/x.pdf", pdf)
+        status, r = self.drop("drive-download.zip", buf.getvalue())
+        self.assertEqual((status, r["files"]), (200, 2), r)
+        folder = Path(r["folder"])
+        self.assertEqual(sorted(p.relative_to(folder).as_posix() for p in folder.rglob("*") if p.is_file()),
+                         ["Papers/Sem 3/End Sem 2k25.pdf", "outside.pdf"])
+        self.assertFalse((folder.parent.parent / "outside.pdf").exists())
+        # A zip with nothing to take, or that is no zip, says so and leaves no folder behind.
+        inbox = self.root / "data" / "inbox"
+        before = sorted(p.name for p in inbox.iterdir())
+        empty = io.BytesIO()
+        with zipfile.ZipFile(empty, "w") as z:
+            z.writestr("readme.txt", "hello")
+        status, r = self.drop("empty.zip", empty.getvalue())
+        self.assertEqual((status, r["error"]), (400, "no PDFs or photos in empty.zip"))
+        status, r = self.drop("broken.zip", b"this is not a zip")
+        self.assertEqual(status, 400)
+        self.assertIn("would not open as a zip", r["error"])
+        self.assertEqual(sorted(p.name for p in inbox.iterdir()), before)
 
     def test_the_start_screen_shows_how_far_each_folder_got(self):
         self.request("PUT", "/api/state", {"pages": {"tests.pdf#1": {"parts": [{"status": "skip"}]}}})

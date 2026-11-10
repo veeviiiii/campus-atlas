@@ -3,21 +3,26 @@
 One folder of sources (or one file) is open at a time. The page holds the decisions and sends them
 after every change (PUT /api/state); everything that reads or writes files happens here, and so do
 the model readings ("Read pages", in the background) and the picture matches. Files dropped on the
-start screen are saved into data/inbox/. The desk stops on "Close the desk", or by itself once no page
+start screen are saved into data/inbox/ as they arrive. The small cards are cut from small pictures of
+the pages, kept in data/work/desk/thumbs/. The desk stops on "Close the desk", or by itself once no page
 has called for half an hour.
 """
 
-import base64
 import copy
+import hashlib
 import http.client
 import io
 import json
 import os
+import re
+import shutil
 import string
 import subprocess
 import sys
+import tempfile
 import threading
 import time
+import zipfile
 from collections import OrderedDict
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -29,13 +34,16 @@ from PIL import Image
 from pipeline import intake
 from pipeline.desk import decisions, dupes, export, reader, suggest
 from pipeline.desk.geometry import render_part
-from pipeline.desk.sources import PREVIEW_SIDE, is_source, is_source_name, list_sources, load_page, page_key
+from pipeline.desk.sources import PREVIEW_SIDE, SMALL_SIDE, is_source, is_source_name, list_sources, load_page, load_pages, page_key, stamp
 from pipeline.manifest import EXAM_KINDS
 
 STATIC = Path(__file__).resolve().parent / "static"
 RECENT = "data/work/desk/recent.json"  # folders and files opened before, newest first
 RUNNING = "data/work/desk/running.json"  # {"port"} of the desk while it runs, so a second start opens it instead
 INBOX = "data/inbox"  # files dropped on the desk page: one folder per drop (gitignored)
+THUMBS = "data/work/desk/thumbs"  # a small picture of every page seen, by file, size, time and page (gitignored)
+THUMB_DAYS = 30  # small pictures older than this are removed when the desk starts
+UNZIP_BYTES, UNZIP_FILES = 4 * 1024**3, 5000  # the most a dropped .zip may unpack to
 FONTS = ("inter-latin.woff2", "space-grotesk-latin.woff2", "ibm-plex-mono-400-latin.woff2", "ibm-plex-mono-500-latin.woff2",
          "silkscreen-700-latin.woff2")  # the site's own fonts, from web/src/app/fonts
 PORTS = 20  # the desk takes the first free port from --port on
@@ -49,6 +57,55 @@ def page() -> bytes:
     js = (STATIC / "desk.js").read_text(encoding="utf-8")
     html = html.replace('<link rel="stylesheet" href="desk.css">', f"<style>\n{css}</style>")
     return html.replace('<script src="desk.js"></script>', f"<script>\n{js}</script>").encode("utf-8")
+
+
+def safe_parts(name: str) -> list[str]:
+    """The folders and the file name of a dropped file's path, safe to join under an inbox folder:
+    no "..", no drive, none of the characters Windows refuses."""
+    parts = [re.sub(r'[<>:"|?*\x00-\x1f]', "_", s).strip().rstrip(".") for s in re.split(r"[\\/]+", name)]
+    return [s for s in parts if s]
+
+
+def free_path(folder: Path, parts: list[str]) -> Path:
+    """folder/parts, or "name (2).pdf" and so on when that file is there already; its folder is made."""
+    target = folder.joinpath(*parts)
+    stem, suffix, n = target.stem, target.suffix, 2
+    while target.exists():
+        target, n = target.with_name(f"{stem} ({n}){suffix}"), n + 1
+    target.parent.mkdir(parents=True, exist_ok=True)
+    return target
+
+
+def unzip(f, folder: Path, name: str) -> int:
+    """Unpack the PDFs and photos of a dropped .zip into the folder, keeping its folders. Returns how many."""
+    n = total = 0
+    try:
+        with zipfile.ZipFile(f) as z:
+            for info in z.infolist():
+                parts = safe_parts(info.filename)
+                if info.is_dir() or not parts or not is_source_name(parts[-1]) or any(s.startswith((".", "__MACOSX")) for s in parts[:-1]):
+                    continue
+                n, total = n + 1, total + info.file_size
+                if total > UNZIP_BYTES or n > UNZIP_FILES:
+                    raise ValueError(f"{name} unpacks to too much (over {UNZIP_BYTES // 1024**3} GB or {UNZIP_FILES} files)")
+                with z.open(info) as src, open(free_path(folder, parts), "wb") as out:
+                    shutil.copyfileobj(src, out, 1 << 20)
+    except (zipfile.BadZipFile, RuntimeError, NotImplementedError) as e:  # not a zip, or one with a password
+        raise ValueError(f"{name} would not open as a zip ({e})") from e
+    if not n:
+        raise ValueError(f"no PDFs or photos in {name}")
+    return n
+
+
+def prune_thumbs() -> None:
+    """Remove the small pictures not made in the last THUMB_DAYS days (they are made again when needed)."""
+    old = time.time() - THUMB_DAYS * 86400
+    for f in (intake.ROOT / THUMBS).glob("*.jpg"):
+        try:
+            if f.stat().st_mtime < old:
+                f.unlink()
+        except OSError:
+            pass
 
 
 class Run:
@@ -95,7 +152,8 @@ class App:
         self.sources = []
         self.broken: list[str] = []
         self.desk = decisions.Desk()
-        self.previews: OrderedDict = OrderedDict()  # (src, page) -> preview image
+        self.previews: OrderedDict = OrderedDict()  # (src, page) -> preview image (the editor's, large)
+        self.smalls: dict = {}  # (src, page) -> the small picture as JPEG bytes
         self.run: Run | None = None
         self.gen = 0  # which open this is: readings that finish after another open are dropped
         self.reader: reader.Reader | None = None
@@ -129,8 +187,9 @@ class App:
             self.gen += 1
             self.folder, self.only, self.sources, self.broken, self.desk = folder.resolve(), only, sources, broken, desk
             self.previews.clear()
+            self.smalls.clear()
             self.reader, self.dupes, self.dupes_ready = None, {}, False
-        threading.Thread(target=self.find_dupes, args=(self.gen,), daemon=True).start()
+        threading.Thread(target=self.background, args=(self.gen,), daemon=True).start()
         opened = str(self.folder / only) if only else str(self.folder)
         recent = self.recent()
         rp = intake.ROOT / RECENT
@@ -165,21 +224,39 @@ class App:
         inbox = (intake.ROOT / INBOX).resolve()
         return inbox in folder.resolve().parents
 
-    def upload(self, body: dict) -> dict:
-        """Save one dropped file into data/inbox/<date time>/ (or into the inbox folder given)."""
-        name = Path(str(body.get("name", ""))).name
-        if not name or not is_source_name(name):
-            raise ValueError(f"{name or 'that'} is not a PDF or a photo (.jpg / .png / .webp)")
+    def upload(self, name: str, given: str, chunks) -> dict:
+        """Save one dropped file (`chunks`: its bytes as they arrive) into data/inbox/<date time>/, or into
+        the inbox folder given. `name` may carry folders ("Sem 5/MST 1.pdf"): a dropped folder keeps its
+        layout, which the file names are read from. A .zip is unpacked: its PDFs and photos only."""
+        parts = safe_parts(name)
+        is_zip = bool(parts) and parts[-1].lower().endswith(".zip")
+        if not parts or not (is_zip or is_source_name(parts[-1])):
+            raise ValueError(f"{parts[-1] if parts else 'that'} is not a PDF, a photo (.jpg / .png / .webp) or a .zip of them")
         inbox = (intake.ROOT / INBOX).resolve()
-        folder = Path(body["folder"]).resolve() if body.get("folder") else inbox / time.strftime("%Y-%m-%d %H.%M.%S")
+        folder = Path(given).resolve() if given else inbox / time.strftime("%Y-%m-%d %H.%M.%S")
         if inbox not in folder.parents:
             raise ValueError("dropped files go into data/inbox/ only")
+        made = not folder.exists()
         folder.mkdir(parents=True, exist_ok=True)
-        target, n = folder / name, 2
-        while target.exists():
-            target, n = folder / f"{Path(name).stem} ({n}){Path(name).suffix}", n + 1
-        target.write_bytes(base64.b64decode(body["data"], validate=True))
-        return {"folder": str(folder), "file": target.name}
+        target = None
+        try:
+            if is_zip:
+                with tempfile.TemporaryFile() as tmp:
+                    for data in chunks:
+                        tmp.write(data)
+                    tmp.seek(0)
+                    return {"folder": str(folder), "file": parts[-1], "files": unzip(tmp, folder, parts[-1])}
+            target = free_path(folder, parts)
+            with open(target, "wb") as f:
+                for data in chunks:
+                    f.write(data)
+            return {"folder": str(folder), "file": target.relative_to(folder).as_posix()}
+        except Exception:  # nothing half-copied stays behind
+            if target:
+                target.unlink(missing_ok=True)
+            if made:
+                shutil.rmtree(folder, ignore_errors=True)
+            raise
 
     def keys(self) -> list[str]:
         return [page_key(s.id, n) for s in self.sources for n in range(1, s.pages + 1)]
@@ -224,9 +301,13 @@ class App:
 
     # ------------------------------------------------------------ pictures
 
-    def preview(self, src: str, page: int) -> Image.Image:
+    def check(self, src: str, page: int) -> None:
         if not any(s.id == src and 1 <= page <= s.pages for s in self.sources):
             raise KeyError(f"no page {page} in {src}")
+
+    def preview(self, src: str, page: int) -> Image.Image:
+        """The page as the editor shows it (PREVIEW_SIDE px)."""
+        self.check(src, page)
         key = (src, page)
         with self.lock:
             if key in self.previews:
@@ -235,11 +316,71 @@ class App:
         img = load_page(self.folder, src, page, PREVIEW_SIDE)
         with self.lock:
             self.previews[key] = img
-            while len(self.previews) > 60:
+            while len(self.previews) > 12:
                 self.previews.popitem(last=False)
         return img
 
+    @staticmethod
+    def small_file(folder: Path, src: str, page: int) -> Path:
+        path = (folder / src).resolve()
+        name = hashlib.sha1(f"{path.as_posix()}|{stamp(path)}|{page}|{SMALL_SIDE}".encode()).hexdigest()
+        return intake.ROOT / THUMBS / f"{name}.jpg"
+
+    @staticmethod
+    def keep_small(file: Path, img: Image.Image) -> bytes:
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=88)
+        file.parent.mkdir(parents=True, exist_ok=True)
+        tmp = file.with_suffix(f".{threading.get_ident()}.tmp")
+        tmp.write_bytes(buf.getvalue())
+        try:
+            tmp.replace(file)
+        except OSError:  # Windows: a card is reading this picture, or made it, at this very moment; it is the same one
+            tmp.unlink(missing_ok=True)
+        return buf.getvalue()
+
+    def small(self, src: str, page: int) -> Image.Image:
+        """The page SMALL_SIDE px on its longest side, which the small cards are cut from: several times
+        quicker to make than the editor's picture, and kept in data/work/desk/thumbs/ (by the file's
+        size and time), so a folder opened again shows its cards at once."""
+        self.check(src, page)
+        key = (src, page)
+        with self.lock:
+            data, folder = self.smalls.get(key), self.folder
+        if data is None:
+            file = self.small_file(folder, src, page)
+            try:
+                data = file.read_bytes()
+            except OSError:
+                data = self.keep_small(file, load_page(folder, src, page, SMALL_SIDE))
+            with self.lock:
+                if folder == self.folder:
+                    self.smalls[key] = data
+        return Image.open(io.BytesIO(data)).convert("RGB")
+
+    def warm(self, gen: int) -> None:
+        """Make the small pictures that are missing, one file after another, so the cards do not wait."""
+        with self.lock:
+            folder, sources = self.folder, list(self.sources)
+        for s in sources:
+            files = [self.small_file(folder, s.id, n) for n in range(1, s.pages + 1)]
+            if all(f.exists() for f in files):
+                continue
+            try:
+                for file, img in zip(files, load_pages(folder, s.id, SMALL_SIDE)):
+                    if gen != self.gen:
+                        return
+                    if not file.exists():
+                        self.keep_small(file, img)
+            except Exception as e:  # a page that will not render shows as a broken card; the desk works on
+                print(f"small pictures of {s.id} failed: {type(e).__name__}: {e}", flush=True)
+
     # ------------------------------------------------------------ reading pages (model) and picture matches
+
+    def background(self, gen: int) -> None:
+        """After a folder opens: the picture matches first (the suggestions wait for them), then the small pictures."""
+        self.find_dupes(gen)
+        self.warm(gen)
 
     def find_dupes(self, gen: int) -> None:
         with self.lock:
@@ -339,10 +480,31 @@ def make_handler(app: App, port: int):
             origin = self.headers.get("Origin")
             if origin and origin.split("//", 1)[-1] not in hosts:
                 return False
-            return self.command == "GET" or self.headers.get("Content-Type", "").startswith("application/json")
+            kind = self.headers.get("Content-Type", "")
+            # A dropped file comes as its own bytes. Like JSON, that type cannot be sent from another site's page.
+            return self.command == "GET" or kind.startswith("application/json") or (self.streamed and kind.startswith("application/octet-stream"))
 
         def body(self) -> dict:
             return json.loads(self.raw or b"{}")
+
+        def chunks(self):
+            """The request body as it arrives (a dropped file is written to disk, not held in memory)."""
+            while self.left:
+                data = self.rfile.read(min(self.left, 1 << 20))
+                if not data:
+                    raise ValueError("the upload was cut off")
+                self.left -= len(data)
+                yield data
+
+        def drain(self) -> None:
+            for _ in self.chunks():
+                pass
+
+        def drain_quietly(self) -> None:
+            try:
+                self.drain()
+            except ValueError:  # the upload was cut off: there is nothing left to read
+                self.left = 0
 
         def do_GET(self):
             self.handle_any()
@@ -354,17 +516,23 @@ def make_handler(app: App, port: int):
             self.handle_any()
 
         def handle_any(self):
-            self.raw = self.rfile.read(int(self.headers.get("Content-Length") or 0))  # always read it: closing on unread data resets the connection
-            if not self.allowed():
-                return self.json({"error": "not allowed"}, 403)
-            app.seen = time.time()
             url = urlparse(self.path)
-            q = {k: v[0] for k, v in parse_qs(url.query).items()}
+            self.left = int(self.headers.get("Content-Length") or 0)  # bytes of the body not read yet
+            self.streamed = (self.command, url.path) == ("POST", "/api/upload")
             try:
+                # Always read the body, before answering: closing on unread data resets the connection.
+                self.raw = b"" if self.streamed else b"".join(self.chunks())
+                if not self.allowed():
+                    self.drain()
+                    return self.json({"error": "not allowed"}, 403)
+                app.seen = time.time()
+                q = {k: v[0] for k, v in parse_qs(url.query).items()}
                 self.route(url.path, q)
             except (ValueError, KeyError) as e:
+                self.drain_quietly()
                 self.json({"error": str(e).strip("'\"")}, 400)
             except Exception as e:  # show it on the page instead of a dead request
+                self.drain_quietly()
                 self.json({"error": f"{type(e).__name__}: {e}"}, 500)
                 raise
 
@@ -381,7 +549,9 @@ def make_handler(app: App, port: int):
                 return self.json({"root": str(intake.ROOT), "folder": str(app.folder) if app.folder else None, "recent": app.recent_info(),
                                   "home": str(Path.home()), "inbox": str(intake.ROOT / INBOX)})
             if m == ("POST", "/api/upload"):
-                return self.json(app.upload(self.body()))
+                if not self.headers.get("Content-Type", "").startswith("application/octet-stream"):
+                    raise ValueError("a dropped file is sent as its own bytes (application/octet-stream)")
+                return self.json(app.upload(q.get("name", ""), q.get("folder", ""), self.chunks()))
             if m == ("POST", "/api/quit"):
                 if app.run and app.run.code is None:
                     app.run.proc.terminate()
@@ -404,10 +574,10 @@ def make_handler(app: App, port: int):
             if m == ("GET", "/api/image"):
                 return self.jpeg(app.preview(q["src"], int(q["page"])))
             if m == ("GET", "/api/thumb"):
-                img = app.preview(q["src"], int(q["page"]))
+                w = int(q.get("w", 240))
+                img = (app.small if 2 * w <= SMALL_SIDE else app.preview)(q["src"], int(q["page"]))
                 boxes = [[float(x) for x in b.split(",")] for b in q.get("boxes", "").split(";") if b]
                 out = render_part(img, boxes, int(q.get("rot", 0)), q.get("split", ""), float(q.get("at", 0.5)), int(q.get("part", 0)), int(q.get("prot", 0)))
-                w = int(q.get("w", 240))
                 out.thumbnail((w, w * 3))
                 return self.jpeg(out)
             if m == ("PUT", "/api/state"):
@@ -499,6 +669,7 @@ def serve(folder: Path | None, port: int, open_browser: bool, idle: float = IDLE
             import webbrowser
             webbrowser.open(url)
         return
+    prune_thumbs()
     app = App()
     if folder:
         try:
