@@ -4,6 +4,10 @@
 export const HEAT = { repeat: "#ff3b4e", multi: "#ff8a3d", once: "#ffc24a" } as const;
 export type Heat = keyof typeof HEAT;
 
+/** The planets (canvas cannot read CSS variables): the sphere's night side, its lit side, the violet
+ *  halo, the latitude lines (lavender) and the orbit ring (cyan), as "r,g,b" where an alpha is added. */
+export const PLANET = { lit: "#3a3a9a", core: "#15133a", edge: "#07071a", halo: "118,87,255", lines: "196,181,253", ring: "84,228,255" } as const;
+
 /** Field of study (catalog/davv.json) -> its dot and orb gradient on the course cards. */
 export const FIELD_COLORS: Record<string, [string, string]> = {
   engineering: ["#4268ff", "#54e4ff"],

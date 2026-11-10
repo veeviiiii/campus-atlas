@@ -44,7 +44,7 @@ export default function UnitMarks({ table, examName }: Props) {
                     <td
                       key={exams[i].id}
                       className={m ? "" : "none"}
-                      style={m ? { background: `rgba(84, 228, 255, ${(0.06 + 0.5 * share).toFixed(2)})` } : undefined}
+                      style={m ? { background: `color-mix(in srgb, var(--cyan) ${Math.round(6 + 50 * share)}%, transparent)` } : undefined}
                       title={m ? `${fmtMarks(m)} of ${fmtMarks(totals[i])} marks in ${examName[exams[i].id]} (${Math.round(share * 100)}%)` : "Not asked"}
                     >
                       {m ? fmtMarks(m) : "–"}

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-import { HEAT, type Heat } from "@/lib/colors";
+import { HEAT, PLANET, type Heat } from "@/lib/colors";
 
 export interface MiniTopic {
   heat: Heat;
@@ -10,6 +10,7 @@ export interface MiniTopic {
 }
 
 const GOLDEN = Math.PI * (3 - Math.sqrt(5));
+const SPIN = 0.36; // radians a second (the same on a 60 Hz and a 120 Hz screen)
 
 /**
  * A small spinning planet for a subject card, drawn like the hero planet: a sphere tinted in the
@@ -30,6 +31,7 @@ export default function MiniPlanet({ topics, tint }: { topics: MiniTopic[]; tint
     let rot = 0.6;
     let raf = 0;
     let visible = false;
+    let last = 0;
 
     const size = () => {
       const r = cv.getBoundingClientRect();
@@ -53,8 +55,8 @@ export default function MiniPlanet({ topics, tint }: { topics: MiniTopic[]; tint
       cx.fill();
       const g = cx.createRadialGradient(c - R * 0.3, c - R * 0.35, R * 0.1, c, c, R * 1.05);
       g.addColorStop(0, tint + "aa");
-      g.addColorStop(0.55, "#15133a");
-      g.addColorStop(1, "#07071a");
+      g.addColorStop(0.55, PLANET.core);
+      g.addColorStop(1, PLANET.edge);
       cx.beginPath();
       cx.arc(c, c, R, 0, 7);
       cx.fillStyle = g;
@@ -63,7 +65,7 @@ export default function MiniPlanet({ topics, tint }: { topics: MiniTopic[]; tint
       cx.translate(c, c);
       cx.rotate(-0.35);
       cx.scale(1, 0.3);
-      cx.strokeStyle = "rgba(84,228,255,.3)";
+      cx.strokeStyle = `rgba(${PLANET.ring},.3)`;
       cx.lineWidth = 1;
       cx.beginPath();
       cx.arc(0, 0, R * 1.3, 0, 7);
@@ -88,10 +90,15 @@ export default function MiniPlanet({ topics, tint }: { topics: MiniTopic[]; tint
         });
     };
 
-    const frame = () => {
-      rot += 0.006;
+    const frame = (now: number) => {
+      rot += SPIN * Math.min(0.05, Math.max(0, (now - last) / 1000));
+      last = now;
       draw();
       raf = visible && !reduced ? requestAnimationFrame(frame) : 0;
+    };
+    const start = () => {
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
     };
 
     const ro = new ResizeObserver(() => {
@@ -101,7 +108,7 @@ export default function MiniPlanet({ topics, tint }: { topics: MiniTopic[]; tint
     ro.observe(cv);
     const io = new IntersectionObserver(([e]) => {
       visible = e.isIntersecting;
-      if (visible && !raf && !reduced) raf = requestAnimationFrame(frame);
+      if (visible && !raf && !reduced) start();
     });
     io.observe(cv);
     size();

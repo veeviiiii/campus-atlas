@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 
 import PageEnter from "@/components/PageEnter";
@@ -33,6 +33,9 @@ export const metadata: Metadata = {
   openGraph: { siteName: "Campus Atlas", type: "website", locale: "en_IN", images: [OG_IMAGE] },
   twitter: { card: "summary_large_image", images: [OG_IMAGE] },
 };
+
+// The phone browser's own bar takes the page's background (--background in globals.css).
+export const viewport: Viewport = { themeColor: "#09090b" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
