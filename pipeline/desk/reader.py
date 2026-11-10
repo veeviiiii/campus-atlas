@@ -43,7 +43,7 @@ Rules:
 - Copy text exactly as printed. Never guess: anything not printed is null."""
 
 KINDS = ("question paper", "answer sheet", "notes", "blank", "other")
-WORKERS = 3  # pages read at the same time
+WORKERS = 3  # pages read at the same time, unless DESK_READ_WORKERS in .env says otherwise
 GIVE_UP = 3  # stop when the first pages all fail (a wrong key or model id fails every page)
 
 
@@ -89,6 +89,14 @@ def problem() -> str:
     if not model_name():
         return "no MODEL_ID (or DESK_MODEL_ID) in .env"
     return ""
+
+
+def workers_wanted() -> int:
+    """Pages read at the same time: DESK_READ_WORKERS (1 to 8) when the model's rate limit allows more, else WORKERS."""
+    try:
+        return max(1, min(8, int(os.environ.get("DESK_READ_WORKERS") or WORKERS)))
+    except ValueError:
+        return WORKERS
 
 
 def provider() -> providers.Provider:
@@ -142,8 +150,8 @@ class Reader:
     """Reads pages in the background, a few at a time. `read(key)` returns a reading and `store(key,
     reading)` keeps it; the desk page polls status()."""
 
-    def __init__(self, read: Callable[[str], dict], store: Callable[[str, dict], None], workers: int = WORKERS):
-        self.read, self.store, self.workers = read, store, workers
+    def __init__(self, read: Callable[[str], dict], store: Callable[[str, dict], None], workers: int | None = None):
+        self.read, self.store, self.workers = read, store, workers or workers_wanted()
         self.lock = threading.Lock()
         self.queue: deque[str] = deque()
         self.busy: set[str] = set()

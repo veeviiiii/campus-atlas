@@ -281,6 +281,14 @@ def document(seed: int, size=(600, 850)) -> Image.Image:
     return img
 
 
+class Workers(unittest.TestCase):
+    def test_the_number_of_pages_read_at_once_comes_from_the_env(self):
+        for value, want in (("", reader.WORKERS), ("6", 6), ("0", 1), ("99", 8), ("many", reader.WORKERS)):
+            with mock.patch.dict("os.environ", {"DESK_READ_WORKERS": value}):
+                self.assertEqual(reader.workers_wanted(), want, value)
+                self.assertEqual(reader.Reader(lambda k: {}, lambda k, r: None).workers, want)
+
+
 class Duplicates(unittest.TestCase):
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()
@@ -312,6 +320,23 @@ class Duplicates(unittest.TestCase):
         found = dupes.find(self.folder, sources, {(raw / "desk wrote this.pdf").resolve()})
         self.assertEqual(found, {"again.jpg#1": {"label": "data/raw/x/bca/sem1/added.pdf page 1, already added", "of": "data/raw/x/bca/sem1/added.pdf#1"}})
         self.assertTrue((self.root / dupes.CACHE).exists())
+
+    def test_fingerprints_are_kept_until_the_file_changes(self):
+        document(1).save(self.folder / "a.jpg", quality=95)
+        document(1).save(self.folder / "a again.jpg", quality=60)
+        sources, _ = list_sources(self.folder)
+        first = dupes.find(self.folder, sources, set())
+        self.assertEqual(list(first), ["a.jpg#1"])  # "a again.jpg" sorts first, so it is the one kept
+        with mock.patch.object(dupes, "load_pages", side_effect=AssertionError("looked at the picture again")):
+            self.assertEqual(dupes.find(self.folder, sources, set()), first)
+        document(2).save(self.folder / "a.jpg", quality=95)  # another picture under the same name
+        self.assertEqual(dupes.find(self.folder, sources, set()), {})
+        (self.folder / "a again.jpg").unlink()  # a file that is gone leaves the cache at the next change
+        document(3).save(self.folder / "b.jpg")
+        sources, _ = list_sources(self.folder)
+        dupes.find(self.folder, sources, set())
+        kept = dupes.read_cache()
+        self.assertEqual(sorted(Path(k).name for k in kept), ["a.jpg", "b.jpg"])
 
     def test_blank_and_nearly_empty_pages_match_nothing(self):
         for name in ("blank 1.png", "blank 2.png", "stamp 1.png", "stamp 2.png"):

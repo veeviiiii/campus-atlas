@@ -4,6 +4,7 @@ file on its own.
 A source page is named by the file's path inside the folder and its page number: "Sem-5 Test Papers.pdf#3".
 """
 
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -14,6 +15,7 @@ from pipeline.intake import PHOTOS
 from pipeline.render import DEFAULT_DPI
 
 PREVIEW_SIDE = 1400  # px, longest side of the picture the desk page edits on
+SMALL_SIDE = 480  # px, longest side of the picture the small cards are cut from
 
 
 @dataclass
@@ -57,19 +59,39 @@ def page_key(src: str, page: int) -> str:
     return f"{src}#{page}"
 
 
+def _pdf_page(pg, max_side: int | None) -> Image.Image:
+    dpi = DEFAULT_DPI
+    if max_side:
+        dpi = min(DEFAULT_DPI, max(20, int(72 * max_side / max(pg.rect.width, pg.rect.height))))
+    pix = pg.get_pixmap(dpi=dpi, alpha=False)
+    return Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+
+
 def load_page(folder: Path, src: str, page: int, max_side: int | None = None) -> Image.Image:
     """One source page as an RGB image: a PDF page at 200 dpi (as the pipeline renders), a photo turned
     upright by its EXIF tag (as intake photos does). max_side: a smaller picture for the desk page."""
     path = folder / src
     if path.suffix.lower() == ".pdf":
         with pymupdf.open(path) as doc:
-            pg = doc[page - 1]
-            dpi = DEFAULT_DPI
-            if max_side:
-                dpi = min(DEFAULT_DPI, max(20, int(72 * max_side / max(pg.rect.width, pg.rect.height))))
-            pix = pg.get_pixmap(dpi=dpi, alpha=False)
-            return Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+            return _pdf_page(doc[page - 1], max_side)
     img = ImageOps.exif_transpose(Image.open(path)).convert("RGB")
     if max_side:
         img.thumbnail((max_side, max_side))
     return img
+
+
+def load_pages(folder: Path, src: str, max_side: int | None = None) -> Iterator[Image.Image]:
+    """Every page of one source in order, as load_page gives them; a PDF is opened once for all its pages."""
+    path = folder / src
+    if path.suffix.lower() == ".pdf":
+        with pymupdf.open(path) as doc:
+            for pg in doc:
+                yield _pdf_page(pg, max_side)
+    else:
+        yield load_page(folder, src, 1, max_side)
+
+
+def stamp(path: Path) -> str:
+    """Size and time of a file: what the desk's caches (small pictures, fingerprints) are kept by."""
+    st = path.stat()
+    return f"{st.st_size}:{st.st_mtime_ns}"
