@@ -1,5 +1,5 @@
 import { fmtMarks, marksSummary, type MarksTable } from "@/lib/marks";
-import { examDate } from "@/lib/papers";
+import { examWhen } from "@/lib/papers";
 
 interface Props {
   table: MarksTable;
@@ -25,7 +25,7 @@ export default function UnitMarks({ table, examName }: Props) {
               {exams.map((e) => (
                 <th key={e.id} scope="col">
                   {examName[e.id]}
-                  <span>{examDate(e.date)}</span>
+                  <span>{examWhen(e)}</span>
                 </th>
               ))}
               <th scope="col">Total</th>

@@ -74,6 +74,11 @@ The step bar at the top shows what is done and the one thing to do next: **Open*
   shows only those, each with its reason (the other filters: **To do**, **Use**, **Skip**, **All**).
   Fill in what is missing (the year goes in Session) and the paper becomes **Use** by itself;
   shift-click several to fill a field for all of them.
+- **No year printed** (next to Session) is for a paper that prints its year nowhere, not even in the
+  file name. It becomes **Use** with no date to fill in: its exam is `end-undated` (`mst1-undated`,
+  ...), and the site lists it on the subject page under "Year not printed". A second such paper of the
+  same subject and exam goes in `end-undated-2`, since it is another sitting. **Use N with no year**
+  above the pages does this for every paper held back only for "no year".
 - **Course, semester, subject, exam, session, date.** Shift-click a range (or **Select all** on a file)
   to set course, semester, exam and session for many pages at once, then the subject page by page.
   **+ New** adds a subject with the other names printed on its papers. The date belongs to the exam:
@@ -306,6 +311,8 @@ Same folder, same manifest. One pack holds every year:
    - {id: mst1-2024-25, name: MST-1, date: "2024-10", session: "2024-25"}
    - {id: end-2024-25, name: End Sem, date: "2025-01", session: "2024-25"}
    ```
+   A paper that prints no year at all goes in `{id: end-undated, name: End Sem, date: null, session: null}`
+   (a second one of the same subject in `end-undated-2`). Never guess its year.
 4. `intake check`, then the same `build_pack` command. Papers already done come from the cache; the
    new ones, and the topic grouping across all years, call the model. Topic names may change a little.
 

@@ -986,6 +986,18 @@ a.card:active {
   border-color: var(--accent);
   color: var(--foreground);
 }
+/* Papers tab: the papers that print no year, under a heading of their own */
+.paper-group {
+  margin-top: 14px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--border);
+}
+.paper-group h3 {
+  font-size: 22px;
+}
+.paper-group .note {
+  margin: 6px 0 0;
+}
 .tabs {
   display: flex;
   gap: 8px;

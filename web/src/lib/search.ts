@@ -11,7 +11,7 @@ export interface SearchPack {
   collegeId: string;
   course: string;
   semester: number;
-  exams: { id: string; label: string; date: string }[]; // oldest first; label "MST-1", or "MST-1 2024-25" with several years
+  exams: { id: string; label: string; date: string | null }[]; // oldest first; label "MST-1", "MST-1 2024-25" with several years, "End Sem, no year"
   subjects: { id: string; name: string; aliases: string[] }[];
 }
 

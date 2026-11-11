@@ -43,7 +43,8 @@ with the error, and anything it cannot verify goes to an "unsure" list. Nothing 
    `OPENAI_BASE_URL` / `OPENAI_MODEL` (e.g. Ollama at `http://localhost:11434/v1`, `gemma4:e4b`).
 2. **Put the papers** in `data/raw/<college-id>/<course-id>/sem<N>/` and write `manifest.yaml` there.
    Another year of the same course goes in the same folder and manifest (exam ids like `mst1-2024-25`),
-   so one pack holds every year; the papers already there are answered from the cache.
+   so one pack holds every year; the papers already there are answered from the cache. A paper that
+   prints no year goes in `<kind>-undated` (`date: null, session: null`), never a guessed year.
 3. **Try one subject first** and read its report:
    ```bash
    .venv/Scripts/python skills/pyq-atlas/scripts/run_pipeline.py --manifest data/raw/<college>/<course>/sem<N>/manifest.yaml --subjects <subject-id> --stage extract

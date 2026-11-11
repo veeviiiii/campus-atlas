@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import MiniPlanet from "./MiniPlanet";
 import { HEAT, SUBJECT_COLORS } from "@/lib/colors";
 import { rankTopics } from "@/lib/likely";
-import { examDate, inOrder, papersOf, sessionsOf } from "@/lib/papers";
+import { examDate, inOrder, isUndated, papersOf, sessionsOf } from "@/lib/papers";
 import { subjectHref } from "@/lib/paths";
 import { heatOf } from "@/lib/planet";
 import type { PackEntry } from "@/lib/types";
@@ -16,6 +16,7 @@ export default function CourseView({ entry }: { entry: PackEntry }) {
   const { key, pack } = entry;
   const exams = pack.sources.exams;
   const sessions = sessionsOf(exams);
+  const noYearPapers = pack.subjects.flatMap((s) => papersOf(exams, s)).filter((p) => isUndated(p.exam)).length;
 
   const subjects = useMemo(
     () =>
@@ -77,10 +78,14 @@ export default function CourseView({ entry }: { entry: PackEntry }) {
       <p className="note">
         Based on {pack.stats.papers} paper{pack.stats.papers === 1 ? "" : "s"}
         {sessions.length > 1
-          ? ` from ${sessions.length} years (${[...sessions].reverse().join(", ")}).`
-          : `: ${inOrder(exams)
-              .map((e) => `${e.name} (${examDate(e.date)})`)
-              .join(", ")}.`}{" "}
+          ? ` from ${sessions.length} years (${[...sessions].reverse().join(", ")})`
+          : sessions.length
+            ? `: ${inOrder(exams)
+                .filter((e) => !isUndated(e))
+                .map((e) => `${e.name} (${examDate(e.date)})`)
+                .join(", ")}`
+            : ""}
+        {noYearPapers ? `${sessions.length ? ", and" : ","} ${noYearPapers} with no year printed.` : "."}{" "}
         {pack.sources.syllabus
           ? `Units named with help from the ${pack.sources.syllabus.batch} syllabus (old).`
           : "No syllabus was used: units and topics are grouped from the questions themselves."}

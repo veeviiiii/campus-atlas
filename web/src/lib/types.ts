@@ -69,7 +69,9 @@ export interface Pack {
   college: College;
   course: { id: string; name: string; semester: number };
   sources: {
-    exams: { id: string; name: string; date: string; session?: string }[]; // session: "2025-26" (schema 1.1+)
+    // session: "2025-26" (schema 1.1+). A paper with no year printed: id "end-undated" ("end-undated-2"
+    // for a second one of the same subject), date and session null (schema 1.2+).
+    exams: { id: string; name: string; date: string | null; session?: string | null }[];
     syllabus: { batch: string; note: string } | null;
     units_from?: string;
   };

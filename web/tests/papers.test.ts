@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { EXAMS, physics } from "./fixture";
-import { cameBackMap, examDate, examKind, examLabels, examsSummary, inOrder, papersOf, sessionOf, sessionsOf } from "../src/lib/papers";
+import { cameBackMap, examDate, examKind, examLabels, examsSummary, examWhen, inOrder, isUndated, papersOf, sessionOf, sessionsOf } from "../src/lib/papers";
 
 test("exam dates and kinds", () => {
   assert.equal(examDate("2025-10"), "Oct 2025");
@@ -52,6 +52,33 @@ test("exam labels name the year only when a pack has several", () => {
   assert.deepEqual(sessionsOf(twoYears), ["2025-26", "2024-25"]);
   assert.equal(examsSummary(EXAMS), "MST-1 Oct 2025 · MST-2 Dec 2025 · End Sem Jan 2026");
   assert.equal(examsSummary(twoYears), "2025-26 · 2024-25");
+});
+
+test("papers with no year printed: no session, a label of their own, listed after every dated paper", () => {
+  const noYear = [
+    ...EXAMS,
+    { id: "end-undated-2", name: "End Sem", date: null, session: null },
+    { id: "end-undated", name: "End Sem", date: null, session: null },
+  ];
+  assert.equal(isUndated(noYear[3]), true);
+  assert.equal(sessionOf(noYear[3]), null);
+  assert.deepEqual(sessionsOf(noYear), ["2025-26"]);
+  assert.equal(examDate(null), "no year");
+  assert.equal(examWhen(noYear[3]), "no year (2)");
+  assert.deepEqual(
+    inOrder(noYear).map((e) => e.id),
+    ["end-undated", "end-undated-2", "mst1", "mst2", "end"],
+  );
+  assert.equal(examLabels(noYear)["end-undated-2"], "End Sem, no year (2)");
+  assert.equal(examLabels(noYear).end, "End Sem"); // still one year with a date
+  assert.equal(examsSummary(noYear), "End Sem, no year · End Sem, no year (2) · MST-1 Oct 2025 · MST-2 Dec 2025 · End Sem Jan 2026");
+
+  const s = physics();
+  s.units[2].topics[0].questions.push({ ...s.units[2].topics[0].questions[0], id: "physics-end-undated-q1", exam: "end-undated" });
+  assert.deepEqual(
+    papersOf(noYear, s).map((p) => p.exam.id),
+    ["end", "mst2", "mst1", "end-undated"], // newest first; the paper with no year goes last
+  );
 });
 
 test("papers: newest first, questions in the order printed on the paper", () => {

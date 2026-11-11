@@ -4,14 +4,15 @@ One pack holds every year of one course-semester.
 
 ```jsonc
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "college": {"id": "davv-sdsf", "name": "...", "city": "Indore", "lat": 22.69, "lng": 75.87},
   "course": {"id": "mtech-aids-dual", "name": "...", "semester": 1},
   "sources": {
     "exams": [                     // every exam of every year; kinds mst1 / mst2 / mst3 / end
       {"id": "mst1", "name": "MST-1", "date": "2025-10", "session": "2025-26"},
       {"id": "mst3-2024-25", "name": "MST-3", "date": "2024", "session": "2024-25"},  // no paper printed the month
-      {"id": "end-2024-25", "name": "End Sem", "date": "2025-01", "session": "2024-25"}, ...],
+      {"id": "end-2024-25", "name": "End Sem", "date": "2025-01", "session": "2024-25"},
+      {"id": "end-undated", "name": "End Sem", "date": null, "session": null}, ...],  // the paper prints no year
     "syllabus": {"batch": "2024-29", "note": "old syllabus, used as a hint only"},  // or null
     "units_from": "..."            // how units were formed when there is no syllabus
   },
@@ -50,6 +51,11 @@ One pack holds every year of one course-semester.
 - Exam ids: `mst1` / `mst2` / `end` for the first year added, `<kind>-<session>` (e.g. `mst1-2024-25`)
   for every other year, so question ids (`<subject>-<exam>-q<N>`) never change when a year is added.
   `session` is the academic session (July to June). Packs from before 1.1 have no `session`; derive it from `date`.
+- A paper that prints no year (schema 1.2): exam `<kind>-undated`, `date` and `session` null. A second
+  such paper of the same subject and kind is another sitting: `<kind>-undated-2`, and so on. These
+  exams have no place in time. They sort first only so that repeat links have a direction, and
+  `is_repeat` counts them only where order cannot matter (two End Sems are two sittings). The site
+  lists them under "Year not printed".
 - `repeat_of` always points back in time (a later question links to an earlier one, possibly from an earlier year).
 - `repeat_of.type`: `exact` | `near` | `same-topic`.
 - `confidence`: 0.9 for a validated extraction, minus 0.1 if it sat at the page edge and needed the

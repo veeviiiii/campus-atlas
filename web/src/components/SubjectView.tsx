@@ -5,14 +5,15 @@ import { useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import QuestionCard from "./QuestionCard";
 import UnitMarks from "./UnitMarks";
-import { rankTopics, scoreRule } from "@/lib/likely";
+import { basedOn, rankTopics, scoreRule } from "@/lib/likely";
 import { marksByUnit } from "@/lib/marks";
-import { cameBackMap, examDate, examLabels, inOrder, papersOf, placedQuestions, sessionOf, sessionsOf, type Exam } from "@/lib/papers";
+import { cameBackMap, examDate, examLabels, examWhen, inOrder, isUndated, papersOf, placedQuestions, sessionOf, sessionsOf, type Exam } from "@/lib/papers";
 import { pageImageUrl, pageLabel } from "@/lib/paths";
 import { softScrollToElement } from "@/lib/scroll";
 import type { Subject } from "@/lib/types";
 
 type Tab = "papers" | "likely" | "marks";
+const NO_YEAR = "no-year"; // the year chip for papers that print no year
 
 /** Print one paper on its own: open it, mark it, and let the print styles (globals.css) hide the rest. */
 function printPaper(button: HTMLElement) {
@@ -40,20 +41,23 @@ interface Props {
  *  they were asked, and its marks by unit. */
 export default function SubjectView({ collegeId, exams, subject }: Props) {
   const [tab, setTab] = useState<Tab>("papers");
-  const [year, setYear] = useState<string | null>(null); // null = all years
+  const [year, setYear] = useState<string | null>(null); // null = all years, NO_YEAR = the papers with none
   const [openTopic, setOpenTopic] = useState<string | null>(null);
   // Topic to bring into view once the Likely tab has rendered: softly after a click, at once for a link.
   const scrollTo = useRef<{ id: string; soft: boolean } | null>(null);
 
   const papers = useMemo(() => papersOf(exams, subject), [exams, subject]);
-  const paperYears = useMemo(() => sessionsOf(papers.map((p) => p.exam)), [papers]);
-  const shown = year ? papers.filter((p) => sessionOf(p.exam) === year) : papers;
+  const paperYears = useMemo(
+    () => [...sessionsOf(papers.map((p) => p.exam)), ...(papers.some((p) => isUndated(p.exam)) ? [NO_YEAR] : [])],
+    [papers],
+  );
+  const shown = year ? papers.filter((p) => (year === NO_YEAR ? isUndated(p.exam) : sessionOf(p.exam) === year)) : papers;
+  const firstUndated = shown.findIndex((p) => isUndated(p.exam)); // papersOf puts them last, under their own heading
   const likely = useMemo(() => rankTopics(exams, subject), [exams, subject]);
   const examName = useMemo(() => examLabels(exams), [exams]);
   const examOf = useMemo(() => new Map(placedQuestions(subject).map(({ q }) => [q.id, q.exam])), [subject]);
   const cameBack = useMemo(() => cameBackMap(exams, subject), [exams, subject]);
   const marks = useMemo(() => marksByUnit(exams, subject), [exams, subject]);
-  const sessions = sessionsOf(exams);
 
   function show(next: Tab, topicId: string | null = null) {
     setTab(next);
@@ -115,16 +119,25 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
             <div className="year-chips" role="group" aria-label="Year">
               {[null, ...paperYears].map((y) => (
                 <button key={y ?? "all"} type="button" className="chip" aria-pressed={year === y} onClick={() => setYear(y)}>
-                  {y ?? "All years"}
+                  {y === NO_YEAR ? "No year" : (y ?? "All years")}
                 </button>
               ))}
             </div>
           )}
-          {shown.map((p, i) => (
+          {shown.map((p, i) => [
+            i === firstUndated && (
+              <div key="no-year" className="paper-group">
+                <h3>Year not printed</h3>
+                <p className="note">
+                  These papers print no year anywhere, so they are kept apart. Their questions still count in Likely topics, but never
+                  as coming before or after another paper.
+                </p>
+              </div>
+            ),
             <details key={p.exam.id} className="paper" open={i === 0}>
               <summary>
                 <span className="paper-title">
-                  {p.exam.name} <em>{examDate(p.exam.date)}</em>
+                  {p.exam.name} <em>{examWhen(p.exam)}</em>
                 </span>
                 <span className="mono">{p.questions.length} questions</span>
               </summary>
@@ -153,8 +166,8 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
                   />
                 ))}
               </div>
-            </details>
-          ))}
+            </details>,
+          ])}
           <p className="note">
             Have this subject&apos;s paper from another year? <Link href="/send/">Send it in →</Link>
           </p>
@@ -162,12 +175,7 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
       ) : (
         <div key="likely" className="stack fade-in" data-panel="likely">
           <p className="note">
-            {sessions.length > 1
-              ? `Ranked by how often and how heavily each topic was asked in ${exams.length} exams from ${sessions[sessions.length - 1]} to ${sessions[0]}. It is a frequency score from ${sessions.length} years of papers, not a guarantee.`
-              : `Ranked by how often and how heavily each topic was asked in ${inOrder(exams)
-                  .map((e) => e.name)
-                  .join(", ")} (${sessions[0]}). It is a frequency score from one year of papers, not a guarantee.`}{" "}
-            {scoreRule(exams)}
+            {basedOn(exams)} {scoreRule(exams)}
           </p>
           <ol className="ranked">
             {likely.map(({ topic, unit, score, reasons }) => (
@@ -210,7 +218,7 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
                       return (
                         <section key={ex.id} className="stack">
                           <div className="mono" style={{ color: "var(--lav)" }}>
-                            {examName[ex.id]} · {examDate(ex.date)}
+                            {ex.date ? `${examName[ex.id]} · ${examDate(ex.date)}` : examName[ex.id]}
                           </div>
                           {qs.map((q) => (
                             <QuestionCard

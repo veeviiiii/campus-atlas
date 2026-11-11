@@ -169,7 +169,7 @@ export default function SearchView() {
                   <>
                     <Link href={subjectHref(p.key, doc.subject)}>{s?.name ?? doc.subject}</Link>
                     <span>
-                      {exam ? `${exam.label} · ${examDate(exam.date)}` : doc.q.exam}
+                      {exam ? (exam.date ? `${exam.label} · ${examDate(exam.date)}` : exam.label) : doc.q.exam}
                       {several && ` · ${p.course}, Sem ${p.semester}`}
                     </span>
                   </>
