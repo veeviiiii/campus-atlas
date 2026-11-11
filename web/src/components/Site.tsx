@@ -2,19 +2,19 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type MouseEvent, useMemo, useState, useSyncExternalStore } from "react";
+import { type MouseEvent, useState, useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 
 import { BottomBar, SiteNav } from "./Chrome";
 import HeroPlanet from "./HeroPlanet";
 import { FIELD_COLORS } from "@/lib/colors";
-import { programmeHref, topicHref } from "@/lib/paths";
-import { buildPlanet } from "@/lib/planet";
+import type { HomeSummary } from "@/lib/home";
+import { programmeHref } from "@/lib/paths";
 import { softScrollToElement } from "@/lib/scroll";
-import type { CourseCard, Field, PackEntry } from "@/lib/types";
+import type { CourseCard, Field } from "@/lib/types";
 
 interface Props {
-  entries: PackEntry[];
+  summary: HomeSummary;
   courses: CourseCard[];
   fields: Field[];
 }
@@ -47,19 +47,12 @@ const fieldInAddress = () => new URLSearchParams(location.search).get("field");
 const plainClick = (e: MouseEvent) => e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
 
 /** Home: what this is in one line, then the fields; pick one to see its courses. */
-export default function Site({ entries, courses, fields }: Props) {
+export default function Site({ summary, courses, fields }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const picked = useSyncExternalStore(onFieldChange, fieldInAddress, () => null);
-
-  const first = entries[0];
-  const heroPlanet = useMemo(() => (first ? buildPlanet(first.pack) : null), [first]);
-  const p = first?.pack;
-  // "How it works" counts every course on the site; the eval exists only for the course it was made for.
-  const total = (k: "papers" | "questions" | "repeats" | "dropped_bleed_through") => entries.reduce((n, e) => n + e.pack.stats[k], 0);
-  const evalPack = entries.find((e) => e.pack.harness?.eval)?.pack;
-  const evalResult = evalPack?.harness?.eval;
-  const papers = total("papers");
+  // "How it works" counts every course on the site; the repeat check exists only for the course it was made for.
+  const { hero, totals, checked } = summary;
 
   const allFields = courses.some((c) => c.field === "other") ? [...fields, { id: "other", name: "Other courses", short: "Other" }] : fields;
   const fieldName = Object.fromEntries(allFields.map((f) => [f.id, f.name]));
@@ -131,11 +124,11 @@ export default function Site({ entries, courses, fields }: Props) {
             </a>
           </div>
         </div>
-        {heroPlanet && first && (
+        {hero && (
           <div style={{ position: "relative" }}>
-            <HeroPlanet cities={heroPlanet.cities} onPick={(c) => router.push(topicHref(first.key, c.subject.id, c.topic.id))} />
+            <HeroPlanet cities={hero.cities} onPick={(c) => router.push(c.href)} />
             <div className="mono" style={{ color: "var(--muted)", textAlign: "center", marginTop: 8 }}>
-              Every square is a real topic from {p?.course.name}, Semester {p?.course.semester} · click one
+              Every square is a real topic from {hero.course}, Semester {hero.semester} · click one
             </div>
           </div>
         )}
@@ -243,7 +236,7 @@ export default function Site({ entries, courses, fields }: Props) {
         </div>
       </section>
 
-      {p && (
+      {hero && (
         <section className="how" id="how">
           <div className="mono" style={{ color: "var(--cyan)" }}>
             02 / How it works
@@ -254,7 +247,7 @@ export default function Site({ entries, courses, fields }: Props) {
               <div className="mono" style={{ color: "var(--lav)" }}>
                 1 · Collect
               </div>
-              <div className="big">{papers} papers</div>
+              <div className="big">{totals.papers} papers</div>
               <h3>Students photograph their papers.</h3>
               <p style={{ color: "var(--muted)", margin: 0 }}>
                 Mid-sems and End Sems, every subject. Each paper keeps its exam, month and year, and every question links back to the photo
@@ -265,23 +258,23 @@ export default function Site({ entries, courses, fields }: Props) {
               <div className="mono" style={{ color: "var(--lav)" }}>
                 2 · Read and check
               </div>
-              <div className="big">{total("questions")} questions</div>
+              <div className="big">{totals.questions} questions</div>
               <h3>An open AI model reads them.</h3>
               <p style={{ color: "var(--muted)", margin: 0 }}>
                 Gemma 4, an open-weight model, reads every question, maths and tables included. Our pipeline checks each answer and drops
-                bits of other papers caught in the photo ({total("dropped_bleed_through")} so far).
+                bits of other papers caught in the photo ({totals.dropped} so far).
               </p>
             </div>
             <div className="how-card">
               <div className="mono" style={{ color: "var(--lav)" }}>
                 3 · Rank
               </div>
-              <div className="big">{total("repeats")} repeats</div>
+              <div className="big">{totals.repeats} repeats</div>
               <h3>Topics that keep coming back go first.</h3>
               <p style={{ color: "var(--muted)", margin: 0 }}>
                 Questions are grouped into topics and ranked by how often and how heavily they were asked.
-                {evalResult &&
-                  ` Repeat finding was checked on ${evalPack?.course.name} against ${evalResult.expected} repeats we found by hand: it caught ${evalResult.found}.`}
+                {checked &&
+                  ` Repeat finding was checked on ${checked.course} against ${checked.expected} repeats we found by hand: it caught ${checked.found}.`}
               </p>
             </div>
           </div>
