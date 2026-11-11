@@ -4,7 +4,7 @@ import json
 import re
 from pathlib import Path
 
-from pipeline.manifest import exam_kind, exam_order, load_manifest, sessions, work_dir
+from pipeline.manifest import exam_kind, exam_order, is_undated, load_manifest, sessions, work_dir
 from pipeline.match import group_subject
 from pipeline.providers import CALLS, ROOT, get_provider
 from pipeline.repeats import find_repeats
@@ -46,9 +46,16 @@ def topic_marks(qs: list[dict]) -> float:
 
 
 def came_back(exams: set[str], order: dict[str, int]) -> bool:
-    """An End Sem asked it after an earlier paper had: that year's mid-sems, or any earlier year."""
-    first = min(order[e] for e in exams)
-    return any(exam_kind(e) == "end" and order[e] > first for e in exams)
+    """An End Sem asked it after an earlier paper had: that year's mid-sems, or any earlier year.
+    A paper with no year printed has no place in time, so it counts only where the order cannot
+    matter: two End Sems are two sittings, so whichever came second asked it again."""
+    if sum(exam_kind(e) == "end" for e in exams) >= 2:
+        return True
+    dated = [e for e in exams if not is_undated(e)]
+    if not dated:
+        return False
+    first = min(order[e] for e in dated)
+    return any(exam_kind(e) == "end" and order[e] > first for e in dated)
 
 
 def blind_spot(exams: set[str]) -> bool:
@@ -150,7 +157,7 @@ def build_pack(manifest_path: Path, workers: int = 4) -> Path:
     back = [(q, r) for q in all_q for r in q["repeat_of"] if exam_kind(q["exam"]) == "end" and r["id"] in placed]
     p = get_provider()
     pack = {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "college": m["college"],
         "course": m["course"],
         "sources": {

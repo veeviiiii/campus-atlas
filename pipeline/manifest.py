@@ -6,6 +6,10 @@ One manifest (and one pack) holds every year of one course-semester. Exam ids ar
 (mst1 / mst2 / mst3 / end) for the first year added and "<kind>-<session>" for every other year,
 e.g. mst1-2024-25, so the first year's question ids never change when older papers arrive.
 An exam's date is "YYYY-MM", or just "YYYY" when the paper does not print the month.
+
+A paper that prints no year at all is kept too: its exam is "<kind>-undated" (end-undated), with no
+date and no session (both null). A second such paper of the same subject and kind goes in
+"<kind>-undated-2", and so on: two papers of one subject never share an exam.
 """
 
 import difflib
@@ -17,6 +21,7 @@ import yaml
 
 ROMAN = {"i": "1", "ii": "2", "iii": "3", "iv": "4", "v": "5"}
 EXAM_KINDS = ("mst1", "mst2", "mst3", "end")  # in the order they are held within a semester
+UNDATED = re.compile(r"(mst1|mst2|mst3|end)-undated(?:-([2-9]|[1-9]\d+))?")
 
 
 @dataclass
@@ -58,8 +63,18 @@ def load_manifest(path: Path) -> dict:
 
 
 def exam_kind(eid: str) -> str:
-    """'mst1' -> 'mst1', 'end-2024-25' -> 'end'."""
+    """'mst1' -> 'mst1', 'end-2024-25' -> 'end', 'end-undated-2' -> 'end'."""
     return eid.split("-", 1)[0]
+
+
+def is_undated(eid: str) -> bool:
+    """An exam whose papers print no year: 'end-undated', 'mst1-undated-2'."""
+    return UNDATED.fullmatch(eid) is not None
+
+
+def undated_id(kind: str, n: int = 1) -> str:
+    """The n-th exam of this kind with no year printed: 'end-undated', then 'end-undated-2'."""
+    return f"{kind}-undated" if n == 1 else f"{kind}-undated-{n}"
 
 
 def session_of(date: str) -> str:
@@ -75,6 +90,13 @@ def check_exams(m: dict) -> None:
     """Give every exam its session (from its date unless the manifest says) and refuse ids the pack builder would misread."""
     ids = [e["id"] for e in m["exams"]]
     for e in m["exams"]:
+        if is_undated(str(e["id"])):  # no year printed: nothing to place it in time
+            if e.get("date") is not None or e.get("session") is not None:
+                raise ValueError(f"exam {e['id']!r} is for papers with no year printed: give it date: null and session: null")
+            e["date"] = e["session"] = None
+            continue
+        if e.get("date") is None:
+            raise ValueError(f"exam {e['id']!r} has no date: if no paper prints the year, call it {exam_kind(str(e['id']))}-undated")
         if not re.fullmatch(r"\d{4}(-\d{2})?", str(e["date"])):
             raise ValueError(f"exam {e['id']!r}: date {e['date']!r} should look like \"2025-10\" (or \"2025\" when the month is not printed)")
         if "session" not in e:
@@ -92,16 +114,24 @@ def check_exams(m: dict) -> None:
             raise ValueError(f"{f['file']}: unknown exam {f['exam']!r}")
 
 
+def undated_number(eid: str) -> int:
+    """'end-undated' -> 1, 'end-undated-2' -> 2; 0 for an exam with a year."""
+    m = UNDATED.fullmatch(eid)
+    return int(m.group(2) or 1) if m else 0
+
+
 def exam_order(m: dict) -> dict[str, int]:
     """Exam id -> position in time, oldest first: by session, then MST-1, MST-2, MST-3, End Sem
-    (dates alone can't order them when a paper prints only the year)."""
-    ranked = sorted(m["exams"], key=lambda e: (e["session"], EXAM_KINDS.index(exam_kind(e["id"])), e["date"]))
+    (dates alone can't order them when a paper prints only the year). Exams with no year printed
+    come first. That is only a convention so that repeat links have a direction: nothing may read
+    it as "older" (pack.came_back and the site never do)."""
+    ranked = sorted(m["exams"], key=lambda e: (e["session"] or "", EXAM_KINDS.index(exam_kind(e["id"])), e["date"] or "", undated_number(e["id"])))
     return {e["id"]: i for i, e in enumerate(ranked)}
 
 
 def sessions(m: dict, exam_ids: set[str] | None = None) -> list[str]:
-    """The academic sessions in the manifest (or of these exams), oldest first."""
-    return sorted({e["session"] for e in m["exams"] if exam_ids is None or e["id"] in exam_ids})
+    """The academic sessions in the manifest (or of these exams), oldest first; no-year exams have none."""
+    return sorted({e["session"] for e in m["exams"] if e["session"] and (exam_ids is None or e["id"] in exam_ids)})
 
 
 def page_infos(m: dict) -> list[PageInfo]:

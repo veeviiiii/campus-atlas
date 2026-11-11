@@ -50,6 +50,8 @@ course:
 #   - {{id: end-2024-25, name: End Sem, date: "2025-01", session: "2024-25"}}
 # date: year and month the exam was held, or just the year ("2025") if no paper prints the month.
 # session: academic year (July to June).
+# A paper that prints no year at all: {{id: end-undated, name: End Sem, date: null, session: null}}
+# (a second one of the same subject goes in end-undated-2).
 exams:
   - {{id: mst1, name: MST-1, date: "TODO-YYYY-MM", session: "TODO-2025-26"}}
   - {{id: mst2, name: MST-2, date: "TODO-YYYY-MM", session: "TODO-2025-26"}}
@@ -172,7 +174,7 @@ def check(path: Path) -> bool:
     try:
         check_exams(m)
     except (ValueError, KeyError, TypeError) as e:
-        problems.append(f"exams: {e} (dates look like \"2025-10\" or \"2025\", sessions like \"2025-26\")")
+        problems.append(f"exams: {e} (dates look like \"2025-10\" or \"2025\", sessions like \"2025-26\"; no year printed: <kind>-undated with date: null)")
     exam_ids = {e.get("id") for e in m.get("exams") or []}
     subject_ids = {s.get("id") for s in m.get("subjects") or []}
     used_subjects, used_exams = set(), set()
