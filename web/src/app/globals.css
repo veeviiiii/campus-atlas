@@ -1482,6 +1482,16 @@ footer a:hover {
 .ranked details[open] > summary .ranked-head b {
   color: var(--accent);
 }
+/* too few papers to rank: the same cards with no number in front and no score */
+.ranked.plain summary {
+  grid-template-columns: minmax(0, 1fr);
+}
+.ranked.plain summary::before {
+  content: none;
+}
+.ranked.plain .reasons {
+  grid-column: 1 / -1;
+}
 
 /* printing (Ctrl+P, or "Print this paper"): black on white, no navigation or buttons, open papers only.
    "Print this paper" sets html[data-print] and marks its paper, so only that one prints. */

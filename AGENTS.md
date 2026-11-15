@@ -17,7 +17,8 @@ sentence. We are now turning it into a simple, useful product. When in doubt, cu
 2. **Likely topics.** Per subject, topics ranked by a transparent score, each with its reasons
    ("asked in 2 of 3 exams", "came back from MST-2 in the End Sem, word for word", "12 marks").
    Honesty rule: with fewer than 3 years of papers this is a frequency score, NOT machine learning,
-   and the UI must say what it is based on. A learned model only once there are 3+ years, and only
+   and the UI must say what it is based on. It counts only the subject's own papers (not every exam
+   of the semester); a subject with fewer than 3 papers lists its topics with no score and no ranking. A learned model only once there are 3+ years, and only
    with a backtest (predict last year's End Sem from earlier years, publish the hit rate).
 3. **Notes exchange (phase 3, not built yet).** Upload notes or request them, tagged by subject and
    topic. Topics are shared across departments, so a request reaches students in other departments

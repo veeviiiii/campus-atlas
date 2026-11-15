@@ -5,9 +5,9 @@ import { useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import QuestionCard from "./QuestionCard";
 import UnitMarks from "./UnitMarks";
-import { rankTopics, scoreRule } from "@/lib/likely";
+import { canRank, rankTopics, scoreRule } from "@/lib/likely";
 import { marksByUnit } from "@/lib/marks";
-import { cameBackMap, examDate, examLabels, inOrder, papersOf, placedQuestions, sessionOf, sessionsOf, type Exam } from "@/lib/papers";
+import { cameBackMap, examDate, examLabels, inOrder, papersOf, placedQuestions, sessionOf, sessionsOf, subjectExams, type Exam } from "@/lib/papers";
 import { pageImageUrl, pageLabel } from "@/lib/paths";
 import { softScrollToElement } from "@/lib/scroll";
 import type { Subject } from "@/lib/types";
@@ -37,7 +37,7 @@ interface Props {
 }
 
 /** A subject's page: every paper in order (newest first, filter by year), its topics ranked by how often
- *  they were asked, and its marks by unit. */
+ *  they were asked (only listed when the subject has too few papers to rank), and its marks by unit. */
 export default function SubjectView({ collegeId, exams, subject }: Props) {
   const [tab, setTab] = useState<Tab>("papers");
   const [year, setYear] = useState<string | null>(null); // null = all years
@@ -53,7 +53,10 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
   const examOf = useMemo(() => new Map(placedQuestions(subject).map(({ q }) => [q.id, q.exam])), [subject]);
   const cameBack = useMemo(() => cameBackMap(exams, subject), [exams, subject]);
   const marks = useMemo(() => marksByUnit(exams, subject), [exams, subject]);
-  const sessions = sessionsOf(exams);
+  // The score counts this subject's own papers, not every exam of the semester.
+  const own = useMemo(() => subjectExams(exams, subject), [exams, subject]);
+  const ranked = canRank(exams, subject);
+  const sessions = sessionsOf(own);
 
   function show(next: Tab, topicId: string | null = null) {
     setTab(next);
@@ -94,7 +97,7 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
           Papers <span>{papers.length}</span>
         </button>
         <button role="tab" aria-selected={tab === "likely"} onClick={() => show("likely")}>
-          Likely topics <span>{likely.length}</span>
+          {ranked ? "Likely topics" : "Topics"} <span>{likely.length}</span>
         </button>
         <button role="tab" aria-selected={tab === "marks"} onClick={() => show("marks")}>
           Marks by unit
@@ -161,15 +164,21 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
         </div>
       ) : (
         <div key="likely" className="stack fade-in" data-panel="likely">
-          <p className="note">
-            {sessions.length > 1
-              ? `Ranked by how often and how heavily each topic was asked in ${exams.length} exams from ${sessions[sessions.length - 1]} to ${sessions[0]}. It is a frequency score from ${sessions.length} years of papers, not a guarantee.`
-              : `Ranked by how often and how heavily each topic was asked in ${inOrder(exams)
-                  .map((e) => e.name)
-                  .join(", ")} (${sessions[0]}). It is a frequency score from one year of papers, not a guarantee.`}{" "}
-            {scoreRule(exams)}
-          </p>
-          <ol className="ranked">
+          {ranked ? (
+            <p className="note">
+              {sessions.length > 1
+                ? `Ranked by how often and how heavily each topic was asked in this subject's ${own.length} papers from ${sessions[sessions.length - 1]} to ${sessions[0]}. It is a frequency score from ${sessions.length} years of papers, not a guarantee.`
+                : `Ranked by how often and how heavily each topic was asked in ${own.map((e) => e.name).join(", ")} (${sessions[0]}). It is a frequency score from one year of papers, not a guarantee.`}{" "}
+              {scoreRule(own)}
+            </p>
+          ) : (
+            <p className="note">
+              Only {own.length} paper{own.length === 1 ? "" : "s"} of this subject so far ({own.map((e) => examName[e.id]).join(", ")}): too few to
+              say which topics are likely. These are the topics asked, unit by unit, with no ranking.{" "}
+              <Link href="/send/">Send more papers →</Link>
+            </p>
+          )}
+          <ol className={ranked ? "ranked" : "ranked plain"}>
             {likely.map(({ topic, unit, score, reasons }) => (
               <li key={topic.id}>
                 <details
@@ -185,16 +194,18 @@ export default function SubjectView({ collegeId, exams, subject }: Props) {
                       <b>{topic.name}</b>
                       <span className="mono">{unit.name}</span>
                     </span>
-                    <span className="score" title={scoreRule(exams)}>
-                      <span className="score-label">Likely score</span>
-                      <span className="track">
-                        <i style={{ width: `${score}%` }} />
+                    {score != null && (
+                      <span className="score" title={scoreRule(own)}>
+                        <span className="score-label">Likely score</span>
+                        <span className="track">
+                          <i style={{ width: `${score}%` }} />
+                        </span>
+                        <span className="score-num">
+                          {score}
+                          <small>/100</small>
+                        </span>
                       </span>
-                      <span className="score-num">
-                        {score}
-                        <small>/100</small>
-                      </span>
-                    </span>
+                    )}
                     <span className="reasons">
                       {reasons.map((r) => (
                         <span key={r} className={`chip ${r.startsWith("Came back") ? "hot" : ""}`}>

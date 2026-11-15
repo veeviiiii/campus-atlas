@@ -9,7 +9,8 @@ Starting with DAVV, Indore. Pick your course and semester, open a subject, and y
 - **Likely topics:** the subject's topics ranked by how often and how heavily they were asked, each with
   its reasons ("asked in MST-2 and End Sem", "came back word for word", "25 marks in total"). With so
   few years of papers this is a frequency score, not a prediction model; it gets more useful as older
-  papers are added.
+  papers are added. It counts only the papers that subject has, and a subject with fewer than three
+  papers gets a plain list of its topics, with no score.
 - **Marks by unit:** how many marks each unit carried in each exam, and the units only the End Sem
   asked about ("Optics and Lasers were never asked in the mid-sems, but carried 90 of 150 marks").
 - **Search** every question on the site by a word, a topic or a subject, and **print** any paper on
@@ -150,7 +151,8 @@ Older years of an existing course are just as welcome: they make Likely topics b
 - **Few years of papers:** one to three per semester, and not every exam of every year. A topic asked
   once may still be important.
 - **Likely topics is a frequency score**, not a prediction model: it ranks what was asked most often and
-  most heavily. A real model needs 3+ years of papers and a test against a year it has not seen.
+  most heavily, out of that subject's own papers. Fewer than three papers: no score, only the list.
+  A real model needs 3+ years of papers and a test against a year it has not seen.
 - **No syllabus was used** for this pack: units and topics are grouped from the questions themselves.
   When a syllabus is used it is the 2024-29 batch's, which may be outdated, and the site labels it as old.
 - **AI extraction can be wrong.** Every question on the site links to a photo of its original page.
