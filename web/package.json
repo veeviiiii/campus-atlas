@@ -12,9 +12,11 @@
     "start": "next start",
     "lint": "eslint",
     "test": "node --import ./tests/resolve-ts.mjs --test \"tests/*.test.ts\"",
+    "test:access": "node --env-file-if-exists=.env.test.local --test tests/supabase/access.test.mjs",
     "check": "npm run lint && npm test && npm run build"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.119.0",
     "d3-geo": "^3.1.1",
     "d3-geo-voronoi": "^2.1.0",
     "katex": "^0.19.0",
