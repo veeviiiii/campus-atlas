@@ -170,6 +170,16 @@
     "embedding_model": "all-MiniLM-L6-v2",
     "dropped_bleed_through": [],
     "manifest_disagreements": [],
-    "repeat_judgements": []
+    "repeat_judgements": [],
+    "corrections": [],
+    "reading_audit": {
+      "reader": "Claude Fable 5.2 (second reader), 2026-11-16",
+      "pages": 1,
+      "questions_checked": 4,
+      "corrected": 0,
+      "dropped": 0,
+      "missed": 0,
+      "proposed": 0
+    }
   }
 }

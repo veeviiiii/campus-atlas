@@ -17,6 +17,7 @@ export interface Question {
   page_ref: string;
   repeat_of: RepeatLink[];
   confidence?: number;
+  corrected?: boolean; // a human correction changed it (corrections.yaml next to the manifest)
 }
 
 export interface Quiz {
@@ -81,6 +82,8 @@ export interface Pack {
     fallback_model?: string | null;
     embedding_model?: string;
     eval?: { found: number; expected: number; misses: number[]; source: string };
+    /** A second reader's check of every question against its page photo. `proposed`: fixes still waiting for a person. */
+    reading_audit?: { reader: string; pages: number; questions_checked: number; corrected: number; dropped: number; missed: number; proposed: number };
   };
 }
 

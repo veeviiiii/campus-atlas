@@ -8968,6 +8968,16 @@
         "reason": "Both questions focus on the definition, causes, and nature of air pollution."
       }
     ],
+    "corrections": [],
+    "reading_audit": {
+      "reader": "Claude Fable 5.2 (second reader), 2026-11-16",
+      "pages": 40,
+      "questions_checked": 370,
+      "corrected": 0,
+      "dropped": 0,
+      "missed": 0,
+      "proposed": 12
+    },
     "eval": {
       "found": 18,
       "expected": 19,

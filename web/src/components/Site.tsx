@@ -39,6 +39,16 @@ export default function Site({ entries, courses, fields, source }: Props) {
   const evalPack = entries.find((e) => e.pack.harness?.eval)?.pack;
   const evalResult = evalPack?.harness?.eval;
   const papers = total("papers");
+  // A second reader's check of the questions against their page photos. Said only when every pack has
+  // been checked and none of its proposed fixes still waits for a person.
+  const audits = entries.map((e) => e.pack.harness?.reading_audit);
+  const audited =
+    audits.length > 0 && audits.every((a) => a && a.proposed === 0)
+      ? {
+          questions: audits.reduce((n, a) => n + (a?.questions_checked ?? 0), 0),
+          fixed: audits.reduce((n, a) => n + (a?.corrected ?? 0) + (a?.dropped ?? 0), 0),
+        }
+      : null;
 
   const allFields = courses.some((c) => c.field === "other") ? [...fields, { id: "other", name: "Other courses", short: "Other" }] : fields;
   const fieldName = Object.fromEntries(allFields.map((f) => [f.id, f.name]));
@@ -197,6 +207,8 @@ export default function Site({ entries, courses, fields, source }: Props) {
               <p style={{ color: "var(--muted)", margin: 0 }}>
                 Gemma 4, an open-weight model, reads every question, maths and tables included. Our pipeline checks each answer and drops
                 bits of other papers caught in the photo ({total("dropped_bleed_through")} so far).
+                {audited &&
+                  ` A second reader then compared ${audited.questions} questions with the photos of their pages; ${audited.fixed} ${audited.fixed === 1 ? "was" : "were"} corrected by hand.`}
               </p>
             </div>
             <div className="how-card">
