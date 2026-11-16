@@ -1,0 +1,38 @@
+# Human corrections to what the model read, for the Semester 7 pack. Format: pipeline/corrections.py.
+# Found by a second reader comparing every question with the photo of its page. Nothing here is
+# applied until a person has looked at the page and changed `status: proposed` to `confirmed`
+# (or deleted the entry). Check with:
+#   .venv/Scripts/python -m pipeline.intake check data/raw/davv-sdsf/mtech-aids-dual/sem7/manifest.yaml
+
+reader: "Claude Fable 5.2 (second reader), 2026-11-16"
+
+audited_pages:
+  - "mtech-aids-dual-sem7_2025-26_mst1.pdf#p1"
+  - "mtech-aids-dual-sem7_2025-26_mst1.pdf#p2"
+  - "mtech-aids-dual-sem7_2025-26_mst1.pdf#p3"
+  - "mtech-aids-dual-sem7_2025-26_mst2.pdf#p1"
+  - "mtech-aids-dual-sem7_2025-26_mst2.pdf#p2"
+  - "mtech-aids-dual-sem7_2025-26_mst2.pdf#p3"
+  - "mtech-aids-dual-sem7_2025-26_mst2.pdf#p4"
+  - "mtech-aids-dual-sem7_2025-26_mst3.pdf#p1"
+  - "mtech-aids-dual-sem7_2025-26_mst3.pdf#p2"
+
+corrections:
+  # Data Visualization MST-3 (page 2): "Answer ANY TWO long questions (2 x 10 = 20 Marks)" is printed
+  # on page 1; question 4 is alone on page 2 and has no marks in the pack.
+  - page: "mtech-aids-dual-sem7_2025-26_mst3.pdf#p2"
+    match: "Explain Dashboards and Stories in Tableau"
+    set: {marks: 10}
+    why: "question 4 of a paper headed 'Answer ANY TWO long questions (2 x 10 = 20 Marks)'; questions 1 to 3 on page 1 have their 10"
+    status: proposed
+
+  # Machine Learning Test 1 (page 3), question 5 (a): the data is in the question's table already,
+  # and the text repeats it as raw table markup, which the site shows as rows of | signs.
+  - page: "mtech-aids-dual-sem7_2025-26_mst1.pdf#p3"
+    match: "What type of machine learning problem is this"
+    set:
+      text: "A car dealership wants to build a machine learning model that helps predict whether a customer will buy a car or not, based on several attributes. What type of machine learning problem is this? Identify the input features and the target label."
+    why: "the table is given twice, once as raw markup inside the text; the values themselves match the photo"
+    status: proposed
+
+missed: []
