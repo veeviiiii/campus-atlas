@@ -56,6 +56,10 @@ photos), the pipeline found, without any of this being hard-coded:
 - **No proprietary API needed:** set `MODEL_PROVIDER=openai_compatible` and the same pipeline runs on
   Ollama on your laptop, or on a DigitalOcean GPU Droplet.
 - The website never calls a model: it reads one JSON file per college.
+- **One check with a closed model, said openly.** In November 2026 a second reader (Claude) compared
+  all 859 questions with the public, blacked-out photos of their 107 pages. It changed nothing itself:
+  its 34 proposed fixes sit in `corrections.yaml` next to each manifest and are applied only once a
+  person has looked at the page and confirmed them. The pipeline still runs on open weights alone.
 
 ## The PYQ Trust Harness
 
@@ -135,8 +139,9 @@ schema and common problems (rotated pages, bleed-through, old syllabus, API erro
 ## Add your papers
 
 - **Anyone:** photograph the papers and upload them on the site's
-  [Send us your papers](https://campus-atlas.vercel.app/send/) page (a Google Form). We run the
-  pipeline and publish them.
+  [Send us your papers](https://campus-atlas.vercel.app/send/) page (a Google Form today; an upload
+  page on the site itself, with Google sign-in and "My uploads", is built and waits for its
+  database: [supabase/README.md](supabase/README.md)). We run the pipeline and publish them.
 - **Developers:** see [CONTRIBUTING.md](CONTRIBUTING.md): drop the PDFs, write a short manifest, run the
   skill, open a PR with the pack.
 - **Maintainer, publishing form uploads:** [ADDING-PAPERS.md](ADDING-PAPERS.md), step by step. The
@@ -156,6 +161,13 @@ Older years of an existing course are just as welcome: they make Likely topics b
 - **No syllabus was used** for this pack: units and topics are grouped from the questions themselves.
   When a syllabus is used it is the 2024-29 batch's, which may be outdated, and the site labels it as old.
 - **AI extraction can be wrong.** Every question on the site links to a photo of its original page.
+  A second reading of every question against its photo proposed a fix for 35 of 859 (about 4%):
+  7 where the text or a formula was misread, 2 questions cut in two by a page break, 19 marks values,
+  3 printed lines that may not belong to their paper, and some tidying. They wait in
+  `corrections.yaml` until a person confirms them.
+- **Marks of a question with parts.** When a paper prints one mark for a question with parts (a), (b),
+  the pack often gives that whole mark to each part, so Marks by unit can add up to more than the
+  paper's maximum. Not fixed yet.
 - Repeat detection was measured on one college's papers (18 of 19); expect less elsewhere.
 
 ## Run it yourself
@@ -174,7 +186,7 @@ cp .env.example .env                                                # choose a p
 cd web
 npm install
 npm run dev        # http://localhost:3000
-npm test           # unit tests: papers, Likely score, marks by unit, search
+npm test           # unit tests: papers, Likely score, marks by unit, search, the upload form
 npm run build      # static site in web/out
 ```
 
@@ -199,6 +211,7 @@ catalog/       DAVV course list (names, schools, durations) from the CUET (UG) 2
 runs/sample/   run report of the full pipeline run
 skills/        pyq-atlas Agent Skill
 web/           Next.js website (static export); tests in web/tests
+supabase/      database rules and setup for uploads on the site (web/src/app/upload)
 intake-desk.cmd  double-click (Windows) to open the intake desk, pipeline/desk, in the browser
 ```
 
