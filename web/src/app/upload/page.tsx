@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { BackBar, SiteFooter, SiteNav } from "@/components/Chrome";
+import { BackBar, BottomBar, SiteNav } from "@/components/Chrome";
 import UploadView from "@/components/UploadView";
 import { courseCards } from "@/lib/catalog";
 import { loadPacks } from "@/lib/packs";
@@ -47,7 +47,7 @@ export default function UploadPage() {
         </p>
         <UploadView courses={courses} formUrl={SEND_PAPERS_FORM} />
       </main>
-      <SiteFooter />
+      <BottomBar />
     </>
   );
 }

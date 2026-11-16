@@ -6,7 +6,7 @@
 // this subject), never over every exam in the pack: a semester's pack often has exams this subject
 // has no paper for. With fewer than MIN_PAPERS papers there is no score at all, only the list.
 
-import { examKind, examLabels, placedQuestions, sessionOf, sessionsOf, subjectExams, type Exam } from "./papers";
+import { examKind, examLabels, inOrder, isUndated, placedQuestions, sessionOf, sessionsOf, subjectExams, type Exam } from "./papers";
 import type { Subject, Topic, Unit } from "./types";
 
 /** Fewer papers than this in a subject: its topics are listed, not scored or ranked. */
@@ -22,15 +22,37 @@ export interface LikelyTopic {
 const STRENGTH: Record<string, number> = { exact: 3, near: 2, "same-topic": 1 };
 const LABEL: Record<string, string> = { exact: "word for word", near: "nearly the same", "same-topic": "same topic" };
 
-/** Enough papers of this subject to rank its topics? */
+/** Enough papers of this subject to rank its topics? A paper with no year printed is still a paper. */
 export function canRank(exams: Exam[], subject: Subject): boolean {
   return subjectExams(exams, subject).length >= MIN_PAPERS;
 }
 
 /** How the score is built, shown on the page next to the list. `papers`: the subject's own papers. */
 export function scoreRule(papers: Exam[]): string {
-  const back = sessionsOf(papers).length > 1 ? "came back in an End Sem from an earlier paper" : "came back from a mid-sem in the End Sem";
+  const back = papers.some(isUndated)
+    ? "came back in an End Sem"
+    : sessionsOf(papers).length > 1
+      ? "came back in an End Sem from an earlier paper"
+      : "came back from a mid-sem in the End Sem";
   return `Score out of 100: up to 60 for how many of this subject's ${papers.length} papers asked it, 20 if it ${back}, up to 20 for its marks next to the subject's heaviest topic.`;
+}
+
+/** What the ranking is based on, said plainly above the list. `papers`: the subject's own papers. */
+export function basedOn(papers: Exam[]): string {
+  const sessions = sessionsOf(papers); // newest first
+  const dated = papers.filter((e) => !isUndated(e));
+  const undated = papers.length - dated.length;
+  const plus = undated ? ` and ${undated} with no year printed` : "";
+  const what =
+    sessions.length > 1
+      ? `this subject's ${dated.length} papers from ${sessions[sessions.length - 1]} to ${sessions[0]}${plus}`
+      : sessions.length === 1
+        ? `${inOrder(dated)
+            .map((e) => e.name)
+            .join(", ")} (${sessions[0]})${plus}`
+        : `${undated} paper${undated === 1 ? "" : "s"} with no year printed`;
+  const from = sessions.length > 1 ? `${sessions.length} years of papers` : sessions.length === 1 ? "one year of papers" : "papers with no year printed";
+  return `Ranked by how often and how heavily each topic was asked in ${what}. It is a frequency score from ${from}, not a guarantee.`;
 }
 
 function list(names: string[]): string {
@@ -53,6 +75,7 @@ export function rankTopics(exams: Exam[], subject: Subject): LikelyTopic[] {
   const ranked = papers.length >= MIN_PAPERS;
   const rank = new Map(papers.map((e, i) => [e.id, i]));
   const years = sessionsOf(papers).length;
+  const undated = new Set(papers.filter(isUndated).map((e) => e.id));
   const label = examLabels(papers);
   const examOf = new Map(placedQuestions(subject).map(({ q }) => [q.id, q.exam]));
   const heaviest = Math.max(1, ...subject.units.flatMap((u) => u.topics.map((t) => t.total_marks)));
@@ -69,16 +92,22 @@ export function rankTopics(exams: Exam[], subject: Subject): LikelyTopic[] {
         ? Math.round((60 * asked.length) / papers.length + (topic.is_repeat ? 20 : 0) + (20 * topic.total_marks) / heaviest)
         : null;
 
-      const askedYears = new Set(asked.map(sessionOf));
+      const askedYears = new Set(asked.map(sessionOf).filter(Boolean));
+      const askedNoYear = asked.filter((e) => undated.has(e.id)).length;
+      const when = [askedYears.size > 1 ? `${askedYears.size} of ${years} years` : [...askedYears][0], askedNoYear ? `${askedNoYear} with no year` : ""]
+        .filter(Boolean)
+        .join(", ");
       const reasons = [
-        years > 1
-          ? `Asked in ${asked.length} of ${papers.length} papers (${askedYears.size > 1 ? `${askedYears.size} of ${years} years` : [...askedYears][0]}): ${kinds(asked)}`
-          : `Asked in ${list(asked.map((e) => e.name))}`,
+        years > 1 || undated.size ? `Asked in ${asked.length} of ${papers.length} papers (${when}): ${kinds(asked)}` : `Asked in ${list(asked.map((e) => e.name))}`,
       ];
       if (topic.is_repeat) {
-        const end = back?.end ?? asked.filter((e) => examKind(e.id) === "end").slice(-1)[0]?.id ?? "";
-        const from = back?.from ? ` from ${label[back.from]}` : "";
-        reasons.push(`Came back${from} in ${years > 1 ? label[end] : "the End Sem"}${back ? `, ${LABEL[back.type] ?? back.type}` : ""}`);
+        const ends = asked.filter((e) => examKind(e.id) === "end");
+        const end = back?.end ?? ends.slice(-1)[0]?.id ?? "";
+        const how = back ? `, ${LABEL[back.type] ?? back.type}` : "";
+        // A paper with no year has no place in time: say where it was asked, never which came first.
+        if (back?.from && (undated.has(back.from) || undated.has(end))) reasons.push(`Came back: asked in ${label[back.from]} and ${label[end]}${how}`);
+        else if (!back && ends.some((e) => undated.has(e.id))) reasons.push(`Came back: asked in ${list(ends.map((e) => label[e.id]))}`);
+        else reasons.push(`Came back${back?.from ? ` from ${label[back.from]}` : ""} in ${years > 1 ? label[end] : "the End Sem"}${how}`);
       }
       reasons.push(`${topic.total_marks} marks in total`);
       if (unit.blind_spot) reasons.push("Its unit was never tested in the mid-sems");

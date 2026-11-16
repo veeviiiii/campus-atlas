@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { BackBar, SiteFooter, SiteNav } from "@/components/Chrome";
+import { BackBar, BottomBar, SiteNav } from "@/components/Chrome";
 import SearchView from "@/components/SearchView";
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default function SearchPage() {
         </h1>
         <SearchView />
       </main>
-      <SiteFooter />
+      <BottomBar />
     </>
   );
 }

@@ -1,6 +1,6 @@
 import unittest
 
-from pipeline.manifest import check_exams, exam_kind, exam_order, match_exam, match_subject, normalize, papers, session_of, sessions
+from pipeline.manifest import check_exams, exam_kind, exam_order, is_undated, match_exam, match_subject, normalize, papers, session_of, sessions
 
 
 def manifest(exams=None, files=None):
@@ -87,6 +87,33 @@ class CheckExams(unittest.TestCase):
         )
         check_exams(m)
         self.assertEqual(exam_order(m), {"mst1-2023-24": 0, "mst1": 1, "mst3": 2, "end": 3})
+
+    def test_papers_with_no_year_printed(self):
+        m = manifest(
+            exams=[
+                {"id": "end", "name": "End Sem", "date": "2026-01"},
+                {"id": "end-undated", "name": "End Sem", "date": None, "session": None},
+                {"id": "mst1-undated-2", "name": "MST-1", "date": None},
+                {"id": "mst1-undated", "name": "MST-1", "date": None, "session": None},
+            ],
+            files=[],
+        )
+        check_exams(m)
+        self.assertEqual(exam_kind("mst1-undated-2"), "mst1")
+        self.assertEqual([is_undated(x) for x in ("end-undated", "mst2-undated-12", "end", "end-2024-25", "end-undated-1", "end-undated-x")],
+                         [True, True, False, False, False, False])
+        # No place in time: they sort first only so repeat links have a direction.
+        self.assertEqual(exam_order(m), {"mst1-undated": 0, "mst1-undated-2": 1, "end-undated": 2, "end": 3})
+        self.assertEqual(sessions(m), ["2025-26"])
+        self.assertEqual(m["exams"][1]["session"], None)
+        for bad in (
+            {"id": "end-undated", "name": "End Sem", "date": "2025"},  # a no-year exam has no date
+            {"id": "end-undated", "name": "End Sem", "date": None, "session": "2024-25"},
+            {"id": "end", "name": "End Sem", "date": None},  # no date: call it end-undated
+            {"id": "end-undated-1", "name": "End Sem", "date": None},
+        ):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                check_exams(manifest(exams=[bad], files=[]))
 
 
 class Papers(unittest.TestCase):

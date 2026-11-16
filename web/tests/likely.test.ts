@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { EXAMS, physics, question, topic, unit } from "./fixture";
-import { canRank, MIN_PAPERS, rankTopics, scoreRule } from "../src/lib/likely";
+import { basedOn, canRank, MIN_PAPERS, rankTopics, scoreRule } from "../src/lib/likely";
 import { subjectExams } from "../src/lib/papers";
 import type { Subject } from "../src/lib/types";
 
@@ -73,6 +73,30 @@ test(`fewer than ${MIN_PAPERS} papers: topics are listed in unit order with thei
     ],
   );
   assert.deepEqual(listed[1].reasons, ["Asked in MST-1 and End Sem", "Came back from MST-1 in the End Sem, word for word", "20 marks in total"]);
+});
+
+test("a paper with no year counts as an exam, and never as coming before or after another", () => {
+  const subject = physics();
+  const lasers = subject.units[2].topics[0];
+  lasers.questions.push({ ...lasers.questions[0], id: "physics-end-undated-q4", exam: "end-undated", repeat_of: [] });
+  lasers.questions[0].repeat_of = [{ id: "physics-end-undated-q4", type: "exact" }]; // the pipeline links the dated one to it
+  lasers.is_repeat = true; // two End Sems: the later one asked it again, whichever that was
+  const exams = [...EXAMS, { id: "end-undated", name: "End Sem", date: null, session: null }];
+  const ranked = rankTopics(exams, subject).find((t) => t.topic.id === "lasers");
+  assert.deepEqual(ranked?.reasons.slice(0, 2), [
+    "Asked in 2 of 4 papers (2025-26, 1 with no year): 2 End Sems",
+    "Came back: asked in End Sem, no year and End Sem, word for word",
+  ]);
+  assert.equal(ranked?.score, 62); // 2 of 4 papers (30) + came back (20) + 10 of 17 marks (11.8): the paper with no year counts
+  assert.equal(
+    basedOn(subjectExams(exams, subject)),
+    "Ranked by how often and how heavily each topic was asked in MST-1, MST-2, End Sem (2025-26) and 1 with no year printed. It is a frequency score from one year of papers, not a guarantee.",
+  );
+  assert.equal(
+    basedOn(EXAMS),
+    "Ranked by how often and how heavily each topic was asked in MST-1, MST-2, End Sem (2025-26). It is a frequency score from one year of papers, not a guarantee.",
+  );
+  assert.match(scoreRule(exams), /20 if it came back in an End Sem,/);
 });
 
 test("the score is described as what it is, never as AI or machine learning", () => {

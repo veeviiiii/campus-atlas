@@ -23,6 +23,7 @@ STATUSES = ("todo", "use", "skip", "held")
 SKIP_REASONS = ("duplicate", "answer sheet", "not a question paper")
 HELD_REASONS = ("no year", "no test number", "no subject")
 SESSION = re.compile(r"\d{4}-\d{2}")
+UNDATED = "undated"  # the session of a paper that prints no year anywhere
 DATE = re.compile(r"\d{4}(-\d{2})?")
 
 
@@ -38,7 +39,7 @@ class Part:
     semester: int | None = None
     subject: str = ""
     kind: str = ""  # mst1 | mst2 | mst3 | end
-    session: str = ""  # "2024-25"
+    session: str = ""  # "2024-25", or "undated" when the paper prints no year
     rotation: int = 0  # turn of this part after the split, clockwise
 
 

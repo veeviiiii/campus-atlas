@@ -293,7 +293,7 @@ class App:
         m = yaml.safe_load(path.read_text(encoding="utf-8")) if path.exists() else {}
         mine = self.desk.written.get(rel, {})
         subjects = [s for s in m.get("subjects") or [] if "TODO" not in str(s.get("id")) and s.get("id") not in mine.get("subjects", [])]
-        exams = [{"id": str(e.get("id")), "name": e.get("name"), "date": str(e.get("date")), "session": export._session(e)}
+        exams = [{"id": str(e.get("id")), "name": e.get("name"), "date": None if e.get("date") is None else str(e.get("date")), "session": export._session(e)}
                  for e in m.get("exams") or [] if "TODO" not in str(e.values()) and e.get("id") not in mine.get("exams", [])]
         papers = [{"subject": p.get("subject"), "exam": f.get("exam"), "file": f.get("file"), "page": p.get("page")}
                   for f in m.get("files") or [] if f.get("file") not in mine.get("files", []) for p in f.get("pages") or []]

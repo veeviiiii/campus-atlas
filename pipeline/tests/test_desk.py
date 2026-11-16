@@ -155,6 +155,16 @@ class Names(unittest.TestCase):
         ids = export.assign_exam_ids(existing, [("2025-26", "end"), ("2024-25", "end"), ("2024-25", "mst2"), ("2026-27", "mst1")])
         self.assertEqual(ids, {("2025-26", "end"): "end", ("2024-25", "end"): "end-2024-25", ("2024-25", "mst2"): "mst2-2024-25", ("2026-27", "mst1"): "mst1-2026-27"})
 
+    def test_exam_ids_with_no_year(self):
+        # No year never decides which year is the first one, and never joins an exam the desk did not write.
+        new = export.assign_exam_ids([], [("undated", "end"), ("2024-25", "end"), ("undated-2", "end"), ("undated", "mst1")])
+        self.assertEqual(new, {("undated", "end"): "end-undated", ("2024-25", "end"): "end", ("undated-2", "end"): "end-undated-2", ("undated", "mst1"): "mst1-undated"})
+        by_hand = [{"id": "end-undated", "date": None, "session": None}]
+        self.assertEqual(export.assign_exam_ids(by_hand, [("undated", "end")]), {("undated", "end"): "end-undated-2"})
+        self.assertEqual(export.session_label("undated-2"), "no year printed (2)")
+        self.assertEqual(export.exam_lines({"id": "end-undated", "name": "End Sem", "date": None, "session": None}, 2),
+                         ["  - {id: end-undated, name: End Sem, date: null, session: null}   # no year printed"])
+
 
 SEM5 = """\
 # Human ground truth for the Semester 5 papers.
@@ -380,6 +390,31 @@ class Write(unittest.TestCase):
         self.assertIn("mst1-2024-25", ids)
         warnings = " ".join(w["message"] for w in plan.warnings)
         self.assertIn("already has maths in end-2024-25", warnings)
+
+    def test_papers_with_no_year_printed(self):
+        """Two no-year End Sems of one subject are two sittings: two exams, two PDFs, no dates asked for."""
+        make_pdf(self.src / "old.pdf", 3)
+        self.sem1.mkdir(parents=True)
+        (self.sem1 / "manifest.yaml").write_text(intake.template(CATALOG["courses"][0], 1).replace(
+            "subjects:\n  - id: TODO-subject-id\n    name: TODO Subject Name\n    aliases: []",
+            "subjects:\n  - id: maths\n    name: Mathematics\n    aliases: [Maths]"), encoding="utf-8")
+        old = {"status": "use", "course": "bca", "semester": 1, "kind": "end", "session": "undated", "subject": "maths"}
+        desk = self.desk()
+        desk.pages["old.pdf#1"] = decisions.from_dict({"pages": {"x": {"parts": [old]}}}).pages["x"]
+        desk.pages["old.pdf#2"] = decisions.from_dict({"pages": {"x": {"parts": [{"continues": True}]}}}).pages["x"]
+        desk.pages["old.pdf#3"] = decisions.from_dict({"pages": {"x": {"parts": [old]}}}).pages["x"]
+        plan, results = self.write(desk)
+        self.assertEqual(plan.errors, [])
+        m = yaml.safe_load((self.sem1 / "manifest.yaml").read_text(encoding="utf-8"))
+        exams = {e["id"]: (e["date"], e["session"]) for e in m["exams"]}
+        self.assertEqual(exams["end-undated"], (None, None))
+        self.assertEqual(exams["end-undated-2"], (None, None))
+        files = {f["file"]: f for f in m["files"]}
+        self.assertEqual(files["bca-sem1_undated_end.pdf"]["exam"], "end-undated")
+        self.assertEqual([p["page"] for p in files["bca-sem1_undated_end.pdf"]["pages"]], [1, 2])  # the page it continues stays with it
+        self.assertEqual(files["bca-sem1_undated-2_end.pdf"]["exam"], "end-undated-2")
+        self.assertIn("End Sem no year printed (2)", [f["exam_name"] for t in export.summary(plan)["targets"] for f in t["files"]])
+        self.assertTrue(results[0]["ok"], results[0]["check"])
 
     def test_nothing_is_written_while_a_page_is_unfinished(self):
         desk = self.desk()

@@ -8,10 +8,28 @@ export type Exam = Pack["sources"]["exams"][number];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const KINDS = ["mst1", "mst2", "mst3", "end"]; // exam ids are a kind, or "<kind>-<session>" for another year
 
-/** "2025-10" -> "Oct 2025" (falls back to the raw value: "2025" when the paper prints no month). */
-export function examDate(date: string): string {
+/** "2025-10" -> "Oct 2025" (falls back to the raw value: "2025" when the paper prints no month; "no year"
+ *  when it prints no year at all). */
+export function examDate(date: string | null): string {
+  if (!date) return "no year";
   const [y, m] = date.split("-").map(Number);
   return y && m ? `${MONTHS[m - 1]} ${y}` : date;
+}
+
+/** A paper that prints no year anywhere ("end-undated"): it has no date and no session. */
+export function isUndated(exam: Exam): boolean {
+  return !exam.date;
+}
+
+/** "no year", or "no year (2)" for the second paper of an exam kind with no year printed ("end-undated-2"). */
+export function noYear(exam: Exam): string {
+  const n = Number(/-undated-(\d+)$/.exec(exam.id)?.[1] ?? 1);
+  return n > 1 ? `no year (${n})` : "no year";
+}
+
+/** When it was held, for a heading: "Oct 2025", "2025", or "no year" / "no year (2)". */
+export function examWhen(exam: Exam): string {
+  return exam.date ? examDate(exam.date) : noYear(exam);
 }
 
 /** "end-2024-25" -> "end". */
@@ -19,35 +37,50 @@ export function examKind(examId: string): string {
   return examId.split("-")[0];
 }
 
-/** Academic session, "2025-26". Packs before schema 1.1 have none: work it out from the date (sessions start in July). */
-export function sessionOf(exam: Exam): string {
+/** Academic session, "2025-26"; null for a paper with no year printed. Packs before schema 1.1 have
+ *  none: work it out from the date (sessions start in July). */
+export function sessionOf(exam: Exam): string | null {
   if (exam.session) return exam.session;
+  if (!exam.date) return null;
   const [y, m] = exam.date.split("-").map(Number);
   const start = m >= 7 ? y : y - 1;
   return `${start}-${String((start + 1) % 100).padStart(2, "0")}`;
 }
 
-/** The pack's sessions, newest first. */
+/** The pack's sessions, newest first (papers with no year printed have none). */
 export function sessionsOf(exams: Exam[]): string[] {
-  return [...new Set(exams.map(sessionOf))].sort().reverse();
+  return [...new Set(exams.map(sessionOf).filter((s): s is string => !!s))].sort().reverse();
 }
 
-/** Oldest first: by session, then MST-1, MST-2, MST-3, End Sem (a date may be only the year). */
+/** Oldest first: by session, then MST-1, MST-2, MST-3, End Sem (a date may be only the year). Papers with
+ *  no year printed come first, but only to have a fixed place: nothing reads that as "older". */
 export function inOrder(exams: Exam[]): Exam[] {
   const kind = (e: Exam) => KINDS.indexOf(examKind(e.id));
-  return [...exams].sort((a, b) => sessionOf(a).localeCompare(sessionOf(b)) || kind(a) - kind(b) || a.date.localeCompare(b.date));
+  return [...exams].sort(
+    (a, b) =>
+      (sessionOf(a) ?? "").localeCompare(sessionOf(b) ?? "") ||
+      kind(a) - kind(b) ||
+      (a.date ?? "").localeCompare(b.date ?? "") ||
+      noYear(a).localeCompare(noYear(b)),
+  );
 }
 
-/** Exam id -> "MST-2", or "MST-2 2024-25" when the pack has several years. */
+/** Exam id -> "MST-2", or "MST-2 2024-25" when the pack has several years; "End Sem, no year" for a
+ *  paper with no year printed. */
 export function examLabels(exams: Exam[]): Record<string, string> {
   const several = sessionsOf(exams).length > 1;
-  return Object.fromEntries(exams.map((e) => [e.id, several ? `${e.name} ${sessionOf(e)}` : e.name]));
+  return Object.fromEntries(exams.map((e) => [e.id, isUndated(e) ? `${e.name}, ${noYear(e)}` : several ? `${e.name} ${sessionOf(e)}` : e.name]));
 }
 
-/** For a course card: "MST-1 Oct 2025 · MST-2 Dec 2025 · ..." for one year, "2025-26 · 2024-25" for several. */
+/** For a course card: "MST-1 Oct 2025 · MST-2 Dec 2025 · ..." for one year, "2025-26 · 2024-25" for
+ *  several, and how many exams have no year printed. */
 export function examsSummary(exams: Exam[]): string {
   const sessions = sessionsOf(exams);
-  return sessions.length > 1 ? sessions.join(" · ") : inOrder(exams).map((x) => `${x.name} ${examDate(x.date)}`).join(" · ");
+  const undated = exams.filter(isUndated).length;
+  if (sessions.length > 1) return [...sessions, undated ? `${undated} with no year` : ""].filter(Boolean).join(" · ");
+  return inOrder(exams)
+    .map((x) => (isUndated(x) ? `${x.name}, ${noYear(x)}` : `${x.name} ${examDate(x.date)}`))
+    .join(" · ");
 }
 
 /** Extraction order on the paper: "physics-1-end-q12" -> 12. Display only, never used for matching. */

@@ -3,11 +3,11 @@
 import { useEffect, useRef } from "react";
 
 import { HEAT, PLANET } from "@/lib/colors";
-import type { City } from "@/lib/planet";
+import type { HeroCity } from "@/lib/home";
 
 interface Props {
-  cities: City[];
-  onPick: (city: City) => void;
+  cities: HeroCity[];
+  onPick: (city: HeroCity) => void;
 }
 
 const SPIN = 0.18; // radians a second when left alone (the same on a 60 Hz and a 120 Hz screen)
@@ -123,17 +123,16 @@ export default function HeroPlanet({ cities, onPick }: Props) {
           if (p.z < 0) return;
           const city = pts[p.i].c;
           const col = HEAT[city.heat];
-          const weight = city.topic.exams_count + (city.topic.is_repeat ? 1 : 0);
           // the squares pop in one after another when the page opens
           const grown = reduced ? 1 : easeOut(Math.min(1, Math.max(0, (now - born - 250 - p.i * 9) / 550)));
-          const s = (5 + weight * 1.8) * (0.6 + 0.4 * p.z) * (1 + 0.4 * lift[p.i]) * grown;
+          const s = (5 + city.weight * 1.8) * (0.6 + 0.4 * p.z) * (1 + 0.4 * lift[p.i]) * grown;
           if (s < 0.5) return;
           cx.fillStyle = col;
           cx.shadowColor = col;
           cx.shadowBlur = 14;
           cx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
           cx.shadowBlur = 0;
-          if (p.i === hov) label = { text: city.topic.name, x: p.x + s, y: p.y - s };
+          if (p.i === hov) label = { text: city.name, x: p.x + s, y: p.y - s };
         });
       if (label) {
         // drawn last, so no square covers it; kept inside the canvas

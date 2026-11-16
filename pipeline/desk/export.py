@@ -4,6 +4,10 @@ One PDF per course-semester, session and exam, named <course>-sem<N>_<session>_<
 data/raw/<school>/<course>/sem<N>/, merged into that folder's manifest.yaml (made from intake's
 template if missing). Then `intake check` on every manifest it touched.
 
+A paper with no year printed (session "undated") goes in exam <kind>-undated, with no date. A second
+such paper of the same subject and exam is another sitting, so it goes in <kind>-undated-2 (PDF
+..._undated-2_<exam>.pdf), and so on; the desk's numbers start after any the manifest already has.
+
 The merge edits the manifest as text, so every comment and line already in it stays as it is. The
 desk only changes what it added itself, recorded in desk-decisions.json under `written`: its exams,
 subjects and files, and its "Held back" lines in the header comment. Writing again replaces those in
@@ -24,10 +28,10 @@ from typing import Callable
 import yaml
 
 from pipeline import intake
-from pipeline.desk.decisions import DATE, SESSION, Desk, Piece, exam_key, pieces, save
+from pipeline.desk.decisions import DATE, SESSION, UNDATED, Desk, Piece, exam_key, pieces, save
 from pipeline.desk.geometry import render_part
 from pipeline.desk.sources import Source, load_page, page_key
-from pipeline.manifest import EXAM_KINDS, exam_kind, session_of
+from pipeline.manifest import EXAM_KINDS, exam_kind, is_undated, session_of, undated_id, undated_number
 
 KIND_NAMES = {"mst1": "MST-1", "mst2": "MST-2", "mst3": "MST-3", "end": "End Sem"}
 SUBJECT_ID = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
@@ -37,6 +41,23 @@ SUBJECT_ID = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
 
 def pdf_base(course: str, semester: int, session: str, kind: str) -> str:
     return f"{course}-sem{semester}_{session}_{kind}"
+
+
+def is_slot(session: str) -> bool:
+    """A group of papers with no year printed: "undated", "undated-2", ..."""
+    return session == UNDATED or session.startswith(UNDATED + "-")
+
+
+def slot_number(session: str) -> int:
+    return 1 if session == UNDATED else int(session.rsplit("-", 1)[1])
+
+
+def session_label(session: str) -> str:
+    """"2024-25", or "no year printed" / "no year printed (2)"."""
+    if not session or not is_slot(session):
+        return session
+    n = slot_number(session)
+    return "no year printed" + (f" ({n})" if n > 1 else "")
 
 
 def file_name(folder: Path, base: str, foreign: set[str], owned: set[str], assigned: set[str]) -> str:
@@ -64,10 +85,14 @@ def assign_exam_ids(existing: list[dict], wanted: list[tuple[str, str]]) -> dict
     first year uses the bare kind (mst1, end) and every other year adds its session (end-2024-25). In a
     manifest with no exams yet, the newest session the desk adds counts as the first year."""
     plain = {_session(e) for e in existing if e.get("id") in EXAM_KINDS}
-    base = max(plain - {None}) if plain - {None} else max((s for s, _ in wanted), default=None)
+    base = max(plain - {None}) if plain - {None} else max((s for s, _ in wanted if not is_slot(s)), default=None)
     ids = {str(e.get("id")) for e in existing}
     out = {}
     for s, k in wanted:
+        if is_slot(s):  # never into a no-year exam the desk did not write: its own come after those
+            after = max((undated_number(str(e.get("id"))) for e in existing if is_undated(str(e.get("id"))) and exam_kind(str(e.get("id"))) == k), default=0)
+            out[(s, k)] = undated_id(k, after + slot_number(s))
+            continue
         hit = next((str(e["id"]) for e in existing if _session(e) == s and exam_kind(str(e.get("id"))) == k), None)
         out[(s, k)] = hit or (k if s == base and k not in ids else f"{k}-{s}")
     return out
@@ -86,6 +111,8 @@ def scalar(s: str) -> str:
 
 
 def exam_lines(e: dict, ind: int) -> list[str]:
+    if e["date"] is None:
+        return [" " * ind + f'- {{id: {e["id"]}, name: {e["name"]}, date: null, session: null}}   # no year printed']
     return [" " * ind + f'- {{id: {e["id"]}, name: {e["name"]}, date: "{e["date"]}", session: "{e["session"]}"}}']
 
 
@@ -255,7 +282,7 @@ def subject_names(t: Target, desk: Desk) -> dict[str, str]:
 
 def describe(d, names: dict[str, str]) -> str:
     """What is known about a held-back part: "Software Engineering, MST-2 2024-25"."""
-    exam = " ".join(x for x in (KIND_NAMES.get(d.kind, ""), d.session) if x)
+    exam = " ".join(x for x in (KIND_NAMES.get(d.kind, ""), session_label(d.session)) if x)
     return ", ".join(x for x in (names.get(d.subject, d.subject), exam) if x)
 
 
@@ -276,6 +303,8 @@ def make_plan(folder: Path, desk: Desk, sources: list[Source], only: str = "") -
         return targets[(course_id, sem)]
 
     keys = [page_key(s.id, n) for s in sources for n in range(1, s.pages + 1)]
+    slots: dict[str, str] = {}  # piece id -> "undated", "undated-2", ... for papers with no year
+    seen: dict[tuple, int] = {}  # (course, semester, exam, subject) -> no-year papers so far
     for p in pieces(desk, keys):
         d = p.decision
         if p.decision.continues and p.follows is None:
@@ -299,10 +328,19 @@ def make_plan(folder: Path, desk: Desk, sources: list[Source], only: str = "") -
         missing = [name for name, v in (("course", d.course), ("semester", d.semester), ("subject", d.subject), ("exam", d.kind), ("session", d.session)) if not v]
         if missing:
             plan.problem("errors", f"needs {', '.join(missing)} (or mark it skip / held back)", p)
-        elif not SESSION.fullmatch(d.session) or int(d.session[5:]) != (int(d.session[:4]) + 1) % 100:
+        elif d.session != UNDATED and (not SESSION.fullmatch(d.session) or int(d.session[5:]) != (int(d.session[:4]) + 1) % 100):
             plan.problem("errors", f"session {d.session!r} should look like 2024-25", p)
         else:
-            t.groups.setdefault((d.session, d.kind), []).append(p)
+            session = d.session
+            if session == UNDATED:  # a second no-year paper of the same subject and exam is another sitting
+                if d.continues and p.follows is not None and p.follows.id in slots:
+                    session = slots[p.follows.id]
+                else:
+                    k = (d.course, d.semester, d.kind, d.subject)
+                    seen[k] = seen.get(k, 0) + 1
+                    session = UNDATED if seen[k] == 1 else f"{UNDATED}-{seen[k]}"
+                slots[p.id] = session
+            t.groups.setdefault((session, d.kind), []).append(p)
 
     for rel in desk.written:  # a semester the desk wrote to before, maybe with nothing now
         path = intake.ROOT / rel
@@ -332,11 +370,15 @@ def _fill(t: Target, desk: Desk, plan: Plan, desk_name: str) -> None:
     folder = t.path.parent
     existing = [e for e in m.get("exams") or [] if str(e.get("id")) not in t.before["exams"]]
     existing_ids = {str(e.get("id")) for e in existing}
-    order = sorted(t.groups, key=lambda sk: (sk[0], -EXAM_KINDS.index(sk[1])), reverse=True)  # newest session first, MST-1 first
+    order = sorted((sk for sk in t.groups if not is_slot(sk[0])), key=lambda sk: (sk[0], -EXAM_KINDS.index(sk[1])), reverse=True)  # newest session first, MST-1 first
+    order += sorted((sk for sk in t.groups if is_slot(sk[0])), key=lambda sk: (EXAM_KINDS.index(sk[1]), slot_number(sk[0])))  # then no year
     ids = assign_exam_ids(existing, order)
 
     for s, k in order:
         eid, first = ids[(s, k)], t.groups[(s, k)][0]
+        if is_slot(s):
+            t.exams.append({"id": eid, "name": KIND_NAMES[k], "date": None, "session": None})
+            continue
         date = desk.exam_dates.get(exam_key(t.course["id"], t.semester, s, k), "")
         if eid in existing_ids:
             e = next(e for e in existing if str(e.get("id")) == eid)
@@ -389,7 +431,7 @@ def summary(plan: Plan) -> dict:
     for t in plan.targets:
         out.append({
             "manifest": t.rel, "exists": t.exists, "course": t.course["id"], "course_name": t.course["name"], "semester": t.semester,
-            "files": [{"file": f["file"], "exam": f["exam"], "exam_name": f"{KIND_NAMES[f['kind']]} {f['session']}", "exists": (t.path.parent / f["file"]).exists(),
+            "files": [{"file": f["file"], "exam": f["exam"], "exam_name": f"{KIND_NAMES[f['kind']]} {session_label(f['session'])}", "exists": (t.path.parent / f["file"]).exists(),
                        "pages": [{"page": p["page"], "piece": p["piece"].id, "label": p["piece"].label, "subject": p["subject"], "continues": p["continues"]} for p in f["pages"]]}
                       for f in t.files],
             "exams": [{**e, "state": "add" if e["id"] not in t.before["exams"] else "update"} for e in t.exams] + [{**e, "state": "kept"} for e in t.kept_exams],

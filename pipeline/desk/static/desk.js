@@ -9,6 +9,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const MIXED = "\u0000mixed";
 const INHERITED = ["status", "reason", "course", "semester", "subject", "kind", "session"];
 const PAPER_FIELDS = ["course", "semester", "subject", "kind", "session"];
+const UNDATED = "undated"; // the session of a paper that prints no year anywhere
 
 const S = {
   info: null, // GET /api/folder
@@ -198,7 +199,7 @@ function chip(p) {
   const d = p.d;
   if (d.status === "todo") return "to do";
   if (d.status === "skip") return "skip" + (d.reason ? `: ${d.reason}` : "");
-  const where = [d.semester ? `S${d.semester}` : "", kindName(d.kind), d.session ? d.session.slice(2) : "", d.subject ? subjectName(d.course, d.semester, d.subject) : ""].filter(Boolean).join(" · ");
+  const where = [d.semester ? `S${d.semester}` : "", kindName(d.kind), d.session ? (d.session === UNDATED ? "no year" : d.session.slice(2)) : "", d.subject ? subjectName(d.course, d.semester, d.subject) : ""].filter(Boolean).join(" · ");
   if (d.status === "held") return `held: ${d.reason || "?"}` + (where ? ` · ${where}` : "");
   return (p.raw.continues ? "↳ " : "") + (where || "use");
 }
@@ -282,6 +283,7 @@ function refresh(editor = true) {
   const counts = $("#counts");
   if (counts) counts.innerHTML = FILTERS.map(([f, name]) => `<button type="button" class="small ${S.filter === f ? "on" : ""}" data-filter="${f}" aria-pressed="${S.filter === f}">${name} <span>${f === "all" ? S.pieces.length : count(f)}</span></button>`).join("")
     + (waiting ? `<span class="muted small">${waiting} page${waiting > 1 ? "s" : ""} suggested, waiting for you</span>` : "")
+    + ((n) => (n ? `<button type="button" class="small" data-use-no-year title="Held back because no year is printed, with everything else known">Use ${n} with no year</button>` : ""))(noYearOnly().length)
     + ((fill) => (fill ? `<button type="button" class="small primary" data-fill-held title="Held-back papers whose suggestion knows some of what was missing (the year from the file name, say)">Fill ${fill} held back</button>` : ""))(fillablePages().reduce((a, k) => a + fillable(k).length, 0));
   for (const slot of document.querySelectorAll("[data-accept-slot]")) {
     const n = sourceWaiting(slot.dataset.acceptSlot).length;
@@ -313,6 +315,7 @@ $("#grid").addEventListener("click", async (e) => {
   const f = e.target.closest("[data-filter]");
   if (f) return setFilter(f.dataset.filter);
   if (e.target.closest("[data-fill-held]")) return fillAllHeld();
+  if (e.target.closest("[data-use-no-year]")) return useNoYear();
   const cut = e.target.closest("[data-cut]");
   if (cut) {
     const key = cut.dataset.cut, pg = pageOf(key);
@@ -410,7 +413,8 @@ function fieldsHTML(ps) {
     if (S.newSubject) subjectRow += newSubjectHTML();
   }
 
-  const sessions = [...new Set([...S.pieces.map((p) => p.d.session).filter(Boolean), ...Object.values(S.manifests).flatMap((m) => (m.exams || []).map((e) => e.session))])].sort().reverse();
+  const sessions = [...new Set([...S.pieces.map((p) => p.d.session), ...Object.values(S.manifests).flatMap((m) => (m.exams || []).map((e) => e.session))])]
+    .filter((s) => s && s !== UNDATED).sort().reverse();
 
   const reasons = status === "skip" ? S.info.skip_reasons : status === "held" ? S.info.held_reasons : null;
   const reason = v("reason");
@@ -419,7 +423,7 @@ function fieldsHTML(ps) {
 
   return `
     ${problems.length ? `<p class="error small">⚠ ${problems.map(esc).join("<br>⚠ ")}</p>` : ""}
-    ${status === "held" ? `<p class="small warn" id="held-hint">Held back${reason && reason !== MIXED ? `: ${esc(reason)}` : ""}. Fill in what is missing below (the year goes in Session) and it becomes Use.</p>` : ""}
+    ${status === "held" ? `<p class="small warn" id="held-hint">Held back${reason && reason !== MIXED ? `: ${esc(reason)}` : ""}. Fill in what is missing below (the year goes in Session) and it becomes Use. If the paper prints no year anywhere, press No year printed.</p>` : ""}
     <div class="status" id="status">${statusHTML(ps)}</div>
     <label class="small"><input type="checkbox" data-f="continues" ${cont === true ? "checked" : ""}> Continues the previous page (the same paper's next page)</label>
     ${locked ? `<p class="muted small">Takes its course, subject and exam from ${esc(followsLabel || "the page before it")}.</p>` : ""}
@@ -431,7 +435,7 @@ function fieldsHTML(ps) {
       <label>Semester</label>${semSel}
       <label>Subject</label><div>${subjectRow}</div>
       <label>Exam</label><select data-f="kind" ${dis}>${mixedOpt(kind)}${opt("", "—", kind)}${S.info.kinds.map((k) => opt(k.id, k.name, kind)).join("")}</select>
-      <label>Session</label><input type="text" data-f="session" list="sessions" value="${session === MIXED ? "" : esc(session)}" placeholder="${session === MIXED ? "— mixed —" : "2024-25 (academic year, July to June)"}" ${dis}>
+      <label>Session</label><div class="row"><input type="text" data-f="session" list="sessions" value="${session === MIXED || session === UNDATED ? "" : esc(session)}" placeholder="${session === MIXED ? "— mixed —" : session === UNDATED ? "no year printed" : "2024-25 (academic year, July to June)"}" ${dis || (session === UNDATED ? "disabled" : "")}><button type="button" class="small ${session === UNDATED ? "on" : ""}" data-act="no-year" ${dis} style="flex:0" title="The paper prints no year anywhere: the site lists it under Year not printed">No year printed</button></div>
       <span class="hint error" id="session-hint">${sessionHint(ps)}</span>
       <label>Date</label><div id="date-cell">${dateCellHTML(ps)}</div>
       <span class="hint" id="date-hint">${dateHint(ps)}</span>
@@ -454,6 +458,7 @@ function oneExam(ps) {
   const d = ps[0].d;
   if (keys.length > 1) return { several: true };
   if (!d.course || !d.semester || !d.kind || !validSession(d.session)) return null;
+  if (d.session === UNDATED) return { undated: true };
   return { key: keys[0], d, inManifest: examInManifest(d.course, d.semester, d.session, d.kind) };
 }
 
@@ -462,12 +467,14 @@ function dateCellHTML(ps) {
   const x = oneExam(ps);
   if (!x) return `<input type="text" disabled placeholder="pick course, semester, exam and session">`;
   if (x.several) return `<input type="text" disabled placeholder="— several exams selected —">`;
+  if (x.undated) return `<input type="text" disabled placeholder="none: no year printed">`;
   if (x.inManifest) return `<input type="text" disabled value="${esc(x.inManifest.date)}">`;
   return `<input type="text" data-f="date" value="${esc(S.state.exam_dates[x.key] || "")}" placeholder="2024-12, or 2024 if no paper prints the month">`;
 }
 function dateHint(ps) {
   const x = oneExam(ps);
   if (!x || x.several) return "";
+  if (x.undated) return "The site lists it under Year not printed.";
   if (x.inManifest) return `Already in the manifest as <code>${esc(x.inManifest.id)}</code>; the desk keeps its date.`;
   const d = S.state.exam_dates[x.key] || "";
   return d && !/^\d{4}(-\d{2})?$/.test(d) ? `<span class="error">Looks like "2024-12" or "2024".</span>` : "Shared by every page of this exam.";
@@ -693,6 +700,18 @@ function fillHeld(keys) {
   return [filled, use];
 }
 
+/** Held-back papers whose only missing detail is the year: they can go in as "No year printed". */
+const noYearOnly = () =>
+  S.pieces.filter((p) => p.d.status === "held" && !(p.raw.continues && p.follows) && /\bno year\b/.test(p.d.reason) && !p.d.session && ["course", "semester", "subject", "kind"].every((f) => p.d[f]));
+
+async function useNoYear() {
+  const ps = noYearOnly(), n = ps.length;
+  if (!n || !(await ask(`Use ${n} paper${n > 1 ? "s" : ""} with no year?`, "These were held back only because no year is printed on them. They go in as \"No year printed\": the site lists them in their own section, and a second paper of the same subject and exam becomes an exam of its own.", `Use ${n}`))) return;
+  for (const p of ps) Object.assign(editPage(p.key).parts[p.part], { session: UNDATED, status: "use", reason: "" });
+  changed();
+  toast(`${n} paper${n > 1 ? "s" : ""} with no year printed ${n > 1 ? "are" : "is"} Use now. Write puts them in the manifest.`);
+}
+
 async function fillAllHeld() {
   const keys = fillablePages(), n = keys.reduce((a, k) => a + fillable(k).length, 0);
   if (!(await ask(`Fill ${n} held-back paper${n > 1 ? "s" : ""}?`, "Their suggestion knows some of what was missing, most often the year or the exam from the file name (the notes on each page say where it came from). Only empty fields are filled; what you set stays.\n\nA paper with nothing missing any more becomes Use; the others stay held back with what is still missing as the reason.", `Fill ${n}`))) return;
@@ -791,7 +810,7 @@ $("#btn-read").addEventListener("click", async () => {
 });
 
 function validSession(s) {
-  return /^\d{4}-\d{2}$/.test(s) && Number(s.slice(5)) === (Number(s.slice(0, 4)) + 1) % 100;
+  return s === UNDATED || /^\d{4}-\d{2}$/.test(s) && Number(s.slice(5)) === (Number(s.slice(0, 4)) + 1) % 100;
 }
 const slug = (s) => s.toLowerCase().replace(/&/g, " and ").replace(/\+\+/g, " plus plus ").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -850,6 +869,7 @@ $("#editor").addEventListener("click", async (e) => {
     return changed();
   }
   if (act === "reason") return setField("reason", b.dataset.reason);
+  if (act === "no-year") return setField("session", common(ps.map((p) => p.d.session)) === UNDATED ? "" : UNDATED);
   if (act === "turn") return turnPage(key, Number(b.dataset.deg));
   if (act === "turn-part") {
     const part = editPage(key).parts[ps[0].part];
@@ -1368,7 +1388,7 @@ function problemsHTML(list, cls) {
 }
 
 function targetHTML(t) {
-  const exams = t.exams.map((e) => `<li>${{ add: "+ add", update: "~ update", kept: "= already there:" }[e.state]} <code>${esc(e.id)}</code> ${esc(e.name)}, ${esc(e.date)} (${esc(e.session)})</li>`).join("");
+  const exams = t.exams.map((e) => `<li>${{ add: "+ add", update: "~ update", kept: "= already there:" }[e.state]} <code>${esc(e.id)}</code> ${esc(e.name)}, ${e.date === null ? "no year printed" : `${esc(e.date)} (${esc(e.session)})`}</li>`).join("");
   const subs = t.subjects.map((s) => `<li>+ add subject <code>${esc(s.id)}</code> ${esc(s.name)}${s.aliases.length ? ` (also: ${s.aliases.map(esc).join(", ")})` : ""}</li>`).join("");
   const files = t.files.map((f) => `<li><code>${esc(f.file)}</code> → <code>${esc(f.exam)}</code> (${esc(f.exam_name)}), ${f.pages.length} page${f.pages.length > 1 ? "s" : ""}${f.exists ? " <span class='muted'>(rewrites the desk's earlier copy)</span>" : ""}
       <ul>${f.pages.map((p) => `<li class="small">p${p.page}: ${esc(subjectName(t.course, t.semester, p.subject))}${p.continues ? " (continued)" : ""} <span class="muted">← ${esc(p.label)}</span></li>`).join("")}</ul></li>`).join("");

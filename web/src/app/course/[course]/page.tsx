@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { BackBar, SiteFooter, SiteNav } from "@/components/Chrome";
+import { BackBar, BottomBar, SiteNav } from "@/components/Chrome";
 import { courseCards, loadCatalog } from "@/lib/catalog";
 import { FIELD_COLORS } from "@/lib/colors";
 import { courseHref, programmeHref } from "@/lib/paths";
@@ -31,15 +31,19 @@ export default async function CoursePage({ params }: { params: Promise<Params> }
   const { course } = await params;
   const c = courseCards().find((x) => x.id === course);
   if (!c) notFound();
-  const { fields, source } = loadCatalog();
-  const field = fields.find((f) => f.id === c.field);
+  const field = loadCatalog().fields.find((f) => f.id === c.field);
   const years = c.years ?? Math.ceil(Math.max(...c.semesters.map((s) => s.semester)) / 2);
 
   return (
     <>
       <SiteNav />
       <main className="page">
-        <BackBar href="/#browse" label="All courses" where={c.schoolShort ? `${c.school} (${c.schoolShort})` : c.school} />
+        {/* back to this course's field on the home page, the list it was picked from */}
+        <BackBar
+          href={`/?field=${c.field}#browse`}
+          label={`${field?.short ?? "Other"} courses`}
+          where={c.schoolShort ? `${c.school} (${c.schoolShort})` : c.school}
+        />
         <h1 className="page-title">{c.name}</h1>
         <div className="exam-chips">
           {field && (
@@ -91,9 +95,8 @@ export default async function CoursePage({ params }: { params: Promise<Params> }
         <p className="note">
           Have papers for a semester that isn&apos;t here yet? <Link href="/send/">Send them in →</Link>
         </p>
-        {c.years && <p className="note mono">Course list and durations: {source}.</p>}
       </main>
-      <SiteFooter />
+      <BottomBar />
     </>
   );
 }

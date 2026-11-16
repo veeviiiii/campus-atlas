@@ -40,8 +40,10 @@ to navigate.
    (Papers, Likely topics). Static site. Done.
 2. More papers: one pack holds every year of a course-semester (done: exam ids mst1/mst2/mst3/end for the
    first year added, <kind>-<session> such as mst1-2024-25 for every other year; year chips on the
-   Papers tab; a date is just the year when no paper prints the month); collect older papers from
-   seniors. <- current
+   Papers tab; a date is just the year when no paper prints the month; a paper that prints no year
+   goes in <kind>-undated (end-undated-2 for a second one of the same subject), date and session
+   null, shown under "Year not printed" and never placed before or after another paper); collect
+   older papers from seniors. <- current
 3. Community: sign-in, PYQ uploads into a review queue (an admin approves, then the pipeline runs),
    notes exchange. Until then, papers come in through a Google Form owned by the maintainer (link in
    web/src/lib/site.ts, shown on /send/); the maintainer runs the pipeline on the uploads
@@ -60,7 +62,8 @@ Path: data/raw/davv-sdsf/mtech-aids-dual/sem<N>/ — PDFs of phone photos plus o
 semester (page -> subject/exam, human ground truth). Sem 1: 2025-26 (MST-1 Oct 2025, MST-2 Dec 2025,
 End Sem Jan 2026, 7 subjects) and 2022-23 (MST-1/2/3, End Sem). Sem 2: one Physics-II test. Sem 4:
 2024-25, 2023-24 and one 2022-23 End Sem. Sem 5: 2025-26 and 2024-25. Sem 7: 2025-26 mid-sems. Each
-manifest notes the papers held back because they print no year, test number or subject.
+manifest notes the papers still held back because they print no test number or subject (or no
+year, from before papers with no year could go in as <kind>-undated).
 The PDFs stay local (gitignored); every page is public as a photo in packs/<college>/pages/.
 Handwritten names and roll numbers are blacked out before the PDFs are made. No syllabus was used: units and topics are grouped bottom-up from the questions.
 Known data problems the pipeline handles (keep it that way): unreliable course codes (match subjects
@@ -95,7 +98,7 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    server actions, cookies, proxy file or route handlers that read the request. Fonts are bundled in
    web/src/app/fonts (works offline). This Next.js has breaking changes: read
    web/node_modules/next/dist/docs before using an API you are unsure of.
-   Routes: / (home: hero, the 30 DAVV courses as cards with field chips, how it works),
+   Routes: / (home: hero, pick a field, then its courses (?field=<id>; the search box finds any course), how it works),
    /course/<course>/ (pick year and semester; semesters without papers ask for them),
    /c/<college>/<pack>/ (one semester: subject cards), /c/<college>/<pack>/<subject>/ (subject page:
    tabs Papers, Likely topics, Marks by unit; #likely, #topic-<id>, #marks open a tab; "Print this
@@ -114,8 +117,8 @@ D. Tests (no API key, no model calls): `python -m unittest discover -s pipeline/
    (needs its keys in web/.env.test.local; skipped without them, never part of CI).
    .github/workflows/check.yml runs both on pushes to main and on pull requests.
 
-Pack schema 1.1 (packs/<college>/<course>-sem<N>.json, all years): college, course, sources.exams
-[{id, name, date, session}], subjects[] -> units[] (blind_spot) -> topics[] (exams_count, is_repeat, total_marks,
+Pack schema 1.2 (packs/<college>/<course>-sem<N>.json, all years): college, course, sources.exams
+[{id, name, date, session}] (date and session null for a paper with no year printed), subjects[] -> units[] (blind_spot) -> topics[] (exams_count, is_repeat, total_marks,
 questions[] with id, exam, text, marks, has_table, table_markdown, sub_parts, page_ref,
 repeat_of [{id, type: exact|near|same-topic}], confidence), unsure[], stats, harness (models, eval).
 Full reference: skills/pyq-atlas/references/pack-schema.md. Page photos: packs/<college>/pages/*.jpg.

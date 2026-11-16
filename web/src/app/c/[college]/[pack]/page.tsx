@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { BackBar, SiteFooter, SiteNav } from "@/components/Chrome";
+import { BackBar, BottomBar, SiteNav } from "@/components/Chrome";
 import CourseView from "@/components/CourseView";
 import { courseOf } from "@/lib/catalog";
 import { findEntry, loadPacks } from "@/lib/packs";
 import { courseHref, programmeHref } from "@/lib/paths";
-import { examDate, examsSummary, inOrder, sessionOf, sessionsOf } from "@/lib/papers";
+import { examsSummary, examWhen, inOrder, isUndated, noYear, sessionOf, sessionsOf } from "@/lib/papers";
 
 type Params = { college: string; pack: string };
 
@@ -64,16 +64,27 @@ export default async function CoursePage({ params }: { params: Promise<Params> }
                     .join(", ")}
                 </span>
               ))
-            : exams.map((e) => (
-                <span key={e.id} className="chip">
-                  {e.name} · {examDate(e.date)}
-                </span>
-              ))}
+            : exams
+                .filter((e) => !isUndated(e))
+                .map((e) => (
+                  <span key={e.id} className="chip">
+                    {e.name} · {examWhen(e)}
+                  </span>
+                ))}
+          {exams.some(isUndated) && (
+            <span className="chip">
+              No year printed ·{" "}
+              {exams
+                .filter(isUndated)
+                .map((e) => (noYear(e) === "no year" ? e.name : `${e.name} ${noYear(e).slice("no year ".length)}`))
+                .join(", ")}
+            </span>
+          )}
           {p.mock && <span className="chip hot">Mock data · dev only</span>}
         </div>
         <CourseView entry={entry} />
       </main>
-      <SiteFooter />
+      <BottomBar />
     </>
   );
 }
