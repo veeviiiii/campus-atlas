@@ -1087,6 +1087,127 @@ a.card:active {
   color: var(--accent);
 }
 
+/* upload page: the form and "My uploads" */
+.upload h2 {
+  font-size: 22px;
+}
+.upload-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.upload-form h2,
+.upload-form .wide {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+@media (max-width: 700px) {
+  .upload-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.field > span {
+  font: 500 12px var(--font-plex-mono), monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.field select,
+.field input,
+.field textarea,
+.upload-answer input {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  color: var(--foreground);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 11px 14px;
+  transition: border-color 0.2s;
+}
+.field select:focus-visible,
+.field input:focus-visible,
+.field textarea:focus-visible,
+.upload-answer input:focus-visible {
+  outline: 0;
+  border-color: var(--accent);
+}
+.field input[type="file"] {
+  padding: 9px;
+  color: var(--muted);
+}
+.file-list,
+.upload-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.file-list li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 14px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.file-list li > span:last-child {
+  display: flex;
+  gap: 14px;
+}
+.file-list small {
+  color: var(--muted);
+}
+.upload .linkish:disabled {
+  opacity: 0.35;
+}
+.upload .pill:disabled {
+  opacity: 0.7;
+}
+.upload-error {
+  color: var(--warning);
+}
+.upload-list li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.upload-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+.upload-head b {
+  font: 600 19px/1.2 var(--font-space-grotesk), sans-serif;
+}
+.upload-list .qmeta {
+  margin-top: 0;
+}
+.upload-message {
+  margin: 0;
+}
+.upload-message .mono {
+  color: var(--lav);
+  margin-right: 6px;
+}
+.upload-answer {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 520px;
+}
+
 /* course page: subject cards */
 .subject-grid {
   display: grid;
@@ -1519,6 +1640,16 @@ a.card:active {
 }
 .ranked details[open] > summary .ranked-head b {
   color: var(--accent);
+}
+/* too few papers to rank: the same cards with no number in front and no score */
+.ranked.plain summary {
+  grid-template-columns: minmax(0, 1fr);
+}
+.ranked.plain summary::before {
+  content: none;
+}
+.ranked.plain .reasons {
+  grid-column: 1 / -1;
 }
 
 /* printing (Ctrl+P, or "Print this paper"): black on white, no navigation or buttons, open papers only.

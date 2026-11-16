@@ -172,6 +172,20 @@ shows its log as it goes and, at the end, the run report's **Unsure** list. Carr
 
 ## 1. Download the uploads
 
+**Papers uploaded on the site** (once `/upload/` is set up, see [supabase/README.md](supabase/README.md)):
+
+```bash
+.venv/Scripts/python -m pipeline.fetch_uploads fetch
+```
+
+It downloads every upload waiting to be checked into `data/inbox/uploads-<date>/`, one folder per
+paper, named so that the desk reads its course, semester, exam and year from the path, and prints the
+uploader's note. Open that folder in the desk and carry on from step 2. When a paper prints no year or
+test number, ask its uploader instead of holding it back for good:
+`fetch_uploads mark <id> held --ask "Which year was this?"`; their answer comes with the next `fetch`.
+
+**Papers sent through the Google Form:**
+
 - **Responses:** Google Forms, open the form, **Responses**, then **Link to Sheets** (or **View in
   Sheets**). Each row says the course, semester, exam, month and year, and subjects of one upload,
   with links to its photos.
@@ -297,6 +311,14 @@ git push
 Vercel rebuilds the site in about a minute. The course card on the home page now says
 "Sem 1 papers", and the semester tile links to the subjects.
 
+For papers that came through the site, tell their uploaders (it also deletes their photos from the
+upload bucket; `fetch_uploads list` shows the ids):
+
+```bash
+.venv/Scripts/python -m pipeline.fetch_uploads mark <id> published --pack davv-scsit/bca-sem1
+.venv/Scripts/python -m pipeline.fetch_uploads mark <id> rejected --why "an answer sheet, not a question paper"
+```
+
 The PDFs stay on this laptop (`data/raw/**/*.pdf` is gitignored; the page photos in `packs/` are the
 public copy). Keep a backup of them, for example in Drive.
 
@@ -332,7 +354,7 @@ Course list too. Without a catalogue entry the pack still works and shows under 
 | `MODEL_ID is not set` / `GEMINI_API_KEY` | `.env` is missing or empty: copy `.env.example` to `.env` and fill it in. |
 | `429`, `RESOURCE_EXHAUSTED`, `503` | API limit or overload. The pipeline retries; if it gives up, run the same command later. |
 | `exam id ...: use mst1 / mst2 / mst3 / end ...` | An exam id does not match its session; see step 5. |
-| A question's text is wrong on the site | Do not edit the pack by hand (the next run overwrites it). Retake the photo, replace the PDF, run again. |
+| A question's text or marks are wrong on the site | Do not edit the pack by hand (the next run overwrites it). Add the fix to `corrections.yaml` next to the manifest with `status: confirmed` ([format](skills/pyq-atlas/references/manifest.md)), then run `build_pack ... --stage pack`. If the photo itself is unreadable: retake it, replace the PDF, run again. |
 | A page is upside down on the site | Add `rotation: 180` to that page in the manifest and run again. |
 | `ModuleNotFoundError` | The command did not use the project's Python: start it with `.venv/Scripts/python`. |
 

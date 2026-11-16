@@ -4527,6 +4527,16 @@
         "relation": "near",
         "reason": "Question A contains the requirement of Question B as one of its two parts."
       }
-    ]
+    ],
+    "corrections": [],
+    "reading_audit": {
+      "reader": "Claude Fable 5.2 (second reader), 2026-11-16",
+      "pages": 27,
+      "questions_checked": 196,
+      "corrected": 0,
+      "dropped": 0,
+      "missed": 0,
+      "proposed": 5
+    }
   }
 }

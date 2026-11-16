@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 
 import { BackBar, REPO_URL, BottomBar, SiteNav } from "@/components/Chrome";
+import Link from "next/link";
+
 import { SEND_PAPERS_FORM } from "@/lib/site";
+import { uploadsConfigured } from "@/lib/supabase";
 
 export const metadata: Metadata = {
   title: "Send us your papers · Campus Atlas",
@@ -25,7 +28,25 @@ export default function SendPage() {
         </p>
 
         <div className="send-cta">
-          {SEND_PAPERS_FORM ? (
+          {uploadsConfigured ? (
+            <>
+              <Link className="pill lime" href="/upload/">
+                Upload on the site →
+              </Link>
+              <span className="note">
+                Sign in with Google, send the pages, and see here when your paper is live.
+                {SEND_PAPERS_FORM && (
+                  <>
+                    {" "}
+                    Or use{" "}
+                    <a href={SEND_PAPERS_FORM} target="_blank" rel="noreferrer">
+                      the Google Form ↗
+                    </a>
+                  </>
+                )}
+              </span>
+            </>
+          ) : SEND_PAPERS_FORM ? (
             <>
               <a className="pill lime" href={SEND_PAPERS_FORM} target="_blank" rel="noreferrer">
                 Upload photos ↗

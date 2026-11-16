@@ -52,7 +52,7 @@ export default function Site({ summary, courses, fields }: Props) {
   const [query, setQuery] = useState("");
   const picked = useSyncExternalStore(onFieldChange, fieldInAddress, () => null);
   // "How it works" counts every course on the site; the repeat check exists only for the course it was made for.
-  const { hero, totals, checked } = summary;
+  const { hero, totals, checked, audited } = summary;
 
   const allFields = courses.some((c) => c.field === "other") ? [...fields, { id: "other", name: "Other courses", short: "Other" }] : fields;
   const fieldName = Object.fromEntries(allFields.map((f) => [f.id, f.name]));
@@ -263,6 +263,8 @@ export default function Site({ summary, courses, fields }: Props) {
               <p style={{ color: "var(--muted)", margin: 0 }}>
                 Gemma 4, an open-weight model, reads every question, maths and tables included. Our pipeline checks each answer and drops
                 bits of other papers caught in the photo ({totals.dropped} so far).
+                {audited &&
+                  ` A second reader then compared ${audited.questions} questions with the photos of their pages; ${audited.fixed} ${audited.fixed === 1 ? "was" : "were"} corrected by hand.`}
               </p>
             </div>
             <div className="how-card">

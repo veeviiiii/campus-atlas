@@ -4,6 +4,7 @@ import json
 import re
 from pathlib import Path
 
+from pipeline.corrections import Corrections, apply as apply_corrections, audit_summary, load as load_corrections, unknown_pages
 from pipeline.manifest import exam_kind, exam_order, is_undated, load_manifest, sessions, work_dir
 from pipeline.match import group_subject
 from pipeline.providers import CALLS, ROOT, get_provider
@@ -64,7 +65,7 @@ def blind_spot(exams: set[str]) -> bool:
     return "end" in kinds and not kinds & MIDS
 
 
-def build_subject(m: dict, sid: str, workers: int) -> tuple[dict, list[dict], dict]:
+def build_subject(m: dict, sid: str, workers: int, corr: Corrections | None = None) -> tuple[dict, list[dict], dict]:
     ex = json.loads((work_dir(m) / "extracted" / f"{sid}.json").read_text(encoding="utf-8"))
     subj = next(s for s in m["subjects"] if s["id"] == sid)
     questions = [q for p in ex["papers"] for q in p["questions"]]
@@ -89,15 +90,27 @@ def build_subject(m: dict, sid: str, workers: int) -> tuple[dict, list[dict], di
     for link in links:
         by_id[link["from"]]["repeat_of"].append({"id": link["to"], "type": link["type"], "similarity": link["similarity"]})
 
+    # Human corrections (corrections.yaml). Applied here, after grouping and repeats were worked out on
+    # the text as the model read it, so a fix never reshuffles the topics; marks fixes reach topic_marks.
+    pages = {ref for p in ex["papers"] for ref in p["page_refs"]}
+    audited = set(corr.audited_pages) if corr else set()
+    audited_questions = sum(1 for q in questions if q["page_ref"] in audited)
+    dropped_ids, applied, problems = apply_corrections(questions, [c for c in (corr.corrections if corr else []) if c.page in pages])
+    unsure += [{**x, "subject": sid} for x in problems]
+    for q in questions:
+        q["repeat_of"] = [r for r in q["repeat_of"] if r["id"] not in dropped_ids]
+
     def out_q(q: dict) -> dict:
         keep = ("id", "exam", "text", "marks", "has_table", "table_markdown", "sub_parts", "is_or_choice", "page_ref", "repeat_of")
-        return {**{k: q.get(k) for k in keep}, "confidence": confidence(q)}
+        return {**{k: q.get(k) for k in keep}, "confidence": confidence(q), **({"corrected": True} if q.get("corrected") else {})}
 
     units = []
     for k, u in enumerate(grouping.units if grouping else [], start=1):
         topics = []
         for j, t in enumerate(u.topics, start=1):
-            qs = sorted((by_id[i] for i in t.question_ids), key=lambda q: (order[q["exam"]], q["id"]))
+            qs = sorted((by_id[i] for i in t.question_ids if i not in dropped_ids), key=lambda q: (order[q["exam"]], q["id"]))
+            if not qs:  # every question of the topic was dropped by a correction; the other ids keep their numbers
+                continue
             exams = {q["exam"] for q in qs}
             topics.append({
                 "id": f"{sid}-u{k}-t{j}",
@@ -108,6 +121,8 @@ def build_subject(m: dict, sid: str, workers: int) -> tuple[dict, list[dict], di
                 "questions": [out_q(q) for q in qs],
                 "quiz": [],
             })
+        if not topics:
+            continue
         topics.sort(key=lambda t: (not t["is_repeat"], -t["exams_count"], -t["total_marks"]))
         exams_in_unit = {q["exam"] for t in topics for q in t["questions"]}
         units.append({
@@ -132,6 +147,9 @@ def build_subject(m: dict, sid: str, workers: int) -> tuple[dict, list[dict], di
         "disagreements": [{**d, "subject": sid} for d in ex.get("disagreements", [])],
         "repeat_judgements": judged,
         "papers_with_questions": sum(1 for p in ex["papers"] if p["questions"]),
+        "corrections": [{**a, "subject": sid} for a in applied],
+        "audited_questions": audited_questions,
+        "pages": pages,
     }
     return subject, unsure, harness
 
@@ -139,17 +157,24 @@ def build_subject(m: dict, sid: str, workers: int) -> tuple[dict, list[dict], di
 def build_pack(manifest_path: Path, workers: int = 4) -> Path:
     m = load_manifest(manifest_path)
     subjects, unsure, dropped, disagreements, judged, papers = [], [], [], [], [], 0
+    corr = load_corrections(m["_dir"])  # human fixes to what the model read; None when there is no file
+    applied, audited_questions, pages = [], 0, set()
+    if corr:
+        unsure += [{"subject": "", "page_ref": "", "step": "corrections", "error": x, "raw": ""} for x in unknown_pages(corr, m)]
     for s in m["subjects"]:
         if not (work_dir(m) / "extracted" / f"{s['id']}.json").exists():
             print(f"  {s['id']}: no extracted file, skipped", flush=True)
             continue
-        subject, u, h = build_subject(m, s["id"], workers)
+        subject, u, h = build_subject(m, s["id"], workers, corr)
         subjects.append(subject)
         unsure += u
         dropped += h["dropped_bleed_through"]
         disagreements += h["disagreements"]
         judged += h["repeat_judgements"]
         papers += h["papers_with_questions"]
+        applied += h["corrections"]
+        audited_questions += h["audited_questions"]
+        pages |= h["pages"]
 
     all_q = [q for s in subjects for u in s["units"] for t in u["topics"] for q in t["questions"]]
     # End Sem questions that came back from an earlier paper in the pack (repeat links always point back in time)
@@ -184,6 +209,11 @@ def build_pack(manifest_path: Path, workers: int = 4) -> Path:
             "repeat_judgements": judged,
         },
     }
+    if corr:
+        pack["harness"]["corrections"] = applied  # every human fix applied, with its reason
+        audit = audit_summary(corr, audited_questions, pages, applied)
+        if audit:
+            pack["harness"]["reading_audit"] = audit
     out = ROOT / "packs" / m["college"]["id"] / f"{m['course']['id']}-sem{m['course']['semester']}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     if out.exists():  # keep quizzes already written (step 11) for topics that still exist

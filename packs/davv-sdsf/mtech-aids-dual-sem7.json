@@ -1082,6 +1082,16 @@
         "relation": "same-topic",
         "reason": "Both questions focus on the selection and application of different types of visualization charts, though one is theoretical and the other is practical."
       }
-    ]
+    ],
+    "corrections": [],
+    "reading_audit": {
+      "reader": "Claude Fable 5.2 (second reader), 2026-11-16",
+      "pages": 9,
+      "questions_checked": 39,
+      "corrected": 0,
+      "dropped": 0,
+      "missed": 0,
+      "proposed": 2
+    }
   }
 }

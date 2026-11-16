@@ -21,7 +21,7 @@ export function BackBar({ href, label, where }: { href: string; label: string; w
 /** Which part of the site a path belongs to, for the mark on the top and bottom bars. */
 function sectionOf(pathname: string): "home" | "papers" | "search" | "send" {
   if (pathname.startsWith("/search")) return "search";
-  if (pathname.startsWith("/send")) return "send";
+  if (pathname.startsWith("/send") || pathname.startsWith("/upload")) return "send";
   return pathname.startsWith("/course") || pathname.startsWith("/c/") ? "papers" : "home";
 }
 

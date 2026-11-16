@@ -1,0 +1,111 @@
+# Human corrections to what the model read, for the Semester 5 pack. Format: pipeline/corrections.py.
+# Found by a second reader comparing every question with the photo of its page. Nothing here is
+# applied until a person has looked at the page and changed `status: proposed` to `confirmed`
+# (or deleted the entry). Check with:
+#   .venv/Scripts/python -m pipeline.intake check data/raw/davv-sdsf/mtech-aids-dual/sem5/manifest.yaml
+
+reader: "Claude Fable 5.2 (second reader), 2026-11-16"
+
+audited_pages:
+  - "mtech-aids-dual-sem5_2025-26_mst1.pdf#p1"
+  - "mtech-aids-dual-sem5_2025-26_mst1.pdf#p2"
+  - "mtech-aids-dual-sem5_2025-26_mst1.pdf#p3"
+  - "mtech-aids-dual-sem5_2025-26_mst2.pdf#p1"
+  - "mtech-aids-dual-sem5_2025-26_mst2.pdf#p2"
+  - "mtech-aids-dual-sem5_2025-26_mst2.pdf#p3"
+  - "mtech-aids-dual-sem5_2025-26_mst2.pdf#p4"
+  - "mtech-aids-dual-sem5_2025-26_mst2.pdf#p5"
+  - "mtech-aids-dual-sem5_2025-26_mst2.pdf#p6"
+  - "mtech-aids-dual-sem5_2025-26_mst2.pdf#p7"
+  - "mtech-aids-dual-sem5_2025-26_end.pdf#p1"
+  - "mtech-aids-dual-sem5_2025-26_end.pdf#p2"
+  - "mtech-aids-dual-sem5_2025-26_end.pdf#p3"
+  - "mtech-aids-dual-sem5_2025-26_end.pdf#p4"
+  - "mtech-aids-dual-sem5_2025-26_end.pdf#p5"
+  - "mtech-aids-dual-sem5_2025-26_end.pdf#p6"
+  - "mtech-aids-dual-sem5_2025-26_end.pdf#p7"
+  - "mtech-aids-dual-sem5_2024-25_mst1.pdf#p1"
+  - "mtech-aids-dual-sem5_2024-25_mst1.pdf#p2"
+  - "mtech-aids-dual-sem5_2024-25_mst2.pdf#p1"
+  - "mtech-aids-dual-sem5_2024-25_mst2.pdf#p2"
+  - "mtech-aids-dual-sem5_2024-25_mst2.pdf#p3"
+  - "mtech-aids-dual-sem5_2024-25_mst3.pdf#p1"
+  - "mtech-aids-dual-sem5_2024-25_end.pdf#p1"
+  - "mtech-aids-dual-sem5_2024-25_end.pdf#p2"
+  - "mtech-aids-dual-sem5_2024-25_end.pdf#p3"
+  - "mtech-aids-dual-sem5_2024-25_end.pdf#p4"
+  - "mtech-aids-dual-sem5_2024-25_end.pdf#p5"
+  - "mtech-aids-dual-sem5_2024-25_end.pdf#p6"
+  - "mtech-aids-dual-sem5_2024-25_end.pdf#p7"
+
+corrections:
+  # Computer Networks End Sem 2024-25 (page 6), Q.5 (a): both bit strings lost a 1.
+  - page: "mtech-aids-dual-sem5_2024-25_end.pdf#p6"
+    match: "is to be transmitted using a Cyclic Redundancy Check"
+    set:
+      text: 'A 16-bit message $1101101011110010$ is to be transmitted using a Cyclic Redundancy Check (CRC) with the generator polynomial $10101$. Compute the CRC code to append to the message. The transmitted codeword is received as $11011010111100101101$. Verify if the received message is error-free. If there is an error, identify how the error might have occurred and the type of error.'
+    why: "the photo prints a 16-digit message (1101101011110010) and a 20-digit codeword (11011010111100101101); the pack has 15 and 19 digits, a 1 missing from each, so the worked answer would be wrong"
+    status: proposed
+
+  # Computer Networks End Sem 2024-25, Q.7 (b) runs over the page break: the block and the task are at
+  # the bottom of page 6, its parts a, b, c at the top of page 7. The pack has them as two questions.
+  - page: "mtech-aids-dual-sem5_2024-25_end.pdf#p6"
+    match: "The administrator wants to create 500 fixed-length subnets"
+    set:
+      sub_parts:
+        - "a. Find the subnet mask."
+        - "b. Find the number of addresses in each subnet."
+        - "c. Find the first and the last address in the first subnet."
+    why: "one printed question (Q.7 b) split over pages 6 and 7; its parts a, b, c are at the top of page 7"
+    status: proposed
+  - page: "mtech-aids-dual-sem5_2024-25_end.pdf#p7"
+    match: "Find the subnet mask"
+    drop: true
+    why: "not a question of its own: parts a, b, c of Q.7 (b), which starts on page 6"
+    status: proposed
+
+  # Java End Sem 2025-26 (page 5)
+  - page: "mtech-aids-dual-sem5_2025-26_end.pdf#p5"
+    match: "Write a method to change each odd place of the given string"
+    set:
+      marks: 5
+      text: "Write a method to change each odd place of the given string with its next 3rd character in the sequence of alphabets. (e.g. original string-Programing/converted String is - Srrguapiqg)"
+    why: "the example was misread: the photo prints Programing and Srrguapiqg (the pack has Progaming and Srrguapiqq), and the example is what defines the task. Marks: Section B is 20 marks for any 4, so 5 each"
+    status: proposed
+  # ...and its marks. The paper prints them per section, not per question: Section A, 10 marks for
+  # the five parts of question 1 (2 each); Section B, 20 marks for any 4 (5 each). The pack has none.
+  # Section C prints no marks, so it stays without. Question 6 (a star pattern with no words) cannot
+  # be named by its text and stays without marks too.
+  - {page: "mtech-aids-dual-sem5_2025-26_end.pdf#p5", match: "Define finally and finalize", set: {marks: 2}, why: "Section A: 10 marks for the five parts of question 1", status: proposed}
+  - {page: "mtech-aids-dual-sem5_2025-26_end.pdf#p5", match: "Define thread", set: {marks: 2}, why: "Section A: 10 marks for the five parts of question 1", status: proposed}
+  - {page: "mtech-aids-dual-sem5_2025-26_end.pdf#p5", match: "Explain use of this and super keyword", set: {marks: 2}, why: "Section A: 10 marks for the five parts of question 1", status: proposed}
+  - {page: "mtech-aids-dual-sem5_2025-26_end.pdf#p5", match: "Define wrapper classes", set: {marks: 2}, why: "Section A: 10 marks for the five parts of question 1", status: proposed}
+  - {page: "mtech-aids-dual-sem5_2025-26_end.pdf#p5", match: "Explain System.out.println", set: {marks: 2}, why: "Section A: 10 marks for the five parts of question 1", status: proposed}
+  - {page: "mtech-aids-dual-sem5_2025-26_end.pdf#p5", match: "Explain checked exception with example", set: {marks: 5}, why: "Section B: 20 marks for any 4 questions", status: proposed}
+  - {page: "mtech-aids-dual-sem5_2025-26_end.pdf#p5", match: "Explain thread life cycle", set: {marks: 5}, why: "Section B: 20 marks for any 4 questions", status: proposed}
+  - {page: "mtech-aids-dual-sem5_2025-26_end.pdf#p5", match: "What are tokens in java", set: {marks: 5}, why: "Section B: 20 marks for any 4 questions", status: proposed}
+
+  # Java End Sem 2024-25 (page 5), Q.5: a typing slip in the pack on a line that is hard to read
+  - page: "mtech-aids-dual-sem5_2024-25_end.pdf#p5"
+    match: "Explain different keywords used for exception handling"
+    set:
+      text: "What is Exception? Explain different keywords used for exception handling. Discuss checked and unchecked exception."
+    why: "the pack ends in 'unchecked excention'; the photo prints 'exception'"
+    status: proposed
+
+  # Statistical Inference End Sem 2025-26 (page 2), C1 and C2: the data is in the question's table
+  # already, and the text repeats it as raw table markup, which the site shows as rows of | signs.
+  - page: "mtech-aids-dual-sem5_2025-26_end.pdf#p2"
+    match: "distribution of digits in numbers chosen at random from a telephone directory"
+    set:
+      text: "What is statistical inference? The following figures show the distribution of digits in numbers chosen at random from a telephone directory: Test at 5% level whether digits may be taken to occur equally frequently in the directory. The table value of test statistic for 9df is 16.916."
+    why: "the table is given twice, once as raw markup inside the text; the figures themselves match the photo"
+    status: proposed
+  - page: "mtech-aids-dual-sem5_2025-26_end.pdf#p2"
+    match: "Following results were obtained from two samples each drawn from two different populations"
+    set:
+      text: "What is point estimation? Following results were obtained from two samples each drawn from two different populations A and B: Test the hypothesis that variance of brand A is more than brand B at level of 0.05. The value of test statistic is 3.22."
+    why: "the table is given twice, once as raw markup inside the text; the figures themselves match the photo"
+    status: proposed
+
+missed: []

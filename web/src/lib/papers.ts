@@ -104,6 +104,12 @@ export function placedQuestions(subject: Subject): PlacedQuestion[] {
   return subject.units.flatMap((unit) => unit.topics.flatMap((topic) => topic.questions.map((q) => ({ q, topic, unit }))));
 }
 
+/** The exams this subject has a paper for (at least one question), oldest first. A pack's other exams don't count for it. */
+export function subjectExams(exams: Exam[], subject: Subject): Exam[] {
+  const asked = new Set(placedQuestions(subject).map(({ q }) => q.exam));
+  return inOrder(exams).filter((e) => asked.has(e.id));
+}
+
 /** One paper per exam that has questions for this subject, newest exam first. */
 export function papersOf(exams: Exam[], subject: Subject): Paper[] {
   const all = placedQuestions(subject);

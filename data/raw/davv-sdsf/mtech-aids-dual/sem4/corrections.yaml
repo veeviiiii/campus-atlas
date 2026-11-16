@@ -1,0 +1,62 @@
+# Human corrections to what the model read, for the Semester 4 pack. Format: pipeline/corrections.py.
+# Found by a second reader comparing every question with the photo of its page. Nothing here is
+# applied until a person has looked at the page and changed `status: proposed` to `confirmed`
+# (or deleted the entry). Check with:
+#   .venv/Scripts/python -m pipeline.intake check data/raw/davv-sdsf/mtech-aids-dual/sem4/manifest.yaml
+
+reader: "Claude Fable 5.2 (second reader), 2026-11-16"
+
+audited_pages:
+  - "mtech-aids-dual-sem4_2022-23_end.pdf#p1"
+  - "mtech-aids-dual-sem4_2023-24_mst1.pdf#p1"
+  - "mtech-aids-dual-sem4_2023-24_mst1.pdf#p2"
+  - "mtech-aids-dual-sem4_2023-24_mst2.pdf#p1"
+  - "mtech-aids-dual-sem4_2023-24_mst2.pdf#p2"
+  - "mtech-aids-dual-sem4_2023-24_mst2.pdf#p3"
+  - "mtech-aids-dual-sem4_2024-25_end.pdf#p1"
+  - "mtech-aids-dual-sem4_2024-25_end.pdf#p2"
+  - "mtech-aids-dual-sem4_2024-25_end.pdf#p3"
+  - "mtech-aids-dual-sem4_2024-25_end.pdf#p4"
+  - "mtech-aids-dual-sem4_2024-25_end.pdf#p5"
+  - "mtech-aids-dual-sem4_2024-25_end.pdf#p6"
+  - "mtech-aids-dual-sem4_2024-25_end.pdf#p7"
+  - "mtech-aids-dual-sem4_2024-25_end.pdf#p8"
+  - "mtech-aids-dual-sem4_2024-25_end.pdf#p9"
+  - "mtech-aids-dual-sem4_2024-25_end.pdf#p10"
+  - "mtech-aids-dual-sem4_2024-25_mst1.pdf#p1"
+  - "mtech-aids-dual-sem4_2024-25_mst1.pdf#p2"
+  - "mtech-aids-dual-sem4_2024-25_mst1.pdf#p3"
+  - "mtech-aids-dual-sem4_2024-25_mst1.pdf#p4"
+  - "mtech-aids-dual-sem4_2024-25_mst1.pdf#p5"
+  - "mtech-aids-dual-sem4_2024-25_mst2.pdf#p1"
+  - "mtech-aids-dual-sem4_2024-25_mst2.pdf#p2"
+  - "mtech-aids-dual-sem4_2024-25_mst2.pdf#p3"
+  - "mtech-aids-dual-sem4_2024-25_mst2.pdf#p4"
+  - "mtech-aids-dual-sem4_2024-25_mst2.pdf#p5"
+  - "mtech-aids-dual-sem4_2024-25_mst2.pdf#p6"
+
+corrections:
+  # Sampling Theory MST-2 2024-25 (page 4), question 3: the formula lost its backslashes on the way
+  # into the pack (\bar, \frac and \right became control characters), so the site cannot draw it.
+  - page: "mtech-aids-dual-sem4_2024-25_mst2.pdf#p4"
+    match: "Prove that In SRSWOR, the variance of the sample mean is given by"
+    set:
+      text: 'Prove that In SRSWOR, the variance of the sample mean is given by $V(\bar{y}_n) = \left( \frac{1}{n} - \frac{1}{N} \right) S^2$'
+    why: "the formula in the pack is broken markup; the photo prints V(y-bar n) = (1/n - 1/N) S squared"
+    status: proposed
+
+  # Optimization Algorithms First Test 2024-25 (page 3): the marks are printed at the right edge,
+  # (5), (5) and (10), partly under handwriting. The pack has none.
+  - {page: "mtech-aids-dual-sem4_2024-25_mst1.pdf#p3", match: "A firm manufacture produces three products A, B and C", set: {marks: 5}, why: "the photo prints (5) at the end of Q.1", status: proposed}
+  - {page: "mtech-aids-dual-sem4_2024-25_mst1.pdf#p3", match: "Solve graphically", set: {marks: 5}, why: "the photo prints (5) beside Q.2, under the handwriting", status: proposed}
+  - {page: "mtech-aids-dual-sem4_2024-25_mst1.pdf#p3", match: "Solve the following LPP by using Simplex Method", set: {marks: 10}, why: "the photo prints (10) beside Q.3", status: proposed}
+
+  # Sampling Theory End Sem 2024-25: Q.4 is "Attempt any one, 15 x 1 = 15"; its part a is on page 5
+  # (15 marks in the pack), its part b alone on page 6 (no marks in the pack).
+  - page: "mtech-aids-dual-sem4_2024-25_end.pdf#p6"
+    match: "Describe the procedure of stratified random sampling"
+    set: {marks: 15}
+    why: "part b of Q.4 (page 5: Attempt any one, 15 x 1 = 15), the alternative to part a, which has its 15 marks"
+    status: proposed
+
+missed: []

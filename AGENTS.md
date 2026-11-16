@@ -17,7 +17,8 @@ sentence. We are now turning it into a simple, useful product. When in doubt, cu
 2. **Likely topics.** Per subject, topics ranked by a transparent score, each with its reasons
    ("asked in 2 of 3 exams", "came back from MST-2 in the End Sem, word for word", "12 marks").
    Honesty rule: with fewer than 3 years of papers this is a frequency score, NOT machine learning,
-   and the UI must say what it is based on. A learned model only once there are 3+ years, and only
+   and the UI must say what it is based on. It counts only the subject's own papers (not every exam
+   of the semester); a subject with fewer than 3 papers lists its topics with no score and no ranking. A learned model only once there are 3+ years, and only
    with a backtest (predict last year's End Sem from earlier years, publish the hit rate).
 3. **Notes exchange (phase 3, not built yet).** Upload notes or request them, tagged by subject and
    topic. Topics are shared across departments, so a request reaches students in other departments
@@ -46,7 +47,13 @@ to navigate.
 3. Community: sign-in, PYQ uploads into a review queue (an admin approves, then the pipeline runs),
    notes exchange. Until then, papers come in through a Google Form owned by the maintainer (link in
    web/src/lib/site.ts, shown on /send/); the maintainer runs the pipeline on the uploads
-   (ADDING-PAPERS.md; pipeline/intake.py makes PDFs from photos and writes and checks the manifest). Planned stack: Supabase (Postgres + Storage + Auth) with the Next.js site on Vercel.
+   (ADDING-PAPERS.md; pipeline/intake.py makes PDFs from photos and writes and checks the manifest). Stack: Supabase (Postgres + Storage + Auth, free plan) with the Next.js site on Vercel.
+   Piece A is built, not live yet: Google sign-in and the upload form on /upload/, "My uploads",
+   the database rules (supabase/migrations/0001_uploads.sql) and pipeline/fetch_uploads.py, which
+   brings waiting uploads to data/inbox/ for the intake desk (the desk is the review queue; there is
+   no admin page). It goes live when the maintainer has made the Supabase projects and
+   `npm run test:access` passes (supabase/README.md). Still to build: the notes exchange, which
+   first needs topic ids that do not move when a subject is regrouped.
 4. Backtested prediction once there are 3+ years.
 Ask before starting a new phase. Ask before adding a backend, auth or any paid service.
 
@@ -77,10 +84,18 @@ A. pipeline/ (Python 3.11, .venv): the PYQ Trust Harness. Raw PDFs + manifest ->
    longer shows quizzes.
    Eval: `python -m pipeline.eval --write` checks 19 hand-found repeats
    (pipeline/eval/expected_repeats.json); current result 18 of 19, stored in the pack.
+   Human corrections: corrections.yaml next to a manifest (pipeline/corrections.py) holds fixes a
+   person confirmed against the page photo; only `status: confirmed` entries are applied, at the pack
+   stage, and listed in harness.corrections. harness.reading_audit counts a second reader's check.
+   A pack is still never edited by hand.
 B. skills/pyq-atlas/: Agent Skill (agentskills.io standard) wrapping the pipeline, so any
    skills-compatible agent can add a course. Must keep passing `skills-ref validate`.
 C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; planets are 2D canvas, no 3D library).
-   Reads ONLY pack JSON at build time; no AI calls at runtime. Fonts are bundled in
+   Reads ONLY pack JSON at build time; no AI calls at runtime. One exception to "no backend":
+   /upload/ talks to Supabase from the browser (web/src/lib/supabase.ts; sign-in, the upload form,
+   "My uploads"). Papers never come from there, no other page loads it, and without the two
+   NEXT_PUBLIC_SUPABASE_ variables /upload/ points to the Google Form. Still a static export: no
+   server actions, cookies, proxy file or route handlers that read the request. Fonts are bundled in
    web/src/app/fonts (works offline). This Next.js has breaking changes: read
    web/node_modules/next/dist/docs before using an API you are unsure of.
    Routes: / (home: hero, pick a field, then its courses (?field=<id>; the search box finds any course), how it works),
@@ -88,7 +103,8 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    /c/<college>/<pack>/ (one semester: subject cards), /c/<college>/<pack>/<subject>/ (subject page:
    tabs Papers, Likely topics, Marks by unit; #likely, #topic-<id>, #marks open a tab; "Print this
    paper"), /search/ (every question; matches in the browser on /search-index.json, built from the
-   packs), /send/ (send us your papers). Also built: /sitemap.xml, /robots.txt, /og.png (link
+   packs), /send/ (send us your papers), /upload/ (sign in, upload a paper, see what became of
+   it). Also built: /sitemap.xml, /robots.txt, /og.png (link
    preview). Deploy: Vercel, project Root Directory web (Next.js
    preset; the build reads ../packs and ../catalog). Live: https://campus-atlas.vercel.app
    Design: keep the current look (dark theme, lime/violet palette, Space Grotesk / Inter / Plex Mono,
@@ -97,6 +113,8 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    do not write a new hex value in a rule. Motion goes off under prefers-reduced-motion.
 D. Tests (no API key, no model calls): `python -m unittest discover -s pipeline/tests -t .` and, in
    web/, `npm test` (node --test on web/tests; Node 22.18+). `npm run check` = lint + tests + build.
+   `npm run test:access` tries the upload database's access rules against a Supabase TEST project
+   (needs its keys in web/.env.test.local; skipped without them, never part of CI).
    .github/workflows/check.yml runs both on pushes to main and on pull requests.
 
 Pack schema 1.2 (packs/<college>/<course>-sem<N>.json, all years): college, course, sources.exams
@@ -106,7 +124,8 @@ repeat_of [{id, type: exact|near|same-topic}], confidence), unsure[], stats, har
 Full reference: skills/pyq-atlas/references/pack-schema.md. Page photos: packs/<college>/pages/*.jpg.
 
 ## 6. Repo layout
-data/raw/ (papers + manifest) · pipeline/ (+ tests/) · packs/ · catalog/ (course list) · runs/sample/ · skills/pyq-atlas/ ·
+data/raw/ (papers + manifest + corrections) · pipeline/ (+ tests/) · packs/ · catalog/ (course list) · runs/sample/ · skills/pyq-atlas/ ·
+supabase/ (upload database rules + setup) ·
 web/ (+ tests/) · .github/workflows/ (CI) · README.md · CONTRIBUTING.md · ADDING-PAPERS.md · LICENSE (Apache-2.0)
 
 ## 7. Rules for coding agents
@@ -117,5 +136,6 @@ web/ (+ tests/) · .github/workflows/ (CI) · README.md · CONTRIBUTING.md · AD
 - Every AI output is JSON validated by pydantic. Failures go to the unsure list, never silently dropped.
 - Keep it simple. A feature must be explainable in one sentence to a fresher, or it waits.
 - Commit small and often with clear messages. Git author: veeviiiii <vedantkhare007@gmail.com>.
-- Secrets only in .env (never committed). Check git history before anything goes public.
+- Secrets only in .env (never committed). Check git history before anything goes public. The
+  Supabase service key is one of them: root .env only, never in web/ or Vercel.
 - When unsure, ask before building.

@@ -23,5 +23,17 @@ test("the home page gets a summary of the packs, not the packs", () => {
   assert.equal(s.hero?.cities.length, one.pack.subjects.flatMap((x) => x.units.flatMap((u) => u.topics)).length);
   assert.ok(!JSON.stringify(s).includes("He-Ne"), "no question text");
 
-  assert.deepEqual(homeSummary([]), { hero: null, totals: { papers: 0, questions: 0, repeats: 0, dropped: 0 }, checked: null });
+  assert.deepEqual(homeSummary([]), { hero: null, totals: { papers: 0, questions: 0, repeats: 0, dropped: 0 }, checked: null, audited: null });
+});
+
+test("the second reader's check is said only once every pack is checked and no proposed fix is waiting", () => {
+  const audit = (proposed: number, corrected: number) => ({ reader: "a second reader", pages: 2, questions_checked: 5, corrected, dropped: 1, missed: 0, proposed });
+  const withAudit = (proposed: number, corrected: number) => {
+    const e = entry();
+    e.pack.harness = { ...e.pack.harness, reading_audit: audit(proposed, corrected) };
+    return e;
+  };
+  assert.equal(homeSummary([withAudit(0, 2), entry()]).audited, null); // one pack was never checked
+  assert.equal(homeSummary([withAudit(0, 2), withAudit(3, 0)]).audited, null); // three fixes still wait for a person
+  assert.deepEqual(homeSummary([withAudit(0, 2), withAudit(0, 0)]).audited, { questions: 10, fixed: 4 });
 });

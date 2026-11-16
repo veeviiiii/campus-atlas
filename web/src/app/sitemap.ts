@@ -4,6 +4,7 @@ import { courseCards } from "@/lib/catalog";
 import { loadPacks } from "@/lib/packs";
 import { courseHref, programmeHref, subjectHref } from "@/lib/paths";
 import { SITE_URL } from "@/lib/site";
+import { uploadsConfigured } from "@/lib/supabase";
 
 // /sitemap.xml, written at build time: every page of the static site, so search engines find each
 // course, semester and subject (students search for "<subject> DAVV previous year papers").
@@ -15,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/",
     "/search/",
     "/send/",
+    ...(uploadsConfigured ? ["/upload/"] : []), // without the upload service the page only repeats /send/
     ...courseCards(entries).map((c) => programmeHref(c.id)),
     ...entries.flatMap((e) => [courseHref(e.key), ...e.pack.subjects.map((s) => subjectHref(e.key, s.id))]),
   ];

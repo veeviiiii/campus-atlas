@@ -5,7 +5,7 @@ import { useMemo } from "react";
 
 import MiniPlanet from "./MiniPlanet";
 import { HEAT, SUBJECT_COLORS } from "@/lib/colors";
-import { rankTopics } from "@/lib/likely";
+import { canRank, rankTopics } from "@/lib/likely";
 import { examDate, inOrder, isUndated, papersOf, sessionsOf } from "@/lib/papers";
 import { subjectHref } from "@/lib/paths";
 import { heatOf } from "@/lib/planet";
@@ -28,7 +28,7 @@ export default function CourseView({ entry }: { entry: PackEntry }) {
           papers: papersOf(exams, s).length,
           questions: topics.reduce((n, t) => n + t.questions.length, 0),
           repeats: topics.filter((t) => t.is_repeat).length,
-          top: rankTopics(exams, s)[0]?.topic.name,
+          top: canRank(exams, s) ? rankTopics(exams, s)[0]?.topic.name : undefined, // too few papers: nothing is "most asked"
         };
       }),
     [pack, exams],

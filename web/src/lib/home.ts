@@ -19,6 +19,9 @@ export interface HomeSummary {
   totals: { papers: number; questions: number; repeats: number; dropped: number };
   /** How repeat finding did against the repeats found by hand, on the one course that has them. */
   checked: { course: string; expected: number; found: number } | null;
+  /** A second reader's check of the questions against their page photos. Said only when every pack
+   *  has been checked and none of its proposed fixes still waits for a person. */
+  audited: { questions: number; fixed: number } | null;
 }
 
 const round = (x: number) => Math.round(x * 100) / 100; // a hundredth of a degree is far below a pixel
@@ -28,7 +31,15 @@ export function homeSummary(entries: PackEntry[]): HomeSummary {
   const total = (k: "papers" | "questions" | "repeats" | "dropped_bleed_through") => entries.reduce((n, e) => n + e.pack.stats[k], 0);
   const evalPack = entries.find((e) => e.pack.harness?.eval)?.pack;
   const result = evalPack?.harness?.eval;
+  const audits = entries.map((e) => e.pack.harness?.reading_audit);
   return {
+    audited:
+      audits.length > 0 && audits.every((a) => a && a.proposed === 0)
+        ? {
+            questions: audits.reduce((n, a) => n + (a?.questions_checked ?? 0), 0),
+            fixed: audits.reduce((n, a) => n + (a?.corrected ?? 0) + (a?.dropped ?? 0), 0),
+          }
+        : null,
     hero: first
       ? {
           cities: buildPlanet(first.pack).cities.map((c) => ({

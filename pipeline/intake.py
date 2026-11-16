@@ -17,6 +17,7 @@ import pymupdf
 import yaml
 from PIL import Image, ImageOps
 
+from pipeline import corrections
 from pipeline.manifest import check_exams
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -225,6 +226,18 @@ def check(path: Path) -> bool:
             theirs = {f["file"] for f in (yaml.safe_load(other.read_text(encoding="utf-8")).get("files") or [])}
             for name in sorted(mine & theirs):
                 problems.append(f"{name}: {other.relative_to(ROOT).as_posix()} uses this file name too; rename one")
+
+    # corrections.yaml (human fixes to what the model read), when the folder has one
+    try:
+        corr = corrections.load(path.parent)
+    except ValueError as e:
+        corr = None
+        problems.append(f"{corrections.FILE_NAME}: {e}")
+    if corr:
+        problems += [f"{corrections.FILE_NAME}: {x}" for x in corrections.unknown_pages(corr, m)]
+        waiting = sum(1 for c in corr.corrections if c.status == "proposed")
+        if waiting:
+            print(f"note: {waiting} correction(s) in {corrections.FILE_NAME} still say `status: proposed` and are not applied. Compare each with its page, then set `confirmed` or delete it.")
 
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     course = (m.get("course") or {}).get("id")
