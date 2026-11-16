@@ -32,7 +32,8 @@ One pack holds every year of one course-semester.
           "has_table": false, "table_markdown": null, "sub_parts": [], "is_or_choice": false,
           "page_ref": "End_sem_pyq_sem1.pdf#p5",
           "repeat_of": [{"id": "physics-1-mst2-q1", "type": "exact", "similarity": 0.998}],
-          "confidence": 0.9
+          "confidence": 0.9,
+          "corrected": true         // only when a human correction changed it (corrections.yaml)
         }],
         "quiz": [{"q": "...", "options": ["a", "b", "c", "d"], "answer": 1, "why": "..."}]
       }],
@@ -43,7 +44,11 @@ One pack holds every year of one course-semester.
   "unsure": [{"subject": "...", "page_ref": "...", "step": "...", "error": "...", "raw": "..."}],
   "stats": {"papers": 21, "questions": 0, "repeats": 0, "dropped_bleed_through": 0},
   "harness": {"model": "...", "fallback_model": "...", "embedding_model": "...",
-              "dropped_bleed_through": [...], "manifest_disagreements": [...], "repeat_judgements": [...]}
+              "dropped_bleed_through": [...], "manifest_disagreements": [...], "repeat_judgements": [...],
+              // only with a corrections.yaml next to the manifest (see manifest.md):
+              "corrections": [{"id": "...", "subject": "...", "page_ref": "...", "fields": ["marks"], "drop": false, "why": "..."}],
+              "reading_audit": {"reader": "...", "pages": 40, "questions_checked": 370, "corrected": 9,
+                                "dropped": 1, "missed": 0, "proposed": 0}}
 }
 ```
 
@@ -54,4 +59,7 @@ One pack holds every year of one course-semester.
 - `repeat_of.type`: `exact` | `near` | `same-topic`.
 - `confidence`: 0.9 for a validated extraction, minus 0.1 if it sat at the page edge and needed the
   visual check, minus 0.1 if the first extraction failed validation.
+- `harness.reading_audit`: what a second reader's check of the questions against the page photos came
+  to, counted from `corrections.yaml` and the pack. `proposed` is the number of fixes still waiting for
+  a person to confirm; the site shows the audit only when it is 0.
 - The website reads only this file (plus `pages/*.jpg`); it never calls a model.

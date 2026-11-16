@@ -325,7 +325,7 @@ Course list too. Without a catalogue entry the pack still works and shows under 
 | `MODEL_ID is not set` / `GEMINI_API_KEY` | `.env` is missing or empty: copy `.env.example` to `.env` and fill it in. |
 | `429`, `RESOURCE_EXHAUSTED`, `503` | API limit or overload. The pipeline retries; if it gives up, run the same command later. |
 | `exam id ...: use mst1 / mst2 / mst3 / end ...` | An exam id does not match its session; see step 5. |
-| A question's text is wrong on the site | Do not edit the pack by hand (the next run overwrites it). Retake the photo, replace the PDF, run again. |
+| A question's text or marks are wrong on the site | Do not edit the pack by hand (the next run overwrites it). Add the fix to `corrections.yaml` next to the manifest with `status: confirmed` ([format](skills/pyq-atlas/references/manifest.md)), then run `build_pack ... --stage pack`. If the photo itself is unreadable: retake it, replace the PDF, run again. |
 | A page is upside down on the site | Add `rotation: 180` to that page in the manifest and run again. |
 | `ModuleNotFoundError` | The command did not use the project's Python: start it with `.venv/Scripts/python`. |
 

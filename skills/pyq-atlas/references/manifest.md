@@ -41,3 +41,30 @@ Rules:
 - `rotation` (0/90/180/270, clockwise) is optional; the model detects rotation on its own.
 - `notes` are for people and the eval; the pipeline never reads them.
 - Use real coordinates for the college (e.g. from OpenStreetMap).
+
+## corrections.yaml (optional, next to the manifest)
+
+A pack is never edited by hand. When a person has compared a question with the photo of its page and
+the pack is wrong, the fix goes in `corrections.yaml` in the same folder; like the manifest it is human
+ground truth, and the pipeline applies it at the pack stage and lists it in `harness.corrections`.
+
+```yaml
+audited_pages: ["btech-cse-sem3_2024-25_end.pdf#p1"]   # pages a second reader compared with the pack
+reader: "who checked, and when"
+corrections:
+  - page: "btech-cse-sem3_2024-25_end.pdf#p1"
+    match: "Derive the Lorentz transformation"         # a piece of the question's text as the pack has it
+    set: {marks: 10}                                   # any of: text, marks, sub_parts, table_markdown
+    why: "the photo prints 10 marks, the pack says 16"
+    status: confirmed                                  # "proposed" (the default) is NOT applied
+  - {page: "...", match: "...", drop: true, why: "belongs to the paper underneath", status: confirmed}
+missed:                                                # printed on the page, absent from the pack
+  - {page: "...", text: "...", why: "..."}             # counted, never typed into the pack: re-read the page
+```
+
+- A question is found by its page and its text, never by its number. An entry that finds no question,
+  or several, is not applied and goes to the pack's `unsure` list (a `drop` may take every copy of a
+  line printed twice; a `match` that is one question's whole text means that question).
+- Use single quotes around text with LaTeX: YAML then leaves the backslashes alone.
+- Corrections are applied after topics and repeats are worked out, so a fix never moves a topic.
+- `python -m pipeline.intake check <manifest.yaml>` checks this file too.

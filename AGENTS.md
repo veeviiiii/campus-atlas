@@ -75,6 +75,10 @@ A. pipeline/ (Python 3.11, .venv): the PYQ Trust Harness. Raw PDFs + manifest ->
    longer shows quizzes.
    Eval: `python -m pipeline.eval --write` checks 19 hand-found repeats
    (pipeline/eval/expected_repeats.json); current result 18 of 19, stored in the pack.
+   Human corrections: corrections.yaml next to a manifest (pipeline/corrections.py) holds fixes a
+   person confirmed against the page photo; only `status: confirmed` entries are applied, at the pack
+   stage, and listed in harness.corrections. harness.reading_audit counts a second reader's check.
+   A pack is still never edited by hand.
 B. skills/pyq-atlas/: Agent Skill (agentskills.io standard) wrapping the pipeline, so any
    skills-compatible agent can add a course. Must keep passing `skills-ref validate`.
 C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; planets are 2D canvas, no 3D library).
