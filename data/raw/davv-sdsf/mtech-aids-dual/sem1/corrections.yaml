@@ -1,0 +1,153 @@
+# Human corrections to what the model read, for the Semester 1 pack. Format: pipeline/corrections.py.
+# Found by a second reader comparing every question with the photo of its page. Nothing here is
+# applied until a person has looked at the page and changed `status: proposed` to `confirmed`
+# (or deleted the entry). Check with:
+#   .venv/Scripts/python -m pipeline.intake check data/raw/davv-sdsf/mtech-aids-dual/sem1/manifest.yaml
+
+reader: "Claude Fable 5.2 (second reader), 2026-11-16"
+
+audited_pages:
+  - "MST_1_PYQ_Sem_1.pdf#p1"
+  - "MST_1_PYQ_Sem_1.pdf#p2"
+  - "MST_1_PYQ_Sem_1.pdf#p3"
+  - "MST_1_PYQ_Sem_1.pdf#p4"
+  - "MST_1_PYQ_Sem_1.pdf#p5"
+  - "MST_1_PYQ_Sem_1.pdf#p6"
+  - "MST_1_PYQ_Sem_1.pdf#p7"
+  - "MST2_PYQ.pdf#p1"
+  - "MST2_PYQ.pdf#p2"
+  - "MST2_PYQ.pdf#p3"
+  - "MST2_PYQ.pdf#p4"
+  - "MST2_PYQ.pdf#p5"
+  - "MST2_PYQ.pdf#p6"
+  - "MST2_PYQ.pdf#p7"
+  - "End_sem_pyq_sem1.pdf#p1"
+  - "End_sem_pyq_sem1.pdf#p2"
+  - "End_sem_pyq_sem1.pdf#p3"
+  - "End_sem_pyq_sem1.pdf#p4"
+  - "End_sem_pyq_sem1.pdf#p5"
+  - "End_sem_pyq_sem1.pdf#p6"
+  - "End_sem_pyq_sem1.pdf#p7"
+  - "End_sem_pyq_sem1.pdf#p8"
+  - "mtech-aids-dual-sem1_2022-23_mst1.pdf#p1"
+  - "mtech-aids-dual-sem1_2022-23_mst1.pdf#p2"
+  - "mtech-aids-dual-sem1_2022-23_mst1.pdf#p3"
+  - "mtech-aids-dual-sem1_2022-23_mst1.pdf#p4"
+  - "mtech-aids-dual-sem1_2022-23_mst1.pdf#p5"
+  - "mtech-aids-dual-sem1_2022-23_mst1.pdf#p6"
+  - "mtech-aids-dual-sem1_2022-23_mst2.pdf#p1"
+  - "mtech-aids-dual-sem1_2022-23_mst2.pdf#p2"
+  - "mtech-aids-dual-sem1_2022-23_mst2.pdf#p3"
+  - "mtech-aids-dual-sem1_2022-23_mst3.pdf#p1"
+  - "mtech-aids-dual-sem1_2022-23_mst3.pdf#p2"
+  - "mtech-aids-dual-sem1_2022-23_end.pdf#p1"
+  - "mtech-aids-dual-sem1_2022-23_end.pdf#p2"
+  - "mtech-aids-dual-sem1_2022-23_end.pdf#p3"
+  - "mtech-aids-dual-sem1_2022-23_end.pdf#p4"
+  - "mtech-aids-dual-sem1_2022-23_end.pdf#p5"
+  - "mtech-aids-dual-sem1_2022-23_end.pdf#p6"
+  - "mtech-aids-dual-sem1_2022-23_end.pdf#p7"
+
+corrections:
+  # Descriptive Statistics End Sem, Section B question 4 runs over the page break: the data is at the
+  # bottom of page 3, "Find out two Regression Equations." is the first line of page 4. The pack has
+  # them as two questions, one with data and no task, one with a task and no data.
+  - page: "End_sem_pyq_sem1.pdf#p3"
+    match: "The following data relate to advertising expenditure and sales"
+    set:
+      text: "The following data relate to advertising expenditure and sales. Find out two Regression Equations."
+    why: "one printed question (Section B, 4) split over pages 3 and 4; its last line is at the top of page 4"
+    status: proposed
+  - page: "End_sem_pyq_sem1.pdf#p4"
+    match: "Find out two Regression Equations"
+    drop: true
+    why: "not a question of its own: the last line of Section B question 4, which starts on page 3"
+    status: proposed
+  - page: "End_sem_pyq_sem1.pdf#p4"
+    match: "Find Chain Index numbers for the following data"
+    set: {marks: 5}
+    why: "Section B is headed 'Attempt any four, 4 x 5 = 20' on page 3; this is its question 5, so 5 marks, not none"
+    status: proposed
+
+  # Fundamentals of Programming End Sem 2022-23 (page 3)
+  - page: "mtech-aids-dual-sem1_2022-23_end.pdf#p3"
+    match: "Write a program to print:"
+    set:
+      text: |-
+        Write a program to print:
+        ******
+        *****
+        ****
+        ***
+        **
+        *
+    why: "the photo prints six rows of stars (6, 5, 4, 3, 2, 1); the pack has five, the row of five stars is missing"
+    status: proposed
+  - page: "mtech-aids-dual-sem1_2022-23_end.pdf#p3"
+    match: "welcome to davv data science and forecasting department"
+    set:
+      text: |-
+        Find out the output:
+        #include<stdioh>
+        Void main()
+        {char str[]="welcome to davv data science and forecasting department";
+        char *ptr=str;
+        printf("%c\n",*ptr);
+        printf("%c\n",*(ptr++ +4));
+        printf("%c\n",*((ptr-- +5)-2)+3);
+        printf("%c\n",*(++ptr +13)-32);
+        printf("%c%c%c",*ptr,*++ptr,*--ptr);
+        }
+    why: "two lines of the program were misread, and the answer depends on them: the photo prints *((ptr-- +5)-2)+3 (the pack lost a bracket) and *++ptr in the last printf (the pack has ++ptr)"
+    status: proposed
+
+  # Mathematics-I End Sem 2022-23 (page 6), Q.5 (A)
+  - page: "mtech-aids-dual-sem1_2022-23_end.pdf#p6"
+    match: 'then find $\left| \frac{dr}{dt}'   # single quotes: YAML leaves the backslashes of the maths alone
+    set:
+      text: 'If $r = a \cos t\, i + a \sin t\, j + at \tan\alpha\, k$ then find $\left| \frac{dr}{dt} \times \frac{d^2r}{dt^2} \right|$'
+    why: "the photo prints tan α (alpha), the pack reads it as tan a; a is already another constant in the same line"
+    status: proposed
+
+  # Introduction to Computer Science End Sem 2022-23 (page 7): Section C prints how each 5 marks is split
+  - page: "mtech-aids-dual-sem1_2022-23_end.pdf#p7"
+    match: "Write a program in cpp to find the minimum and maximum element in an array"
+    set: {marks: 3}
+    why: "Q6 prints (3+2): part (a) carries 3 marks, not the whole 5"
+    status: proposed
+  - page: "mtech-aids-dual-sem1_2022-23_end.pdf#p7"
+    match: "Arrange the following operators according to their precedence"
+    set:
+      marks: 2
+      text: 'Arrange the following operators according to their precedence from highest to lowest- $\&\&, +=, \%, >=, |, a--$.'
+    why: "Q6 prints (3+2): part (b) carries 2 marks. And the photo prints the operator += ; the pack split it into + and ="
+    status: proposed
+  - page: "mtech-aids-dual-sem1_2022-23_end.pdf#p7"
+    match: "What are the resources that are provided by infrastructure as a service"
+    set: {marks: 2.5}
+    why: "Q8 prints (2.5+2.5): each part carries 2.5 marks, not 5"
+    status: proposed
+  - page: "mtech-aids-dual-sem1_2022-23_end.pdf#p7"
+    match: "What is a Private Cloud"
+    set: {marks: 2.5}
+    why: "Q8 prints (2.5+2.5): each part carries 2.5 marks, not 5"
+    status: proposed
+
+  # Fundamentals of Programming MST-1 2022-23 (page 2): YOUR CALL, look at the photo.
+  # Below question 5 the sheet prints three more lines, numbered 6, 7 and 7, about neural networks and
+  # machine learning (this is a C test), the last line twice. All three numbers are struck through by
+  # pen. They are printed on this sheet (same paper, same type), so they are not bleed-through, but they
+  # look like lines left over from another paper and cancelled in the exam hall. Confirm to take them
+  # off the site, or delete these two entries to keep them.
+  - page: "mtech-aids-dual-sem1_2022-23_mst1.pdf#p2"
+    match: "Explain the concept of McCulloch-Pitts neuron models"
+    drop: true
+    why: "printed under the C test but struck through by pen and not about programming; looks like a line left from another paper"
+    status: proposed
+  - page: "mtech-aids-dual-sem1_2022-23_mst1.pdf#p2"
+    match: "Differentiate briefly regression, classification and clustering in machine learning"
+    drop: true
+    why: "the same line printed twice under the C test, both struck through by pen; looks left from another paper"
+    status: proposed
+
+missed: []

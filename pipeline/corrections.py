@@ -17,7 +17,10 @@ wrong, the fix goes here, the pipeline applies it and the pack says so (harness.
       - {page: "...", text: "...", why: "..."}        # reported and counted; never typed into the pack
 
 A question is found by its page and its text, never by its number (handwritten renumbering). An entry
-that finds no question, or more than one, is not applied: it goes to the pack's unsure list.
+that finds no question, or more than one, is not applied: it goes to the pack's unsure list. Two
+exceptions: when `match` is the whole text of exactly one question, that one is meant ("Write a
+program to print:" is also how the next question starts); and a `drop` whose `match` finds several
+questions with the very same text drops them all (a line printed twice).
 
 Corrections are applied after the questions are grouped into topics and compared for repeats, so a
 fix never reshuffles the topics; marks fixes do reach the topic's marks.
@@ -145,8 +148,11 @@ def apply(questions: list[dict], corrections: list[Correction]) -> tuple[set[str
     for c in confirmed:
         key = normalize(c.match)
         hits = [q for q in questions if q.get("page_ref") == c.page and key in _text_of(q)]
-        if len(hits) == 1:
-            found.append((c, hits[0]))
+        whole = [q for q in hits if _text_of(q) == key]
+        if len(whole) == 1:  # the match is one question's whole text, and only the start of the others
+            hits = whole
+        if len(hits) == 1 or (c.drop and hits and len({_text_of(q) for q in hits}) == 1):  # or: the same line, printed twice
+            found += [(c, q) for q in hits]
         else:
             what = "no question on that page has this text" if not hits else f"{len(hits)} questions on that page have this text; make `match` longer"
             problems.append({"page_ref": c.page, "step": "corrections", "error": what, "raw": c.match})

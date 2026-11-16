@@ -73,6 +73,18 @@ class Apply(unittest.TestCase):
         self.assertIn("no question", problems[1]["error"])
         self.assertEqual(self.qs[0]["marks"], 16)
 
+    def test_a_match_that_is_one_questions_whole_text_means_that_question(self):
+        self.qs += [q(4, "Write a program to print:\n******\n*****"), q(5, "Write a program to print:\nABCDEFG FEDCBA")]
+        _, applied, problems = apply(self.qs, [fix("Write a program to print:", set={"marks": 10})])
+        self.assertEqual(([a["id"] for a in applied], problems), (["physics-end-q4"], []))
+
+    def test_a_drop_takes_every_copy_of_a_line_printed_twice(self):
+        self.qs += [q(4, "Differentiate briefly regression and clustering."), q(5, "Differentiate briefly regression and clustering.")]
+        dropped, applied, problems = apply(self.qs, [fix("Differentiate briefly regression", drop=True)])
+        self.assertEqual((dropped, len(applied), problems), ({"physics-end-q4", "physics-end-q5"}, 2, []))
+        _, applied, problems = apply(self.qs, [fix("Differentiate briefly regression", set={"marks": 5})])  # a fix must name one question
+        self.assertEqual((applied, len(problems)), ([], 1))
+
     def test_the_page_must_match_too(self):
         _, applied, problems = apply(self.qs, [fix("Gauss's theorem", set={"marks": 8})])  # that question is on page 2
         self.assertEqual(applied, [])
