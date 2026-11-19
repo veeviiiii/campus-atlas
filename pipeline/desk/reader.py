@@ -1,7 +1,8 @@
 """Read pages with the model so the desk can pre-fill its fields ("Read pages" on the desk page).
 
 A reading is raw material: suggest.py turns it into suggested fields, and nothing counts until the
-maintainer accepts it. Nothing is read until the button is pressed. Answers are cached in
+maintainer accepts it. Besides the header it keeps how the questions begin, which judge.py uses to
+work out a subject the paper does not print and suggest.py to spot a paper photographed twice. Nothing is read until the button is pressed. Answers are cached in
 data/work/cache like the pipeline's, so reading a folder again costs no calls.
 
 The model is DESK_MODEL_ID from .env, or the pipeline's model when that is empty.
@@ -14,7 +15,7 @@ from pathlib import Path
 from typing import Callable, Literal
 
 from PIL import Image
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from pipeline import providers
 from pipeline.desk.decisions import Page
@@ -33,16 +34,19 @@ Reply with JSON only:
              "course_name": "<course or programme exactly as printed, e.g. 'M.Tech. (AI & DS) 5 Yrs'> or null",
              "semester": "<semester as printed, e.g. 'III Sem'> or null",
              "date": "<exam date or month as printed, e.g. '12/10/2025' or 'Dec 2024'> or null",
-             "year": "<academic year or session as printed, e.g. '2024-25'> or null"}]}
+             "year": "<academic year or session as printed, e.g. '2024-25'> or null",
+             "questions": ["<the first 12 words of a question, exactly as printed>", ...]}]}
 Rules:
 - R: how many degrees the image must be turned CLOCKWISE so the printed text reads normally: 0, 90, 180 or 270.
 - kind: "question paper" for a printed exam question paper; "answer sheet" for a student's written answers; "notes" for notes or a book page.
 - papers: one entry per question paper on the page, as seen after turning it upright. Two papers side by side are "left" and "right"; one above the other "top" and "bottom"; a single paper is one entry with "whole". For anything that is not a question paper, papers is [].
 - Read only PRINTED text. Ignore handwriting (names, roll numbers, answers, ticks) and pieces of other papers at the edges.
 - has_header false: this page of the paper has no printed header (it continues an earlier page); set the other fields to null.
+- questions: how up to 8 of this paper's questions on this page begin, in the order printed: the first 12 words of each, without its number or marks. Write maths in plain words or LaTeX. [] when no question can be read.
 - Copy text exactly as printed. Never guess: anything not printed is null."""
 
 KINDS = ("question paper", "answer sheet", "notes", "blank", "other")
+QUESTIONS, QUESTION_CHARS = 8, 160  # question beginnings kept per paper, and how long each may be
 WORKERS = 3  # pages read at the same time, unless DESK_READ_WORKERS in .env says otherwise
 GIVE_UP = 3  # stop when the first pages all fail (a wrong key or model id fails every page)
 
@@ -56,6 +60,14 @@ class PaperRead(BaseModel):
     semester: str | None = None
     date: str | None = None
     year: str | None = None
+    questions: list[str] = Field(default_factory=list)  # how its questions begin: for working out a subject that is not printed, and copies
+
+    @field_validator("questions", mode="before")
+    @classmethod
+    def a_few_short_lines(cls, v):
+        """Only text, cut to what was asked for; a model that sends null or one string is not an error."""
+        v = [v] if isinstance(v, str) else (v or [])
+        return [" ".join(str(q).split())[:QUESTION_CHARS] for q in v if isinstance(q, (str, int, float)) and str(q).strip()][:QUESTIONS]
 
 
 class PageRead(BaseModel):
@@ -150,8 +162,10 @@ class Reader:
     """Reads pages in the background, a few at a time. `read(key)` returns a reading and `store(key,
     reading)` keeps it; the desk page polls status()."""
 
-    def __init__(self, read: Callable[[str], dict], store: Callable[[str, dict], None], workers: int | None = None):
+    def __init__(self, read: Callable[[str], dict], store: Callable[[str, dict], None], workers: int | None = None,
+                 after: Callable[[], None] | None = None):
         self.read, self.store, self.workers = read, store, workers or workers_wanted()
+        self.after = after  # called once the last queued page is read (not when reading was stopped)
         self.lock = threading.Lock()
         self.queue: deque[str] = deque()
         self.busy: set[str] = set()
@@ -185,7 +199,8 @@ class Reader:
             with self.lock:
                 if not self.queue:
                     self.active -= 1
-                    return
+                    last = self.active == 0 and not self.stopped_because and self.done > self.failed
+                    break
                 key = self.queue.popleft()
                 self.busy.add(key)
             try:
@@ -200,6 +215,8 @@ class Reader:
                 give_up = self.failed >= GIVE_UP and self.failed == self.done
             if give_up:
                 self.stop(f"the first {self.failed} pages all failed: {reading.get('error', '')}")
+        if last and self.after:
+            self.after()
 
     def status(self) -> dict:
         with self.lock:

@@ -6,6 +6,7 @@ atomically, so closing the page loses nothing and opening the folder again resto
 `written` is the server's own record of what the desk put into which manifest (so writing again
 replaces its own entries and never touches anything else); the page never changes it. `reads` is
 what the model read on each page ("Read pages"): raw material for suggestions, never a decision.
+`judged` is what the model answered about subjects (judge.py): the same, raw material only.
 """
 
 import json
@@ -60,6 +61,7 @@ class Desk:
     exam_dates: dict[str, str] = field(default_factory=dict)  # exam_key() -> "2024-12" or "2024"
     written: dict[str, dict] = field(default_factory=dict)  # manifest path in the repo -> {files, exams, subjects}
     reads: dict[str, dict] = field(default_factory=dict)  # "<source>#<page>" -> the model's reading (reader.py)
+    judged: dict[str, dict] = field(default_factory=dict)  # {"names": {"<course>/<sem>": {name key: answer}}, "subjects": {"<key>:<part>": answer}}
 
     def page(self, key: str) -> Page:
         return self.pages.get(key) or Page()
@@ -118,6 +120,7 @@ def from_dict(d: dict) -> Desk:
     desk.exam_dates = {str(k): str(v) for k, v in (d.get("exam_dates") or {}).items()}
     desk.written = {str(k): {n: list(v.get(n, [])) for n in ("files", "exams", "subjects")} for k, v in (d.get("written") or {}).items()}
     desk.reads = {str(k): dict(v) for k, v in (d.get("reads") or {}).items() if isinstance(v, dict)}
+    desk.judged = {str(k): dict(v) for k, v in (d.get("judged") or {}).items() if isinstance(v, dict)}
     return desk
 
 

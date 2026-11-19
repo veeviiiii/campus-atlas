@@ -194,6 +194,10 @@ def match_exam(title: str | None) -> str | None:
     s = re.sub(r"\b(test|mst|ut|internal)(iii|ii|i|\d)\b", r"\1 \2", s)
     s = re.sub(r"\b(iii|ii|i)(st|nd|rd|th)\b", r"\1", s)  # 'IInd Internal'
     s = normalize(s)  # the roman numerals split off above become digits
+    s = re.sub(r"\b(internal|test)s\b", r"\1", s)  # '1 internals'
+    # A roman II or III read as a mix of 1, I and l: 'Internal Test 1I', 'll Internal'. Its length is the number.
+    s = re.sub(r"\b(test|mst|ut|internal)\s+([1il]{2,3})\b", lambda m: f"{m[1]} {len(m[2])}", s)
+    s = re.sub(r"\b(?=[1il]*[il])([1il]{2,3})\s+(test|mst|ut|internal)\b", lambda m: f"{len(m[1])} {m[2]}", s)
     s = re.sub(r"\b(no|number)\s+(\d)\b", r"\2", s)  # 'Internal Test No. 2'
     # An internal test is a mid-semester test: 'II Internal Test' (normalized '2 internal test') is internal 2.
     # Not a semester number: 'Semester II Internal Test I' is internal 1.

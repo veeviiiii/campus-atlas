@@ -47,7 +47,12 @@ to navigate.
 3. Community: sign-in, PYQ uploads into a review queue (an admin approves, then the pipeline runs),
    notes exchange. Until then, papers come in through a Google Form owned by the maintainer (link in
    web/src/lib/site.ts, shown on /send/); the maintainer runs the pipeline on the uploads
-   (ADDING-PAPERS.md; pipeline/intake.py makes PDFs from photos and writes and checks the manifest). Stack: Supabase (Postgres + Storage + Auth, free plan) with the Next.js site on Vercel.
+   (ADDING-PAPERS.md; pipeline/intake.py makes PDFs from photos and writes and checks the manifest;
+   the intake desk, pipeline/desk, sorts a pile page by page and suggests each page's fields. Its
+   judge.py works out, as suggestions with a note saying how: a subject printed under another name
+   (model, words only; never two names with a paper in one sitting), a subject that is not printed
+   (model, from how the questions begin), and one paper photographed twice (no model). A year is
+   never worked out). Stack: Supabase (Postgres + Storage + Auth, free plan) with the Next.js site on Vercel.
    Piece A is built, not live yet: Google sign-in and the upload form on /upload/, "My uploads",
    the database rules (supabase/migrations/0001_uploads.sql) and pipeline/fetch_uploads.py, which
    brings waiting uploads to data/inbox/ for the intake desk (the desk is the review queue; there is

@@ -91,8 +91,8 @@ Keys: `←` `→` move, `A` accept the suggestion and go on, `U` use, `S` skip, 
 again to carry on.
 
 **Read pages** (model) asks the model to read every page you have not decided yet: which way up it is,
-one paper or two, whether it is a question paper at all, and what its header prints (exam, subject,
-course, semester, date). The desk turns that into suggested fields with the pipeline's own matching
+one paper or two, whether it is a question paper at all, what its header prints (exam, subject,
+course, semester, date) and how its questions begin. The desk turns that into suggested fields with the pipeline's own matching
 (subjects by name and the manifest's aliases, never by course code) and marks the card ✦ with a dashed
 border. A paper that prints no year is suggested as held back "no year" (likewise "no test number",
 "no subject"); a page with no printed header continues the paper before it; a paper that prints no
@@ -103,6 +103,28 @@ course takes the course and semester of the page before it.
   semester, the exam or the year, the suggestion takes it from the file name, and its notes say so
   ("year from the file name"). What the paper prints always wins; a file name that disagrees adds a
   note to look at. A file name with only a year (`2k25`) is never sure: check the session it worked out.
+- **What the desk works out about subjects.** After the pages are read, the model is asked a few
+  more questions, in words only (no picture is sent), and each answer is a suggestion with a note
+  saying how it was reached:
+  - *One subject under two names.* A paper prints "Numerical Methods" and the semester has
+    "Numerical Analysis": the model says whether they are one subject. If yes, the paper goes to that
+    subject and the other name becomes its alias. Two names that both have a paper in one sitting
+    (the same test of the same year) are never one subject, nor are two parts of a series
+    ("Mathematics II", "Mathematics III"): those are not even asked. Other spellings of one name
+    ("Maths-II (IT-201)", "Data structure" / "Data Structures") match without the model.
+  - *A subject that is not printed.* The model is shown how the paper's questions begin and the
+    semester's subjects (each with how some of its own questions begin) and names the one it is for.
+    Subjects that already have a paper in that sitting are left out. The paper is no longer held
+    back for "no subject"; whatever else is missing still holds it.
+  - *One paper photographed twice* (no model). Two pages whose questions begin the same way are one
+    paper: the copy that prints less is suggested **Skip**, so the one that prints the year stays.
+    When both print a year and the years differ, both are kept (the questions were set again).
+
+  A page whose subject was worked out, with nothing else in doubt, goes in with **Accept all sure
+  pages** (the dialog says how many), and its note ("subject not printed: worked out from the
+  questions") is written into the manifest as a comment. A year is never worked out. Pages read
+  before this was added have no question beginnings: **Read again** on a page, or the bar says how
+  many subject questions wait and **Read pages** asks them.
 - **Fill N held back** (above the pages) is for pages you held back before the desk read file names:
   it fills only the empty fields from each page's suggestion and keeps what you set. A paper with
   nothing missing any more becomes **Use**; the others stay held back with what is still missing as

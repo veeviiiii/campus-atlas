@@ -24,6 +24,7 @@ import threading
 import time
 import zipfile
 from collections import OrderedDict
+from concurrent.futures import ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -32,10 +33,10 @@ import yaml
 from PIL import Image
 
 from pipeline import intake
-from pipeline.desk import decisions, dupes, export, reader, suggest
+from pipeline.desk import decisions, dupes, export, judge, reader, suggest
 from pipeline.desk.geometry import render_part
 from pipeline.desk.sources import PREVIEW_SIDE, SMALL_SIDE, is_source, is_source_name, list_sources, load_page, load_pages, page_key, stamp
-from pipeline.manifest import EXAM_KINDS
+from pipeline.manifest import EXAM_KINDS, exam_kind
 
 STATIC = Path(__file__).resolve().parent / "static"
 RECENT = "data/work/desk/recent.json"  # folders and files opened before, newest first
@@ -159,11 +160,12 @@ class App:
         self.reader: reader.Reader | None = None
         self.dupes: dict[str, dict] = {}
         self.dupes_ready = False
+        self.judging = {"running": False, "done": 0, "total": 0, "error": "", "stop": False}  # judge.py's questions to the model
         self.seen = time.time()  # the page's last request
 
     def busy(self) -> bool:
-        """Reading pages or running the pipeline: the desk does not stop itself then."""
-        return bool((self.reader and self.reader.status()["running"]) or (self.run and self.run.code is None))
+        """Reading pages, working out subjects or running the pipeline: the desk does not stop itself then."""
+        return bool((self.reader and self.reader.status()["running"]) or self.judging["running"] or (self.run and self.run.code is None))
 
     # ------------------------------------------------------------ folder and state
 
@@ -189,6 +191,7 @@ class App:
             self.previews.clear()
             self.smalls.clear()
             self.reader, self.dupes, self.dupes_ready = None, {}, False
+            self.judging = {"running": False, "done": 0, "total": 0, "error": "", "stop": False}
         threading.Thread(target=self.background, args=(self.gen,), daemon=True).start()
         opened = str(self.folder / only) if only else str(self.folder)
         recent = self.recent()
@@ -268,6 +271,7 @@ class App:
         state = decisions.to_dict(self.desk)
         state.pop("written")
         state.pop("reads")
+        state.pop("judged")
         return {
             "folder": str(self.folder / self.only) if self.only else str(self.folder), "name": self.only or self.folder.name,
             "only": self.only, "state_file": decisions.state_file(self.folder, self.only).name, "inbox": self.in_inbox(self.folder),
@@ -281,8 +285,8 @@ class App:
 
     def save_state(self, d: dict) -> None:
         with self.lock:
-            # The page never changes `written` (what the desk wrote) or `reads` (what the model read).
-            desk = decisions.from_dict({**d, "written": self.desk.written, "reads": self.desk.reads})
+            # The page never changes `written` (what the desk wrote), `reads` (what the model read) or `judged` (what it answered).
+            desk = decisions.from_dict({**d, "written": self.desk.written, "reads": self.desk.reads, "judged": self.desk.judged})
             decisions.save(self.folder, desk, self.only)
             self.desk = desk
 
@@ -410,9 +414,12 @@ class App:
                 keys = [k for k in keys if k in known]
             gen = self.gen
             if self.reader is None:
-                self.reader = reader.Reader(lambda key: self.read_one(gen, key, prov), lambda key, r: self.store(gen, key, r))
+                self.reader = reader.Reader(lambda key: self.read_one(gen, key, prov), lambda key, r: self.store(gen, key, r),
+                                            after=lambda: self.start_judging(gen))
             r = self.reader
-        return {"queued": r.add(keys), "model": prov.model}
+        queued = r.add(keys)
+        # Nothing left to read: ask what is still open about subjects now (after a reading it follows by itself).
+        return {"queued": queued, "judging": 0 if queued else self.start_judging(gen), "model": prov.model}
 
     def read_one(self, gen: int, key: str, prov) -> dict:
         with self.lock:
@@ -436,18 +443,93 @@ class App:
             subs = []
         return subs + self.desk.subjects.get(f"{course}/{sem}", [])
 
+    def known(self, course: str, sem: int) -> dict:
+        """What judge.py may know of a course-semester besides the open folder: its subjects, the
+        sittings each already has a paper in (from the manifest), and how some of its questions begin
+        (from its pack, when one is built)."""
+        subjects, sittings, samples = self.subjects_for(course, sem), {}, {}
+        try:
+            info, c = self.manifest_info(course, sem), intake.find_course(course, sem)
+        except ValueError:
+            return {"subjects": subjects, "sittings": sittings, "samples": samples}
+        session = {e["id"]: e["session"] for e in info["exams"]}
+        for p in info["papers"]:
+            exam = str(p.get("exam") or "")
+            if p.get("subject") and session.get(exam):
+                sittings.setdefault(str(p["subject"]), set()).add(("s", exam_kind(exam), session[exam]))
+        samples = judge.pack_samples(intake.ROOT / "packs" / c["college"] / f"{c['id']}-sem{sem}.json")
+        return {"subjects": subjects, "sittings": sittings, "samples": samples}
+
+    @staticmethod
+    def _cached(fn):
+        cache: dict = {}
+
+        def get(c: str, sem: int):
+            if (c, sem) not in cache:
+                cache[(c, sem)] = fn(c, sem)
+            return cache[(c, sem)]
+
+        return get
+
+    def open_questions(self) -> list[dict]:
+        """What judge.py would ask the model now and has no answer to yet (call with the lock held)."""
+        sugs = suggest.suggestions(self.desk, self.keys(), self.courses(), self._cached(self.subjects_for), self.dupes, worked=False)
+        return judge.waiting(self.desk.judged, judge.tasks(self.desk, self.keys(), sugs, self._cached(self.known)))
+
+    def start_judging(self, gen: int) -> int:
+        """Ask the model what is still open about subjects (a name its semester does not have, a paper
+        that prints no subject), in the background. Returns how many questions that is."""
+        if reader.problem():
+            return 0
+        with self.lock:
+            if gen != self.gen or self.judging["running"]:
+                return 0
+            todo = self.open_questions()
+            if not todo:
+                return 0
+            self.judging = {"running": True, "done": 0, "total": len(todo), "error": "", "stop": False}
+        threading.Thread(target=self.judge_all, args=(gen, todo), daemon=True).start()
+        return len(todo)
+
+    def judge_all(self, gen: int, todo: list[dict]) -> None:
+        """Ask the questions a few at a time (as many as pages are read at once) and keep each answer as it comes."""
+        names = {c["id"]: c["name"] for c in self.courses()}
+
+        def one(t: dict) -> None:
+            if gen != self.gen or self.judging["stop"]:
+                return
+            course = t["where"].rsplit("/", 1)[0]
+            try:
+                answer = judge.judge_one(t, prov, names.get(course, course))
+            except Exception as e:  # kept with its reason and asked again next time, never dropped
+                answer = {"name": t.get("name", ""), "to": "", "to_name": "", "reason": "", "among": t["among"], "model": prov.model,
+                          "error": f"{type(e).__name__}: {e}"[:240]}
+            with self.lock:
+                if gen != self.gen:
+                    return
+                judge.keep(self.desk.judged, t, answer)
+                decisions.save(self.folder, self.desk, self.only)
+                self.judging["done"] += 1
+                if answer["error"]:
+                    self.judging["error"] = answer["error"]
+
+        try:
+            prov = reader.provider()
+            with ThreadPoolExecutor(max_workers=reader.workers_wanted()) as pool:
+                list(pool.map(one, todo))
+        finally:
+            with self.lock:
+                if gen == self.gen:
+                    self.judging["running"] = False
+
     def read_status(self) -> dict:
         with self.lock:
             status = self.reader.status() if self.reader else {"running": False, "total": 0, "done": 0, "failed": 0, "reading": [], "stopped": ""}
-            cache: dict = {}
-
-            def subjects_for(c: str, sem: int) -> list[dict]:
-                if (c, sem) not in cache:
-                    cache[(c, sem)] = self.subjects_for(c, sem)
-                return cache[(c, sem)]
-
-            sugs = suggest.suggestions(self.desk, self.keys(), self.courses(), subjects_for, self.dupes)
-            return {**status, "dupes_ready": self.dupes_ready, "suggestions": sugs}
+            sugs = suggest.suggestions(self.desk, self.keys(), self.courses(), self._cached(self.subjects_for), self.dupes)
+            j = self.judging
+            asking = {"running": j["running"], "done": j["done"], "total": j["total"], "error": j["error"],
+                      "waiting": 0 if j["running"] or status["running"] else len(self.open_questions())}
+            return {**status, "dupes_ready": self.dupes_ready, "suggestions": sugs, "judging": asking}
 
 
 def make_handler(app: App, port: int):
@@ -588,6 +670,7 @@ def make_handler(app: App, port: int):
             if m == ("POST", "/api/read"):
                 return self.json(app.start_reading(self.body().get("pages")))
             if m == ("POST", "/api/read/stop"):
+                app.judging["stop"] = True
                 if app.reader:
                     app.reader.stop("stopped")
                 return self.json(app.read_status())

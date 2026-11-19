@@ -573,7 +573,7 @@ function surePages() {
       continue;
     }
     const reading = S.read && S.read.reading.includes(key);
-    let ok = !!sug && !reading && acceptable(key) && sug.parts.every((s) => s.sure), after = paperOk;
+    let ok = !!sug && !reading && acceptable(key) && sug.parts.every((s) => s.sure || s.likely), after = paperOk;
     if (ok) for (const s of sug.parts) {
       if (s.continues && !after) ok = false;
       if (s.status === "use" && !s.continues) after = true;
@@ -587,7 +587,9 @@ async function acceptSure() {
   const keys = surePages();
   if (!keys.length) return toast("No page is sure: check the suggested ones one by one (A accepts and goes on).");
   const left = waitingPages().length - keys.length;
-  if (!(await ask(`Accept ${keys.length} sure page${keys.length > 1 ? "s" : ""}?`, `Every field of these matched what is printed on them, or they continue the paper before them, or they are copies of another page.${left ? ` The other ${left} suggested page${left > 1 ? "s stay" : " stays"} for you to check.` : ""}\n\nYou can still change any page afterwards: its small picture shows what was accepted.`, `Accept ${keys.length}`))) return;
+  const worked = keys.filter((k) => S.sugs[k].parts.some((x) => x.likely && !x.sure)).length;
+  const workedText = worked ? ` ${worked} of them ${worked === 1 ? "has" : "have"} a subject the model worked out (from the questions, or as another name of a subject): the note on the page says how, and it goes into the manifest.` : "";
+  if (!(await ask(`Accept ${keys.length} sure page${keys.length > 1 ? "s" : ""}?`, `Every field of these matched what is printed on them, or they continue the paper before them, or they are copies of another page.${workedText}${left ? ` The other ${left} suggested page${left > 1 ? "s stay" : " stays"} for you to check.` : ""}\n\nYou can still change any page afterwards: its small picture shows what was accepted.`, `Accept ${keys.length}`))) return;
   const n = acceptPages(keys);
   toast(`Accepted ${n} page${n === 1 ? "" : "s"}.` + (left ? ` ${left} left to check.` : ""));
   GO.waiting();
@@ -640,6 +642,17 @@ function sameSubject(a, b) {
  *  added to that semester (named as printed, without its course code), so the next papers printing that
  *  name match it; a variant of a name added before joins that subject as another name (alias). */
 function suggestedSubject(s) {
+  const id = subjectFromSuggestion(s);
+  if (id && s.alias) { // the model took the printed name as another name of this subject
+    const own = (S.state.subjects[`${s.course}/${s.semester}`] || []).find((x) => x.id === id);
+    if (own && ![own.name, ...own.aliases].includes(s.alias)) own.aliases.push(s.alias);
+  }
+  return id;
+}
+/** How a suggested subject was reached when it is not what the paper prints: kept as the page's note. */
+const workedNote = (s) => (s.worked === "questions" ? "subject not printed: worked out from the questions"
+  : s.worked === "name" && s.alias ? `subject printed as "${s.alias}"` : "");
+function subjectFromSuggestion(s) {
   if (s.subject || !s.new_subject || !s.course || !s.semester) return s.subject || "";
   const printed = s.new_subject.trim();
   if (!subjectKey(printed)) return "";
@@ -728,7 +741,7 @@ function acceptPages(keys) {
     const pg = editPage(key);
     pg.rotation = sug.rotation;
     if (sug.split !== pg.split) { pg.split = sug.split; pg.at = 0.5; }
-    pg.parts = sug.parts.map((s, i) => ({ ...blankPart(), note: (pg.parts[i] || {}).note || "", status: s.status, reason: s.reason, continues: s.continues,
+    pg.parts = sug.parts.map((s, i) => ({ ...blankPart(), note: (pg.parts[i] || {}).note || workedNote(s), status: s.status, reason: s.reason, continues: s.continues,
       course: s.course, semester: s.semester, subject: s.continues ? "" : suggestedSubject(s), kind: s.kind, session: s.session, rotation: s.rotation }));
     for (const s of sug.parts) {
       if (s.date && s.course && s.semester && s.kind && validSession(s.session) && !S.state.exam_dates[examKey(s)] && !examInManifest(s.course, s.semester, s.session, s.kind)) {
@@ -764,19 +777,22 @@ async function fetchRead() {
   for (const sug of Object.values(S.sugs)) for (const s of sug.parts) ensureManifest(s.course, s.semester);
   showReadProgress();
   refresh();
-  if (r.running || !r.dupes_ready) S.readTimer = setTimeout(fetchRead, 1500);
+  if (r.running || !r.dupes_ready || r.judging.running) S.readTimer = setTimeout(fetchRead, 1500);
 }
 
 function showReadProgress() {
   const r = S.read, el = $("#read-progress");
   const off = S.info && S.info.reader.problem;
-  $("#btn-read b").textContent = r && r.running ? "Stop reading" : "Read pages";
+  $("#btn-read b").textContent = r && r.running ? "Stop reading" : r && r.judging.running ? "Stop asking" : "Read pages";
   if (!r) {
     el.textContent = off ? `off: ${off}` : "not read yet";
     return;
   }
   const failed = r.failed ? ` · ${r.failed} not read` : "";
+  const j = r.judging;
   if (r.running) el.textContent = `reading ${r.done} of ${r.total}…${failed}`;
+  else if (j.running) el.textContent = `working out subjects: ${j.done} of ${j.total}…`;
+  else if (j.waiting && !r.stopped) el.textContent = `${j.waiting} subject question${j.waiting > 1 ? "s" : ""} for the model: press Read pages`;
   else if (r.stopped) el.textContent = r.stopped === "stopped" ? `stopped after ${r.done} pages` : `stopped: ${r.stopped}`;
   else if (r.total) el.textContent = `read ${r.done} pages${failed}`;
   else el.textContent = !r.dupes_ready ? "comparing pages…" : off ? `off: ${off}` : "not read yet";
@@ -787,7 +803,8 @@ function showReadProgress() {
 async function startReading(pages) {
   try {
     const r = await api("POST", "/api/read", pages ? { pages } : {});
-    if (!pages && !r.queued) toast("Every undecided page has been read already. Use “Read again” on a page to read it again.");
+    if (!pages && !r.queued && r.judging) toast(`Asking the model ${r.judging} question${r.judging > 1 ? "s" : ""} about subjects.`);
+    else if (!pages && !r.queued) toast("Every undecided page has been read already. Use “Read again” on a page to read it again.");
   } catch (e) {
     return toast(e.message, true);
   }
@@ -795,7 +812,7 @@ async function startReading(pages) {
 }
 
 $("#btn-read").addEventListener("click", async () => {
-  if (S.read && S.read.running) {
+  if (S.read && (S.read.running || S.read.judging.running)) {
     S.read = await api("POST", "/api/read/stop");
     S.sugs = S.read.suggestions;
     return showReadProgress();
@@ -803,9 +820,15 @@ $("#btn-read").addEventListener("click", async () => {
   const r = S.info.reader;
   if (r.problem) return toast(`The desk cannot read pages yet: ${r.problem}. This step is optional: everything else works without it.`, true);
   const n = pageKeys().filter((k) => undecided(k) && !(S.sugs[k] && !S.sugs[k].error)).length;
+  const open = S.read ? S.read.judging.waiting : 0;
+  if (!n && open) {
+    await save();
+    if (!(await ask(`Ask the model ${open} question${open > 1 ? "s" : ""} about subjects?`, `${r.model} is asked, in words only (no picture is sent): whether a subject name it has not seen is another name of a subject this semester has, and which subject a paper that prints none is for, from how its questions begin. Each answer is only a suggestion with a note saying how it was reached.`, `Ask ${open}`))) return;
+    return startReading(null);
+  }
   if (!n) return toast("Every undecided page has a suggestion already. Use “Read again” on a page to read it again.");
   await save();
-  if (!(await ask(`Read ${n} page${n > 1 ? "s" : ""} with the model?`, `${r.model} reads each undecided page and suggests its course, subject and exam. About one model call per page (two for a page that comes in sideways). Answers are cached in data/work/cache, so pages read before cost nothing.\n\nThe pages are sent as they are now: names and roll numbers you have not blacked out yet are sent too.\n\nWhat the model reads is only a suggestion: you accept or change each page.`, `Read ${n} page${n > 1 ? "s" : ""}`))) return;
+  if (!(await ask(`Read ${n} page${n > 1 ? "s" : ""} with the model?`, `${r.model} reads each undecided page and suggests its course, subject and exam. About one model call per page (two for a page that comes in sideways). Answers are cached in data/work/cache, so pages read before cost nothing.\n\nThe pages are sent as they are now: names and roll numbers you have not blacked out yet are sent too.\n\nAfter reading, it is asked in words only whether a subject name it has not seen is another name of a subject the semester has, and which subject a paper that prints none is for.\n\nWhat the model reads is only a suggestion: you accept or change each page.`, `Read ${n} page${n > 1 ? "s" : ""}`))) return;
   startReading(null);
 });
 

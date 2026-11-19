@@ -581,7 +581,7 @@ class Server(Write):
         decided = {"pages": {"tests.pdf#3": {"parts": [{"status": "skip"}]}}}  # a decided page is not read
         self.request("PUT", "/api/state", decided)
         status, body = self.request("POST", "/api/read", {})
-        self.assertEqual(json.loads(body), {"queued": 3, "model": "stand-in"})
+        self.assertEqual(json.loads(body), {"queued": 3, "judging": 0, "model": "stand-in"})
         self.wait(lambda: not json.loads(self.request("GET", "/api/read")[1])["running"])
         r = json.loads(self.request("GET", "/api/read")[1])
         self.assertEqual((r["done"], r["failed"], r["dupes_ready"]), (3, 0, True))
@@ -594,6 +594,45 @@ class Server(Write):
         self.assertNotIn("reads", json.loads(self.request("GET", "/api/folder")[1])["state"])
         self.assertEqual(json.loads(self.request("POST", "/api/read", {})[1])["queued"], 0)  # all read already
         self.assertEqual(json.loads(self.request("POST", "/api/read", {"pages": ["tests.pdf#1", "nope.pdf#1"]})[1])["queued"], 1)
+
+    def test_after_reading_the_model_is_asked_about_a_name_the_semester_does_not_have(self):
+        from pipeline.desk import reader
+        from pipeline.providers import Provider
+
+        asked = []
+
+        class StandIn(Provider):  # reads every page as a "Numerical Methods" test, and says that is Numerical Analysis
+            model = "stand-in"
+
+            def generate(self, prompt, images=None, step=""):
+                if not images:
+                    asked.append(prompt)
+                    return json.dumps({"same_as": 1, "reason": "the same course under its new name"})
+                return json.dumps({"rotation": 0, "kind": "question paper", "papers": [
+                    {"position": "whole", "has_header": True, "exam_title": "MST-1", "subject_name": "Numerical Methods", "course_name": "BCA",
+                     "semester": "I Sem", "date": "Sept. 2025", "year": None, "questions": ["Find a root by the bisection method"]}]})
+
+        for p in (mock.patch.object(reader, "provider", lambda: StandIn()), mock.patch.object(reader, "problem", lambda: "")):
+            p.start()
+            self.addCleanup(p.stop)
+        self.sem1.mkdir(parents=True)
+        (self.sem1 / "manifest.yaml").write_text(intake.template(CATALOG["courses"][0], 1).replace(
+            "subjects:\n", "subjects:\n  - id: numerical-analysis\n    name: Numerical Analysis\n    aliases: []\n", 1), encoding="utf-8")
+        self.request("POST", "/api/read", {"pages": ["tests.pdf#1"]})
+        status = lambda: json.loads(self.request("GET", "/api/read")[1])
+        self.wait(lambda: not status()["running"] and not status()["judging"]["running"] and status()["judging"]["done"])
+        r = status()
+        self.assertEqual((r["judging"]["done"], r["judging"]["waiting"], len(asked)), (1, 0, 1))  # one question, in words only
+        self.assertIn('prints its subject as: "Numerical Methods"', asked[0])
+        s = r["suggestions"]["tests.pdf#1"]["parts"][0]
+        self.assertEqual((s["subject"], s["alias"], s["worked"], s["likely"]), ("numerical-analysis", "Numerical Methods", "name", True))
+        # The answer is kept with the decisions, is not sent to the page, and saving the page's state does not drop it.
+        self.request("PUT", "/api/state", {"pages": {}})
+        self.assertEqual(decisions.load(self.src).judged["names"]["bca/1"]["numerical method"]["to"], "id:numerical-analysis")
+        self.assertNotIn("judged", json.loads(self.request("GET", "/api/folder")[1])["state"])
+        self.assertEqual(json.loads(self.request("POST", "/api/read", {})[1])["judging"], 0)  # the other pages are read first; nothing is asked meanwhile
+        self.wait(lambda: not status()["running"] and not status()["judging"]["running"])
+        self.assertEqual(len(asked), 1)  # the same name on the pages read now is not asked about again
 
     def test_reading_needs_a_key_but_nothing_else_does(self):
         from pipeline.desk import reader

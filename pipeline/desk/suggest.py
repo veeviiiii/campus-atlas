@@ -4,7 +4,8 @@ A suggestion is "sure" when nothing about it needs a second look: every field ma
 worked out from a guess, or a page that only continues the paper before it, or a copy found by its
 picture. "Accept all sure pages" takes those in one go and leaves the doubtful ones to the maintainer.
 
-No model calls here. The printed exam title, subject, course, semester and date become an exam kind,
+No model calls here (what the model was asked about subjects is kept by judge.py and only put in
+here). The printed exam title, subject, course, semester and date become an exam kind,
 a subject id, a course id, a semester, a session and an exam date, matched the way the pipeline
 matches them (subjects by name and aliases, never by course code). What cannot be matched stays
 empty, with a note saying what was printed. The maintainer accepts or changes every suggestion. What the paper does not print (often the year) is taken
@@ -14,6 +15,7 @@ from the file's name and folders when they say it ('Sem 3 Int1 2k25.pdf'), with 
 import re
 from typing import Callable
 
+from pipeline.desk import judge
 from pipeline.desk.decisions import Desk, pieces
 from pipeline.manifest import match_exam, match_subject, session_of
 
@@ -64,9 +66,13 @@ def parse_date(text: str | None) -> str | None:
     m = re.search(r"\b((?:19|20)\d{2})\s*[./-]\s*(\d{1,2})\b", s)  # 2025-10
     if m and 1 <= int(m[2]) <= 12:
         return f"{m[1]}-{int(m[2]):02d}"
-    m = re.search(r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?[\s,/'-]*((?:19|20)\d{2})\b", s)
+    m = re.search(r"(?<![a-z])(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?[\s,/'-]*((?:19|20)\d{2})\b", s)  # 'Dec 2024', '26Feb2024'
     if m:
         return f"{m[2]}-{MONTHS[m[1]]:02d}"
+    # '26Feb24', '26 Feb 24': a two-digit year counts only with a day before the month (else 'Feb 24' is a day)
+    m = re.search(r"(?<!\d)\d{1,2}[\s./-]*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?[\s,./'-]*(\d{2})(?!\d)", s)
+    if m:
+        return f"{2000 + int(m[2])}-{MONTHS[m[1]]:02d}"
     m = re.search(r"\b((?:19|20)\d{2})\b", s)
     return m[1] if m else None
 
@@ -138,7 +144,9 @@ def match_course(name: str | None, courses: list[dict]) -> str | None:
 
 def _blank(rotation: int = 0) -> dict:
     return {"status": "todo", "reason": "", "continues": False, "course": "", "semester": None, "subject": "", "kind": "",
-            "session": "", "rotation": rotation, "date": "", "printed": "", "new_subject": "", "notes": [], "error": "", "sure": False}
+            "session": "", "rotation": rotation, "date": "", "printed": "", "new_subject": "", "notes": [], "error": "", "sure": False,
+            # what judge.py worked out: how ("questions" / "name"), the other name, and whether nothing else is in doubt
+            "doubts": 0, "worked": "", "alias": "", "same_as": "", "likely": False}
 
 
 def part_suggestion(reading: dict, ctx: dict, courses: list[dict], subjects_for: Callable[[str, int], list[dict]],
@@ -216,6 +224,9 @@ def part_suggestion(reading: dict, ctx: dict, courses: list[dict], subjects_for:
     if course and sem and name:
         subs = subjects_for(course, sem)
         s["subject"] = (match_subject({"subjects": subs}, name) if subs else None) or ""
+        if not s["subject"]:  # another spelling of one subject's name: "Maths-II (IT-201)" for "Mathematics II"
+            alike = [x["id"] for x in subs if judge.name_key(name) in {judge.name_key(n) for n in [x["name"], *x.get("aliases", [])]}]
+            s["subject"] = alike[0] if len(alike) == 1 else ""
         if not s["subject"]:
             s["new_subject"] = name
             s["notes"].append(f'"{name}" is not a subject of this semester yet: accepting adds it')
@@ -227,17 +238,19 @@ def part_suggestion(reading: dict, ctx: dict, courses: list[dict], subjects_for:
         held.append("no test number")
     if not name:
         held.append("no subject")
-    s.update(status="held" if held else "use", reason=", ".join(held))
+    s.update(status="held" if held else "use", reason=", ".join(held), doubts=doubts)
     s["sure"] = (not held and not doubts and not s["error"] and not s["new_subject"]
                  and all(s[k] for k in ("course", "semester", "subject", "kind", "session")))
     return s
 
 
 def suggestions(desk: Desk, keys: list[str], courses: list[dict], subjects_for: Callable[[str, int], list[dict]],
-                dupes: dict[str, dict]) -> dict[str, dict]:
+                dupes: dict[str, dict], worked: bool = True) -> dict[str, dict]:
     """Suggested decisions for every page with a reading or a picture match, in desk order:
     {key: {"model", "rotation", "split", "parts": [...], "error", "duplicate"}}. A paper that does not
-    print its course takes the course (and semester) of the page before it, decided or suggested."""
+    print its course takes the course (and semester) of the page before it, decided or suggested.
+    worked: also put in what judge.py worked out (a subject not printed, two names of one subject,
+    a paper photographed twice); False gives the suggestions as the pages alone make them."""
     decided: dict[str, list] = {}
     for p in pieces(desk, keys):
         decided.setdefault(p.key, []).append(p)
@@ -265,6 +278,8 @@ def suggestions(desk: Desk, keys: list[str], courses: list[dict], subjects_for: 
         if any(p.decision.status != "todo" for p in decided.get(key, [])):  # what the maintainer decided wins
             for p in decided[key]:
                 ctx = _follow(ctx, {"status": p.decision.status, "continues": False, "course": p.decision.course, "semester": p.decision.semester})
+    if worked:
+        judge.apply(desk, keys, out, subjects_for)
     return out
 
 
