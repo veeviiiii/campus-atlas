@@ -6,6 +6,7 @@ import { type MouseEvent, useState, useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 
 import { BottomBar, SiteNav } from "./Chrome";
+import ChristmasTree from "./ChristmasTree";
 import CountUp from "./CountUp";
 import HeroPlanet from "./HeroPlanet";
 import { FIELD_COLORS } from "@/lib/colors";
@@ -28,6 +29,25 @@ function paperStatus(c: CourseCard): string {
 }
 
 const hasPapers = (c: CourseCard) => c.semesters.some((s) => s.key);
+const WORLD = ["W", "O", "R", "L", "D"];
+
+/** A six-armed snowflake: the winter look's marker between the marquee's words. */
+function Flake() {
+  return (
+    <svg className="flake" viewBox="-12 -12 24 24" aria-hidden="true">
+      {[0, 60, 120, 180, 240, 300].map((a) => (
+        <path key={a} transform={`rotate(${a})`} d="M0 0V-10.5M0-6.6L-3.1-9.3M0-6.6L3.1-9.3M0-3.4L-2-5.2M0-3.4L2-5.2" />
+      ))}
+    </svg>
+  );
+}
+/** A marker in the marquee: its star or diamond, or a snowflake in the winter look. */
+const Mark = ({ glyph }: { glyph: string }) => (
+  <>
+    <span className="mark">{glyph}</span>
+    <Flake />
+  </>
+);
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 // The field picked on the home page lives in the address (/?field=engineering#browse), so Back from a
@@ -43,6 +63,11 @@ function onFieldChange(update: () => void) {
 }
 const fieldInAddress = () => new URLSearchParams(location.search).get("field");
 
+// The winter look is set on <html> before React runs (lib/season.ts) and does not change while the page
+// is open; the static page is built without it, so the planet is drawn until the page knows.
+const noChange = () => () => {};
+const winterNow = () => document.documentElement.dataset.season === "winter";
+
 /** A plain click on a field link changes the list in place (Link skips a click whose default is
  *  prevented); ctrl/cmd/middle-click still opens a new tab. */
 const plainClick = (e: MouseEvent) => e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
@@ -52,6 +77,14 @@ export default function Site({ summary, courses, fields }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const picked = useSyncExternalStore(onFieldChange, fieldInAddress, () => null);
+  const winter = useSyncExternalStore(noChange, winterNow, () => false);
+  // Winter look only (app/winter.css): a click on a letter of WORLD drops its snow cap under it; another
+  // click brings fresh snow back.
+  const [snow, setSnow] = useState<Record<number, "fell" | "back">>({});
+  const dropSnow = (n: number) => {
+    if (document.documentElement.dataset.season !== "winter") return;
+    setSnow((s) => ({ ...s, [n]: s[n] === "fell" ? "back" : "fell" }));
+  };
   // "How it works" counts every course on the site; the repeat check exists only for the course it was made for.
   const { hero, totals, checked, audited } = summary;
 
@@ -109,11 +142,11 @@ export default function Site({ summary, courses, fields }: Props) {
           <h1>
             <small>your semester is a</small>
             <span className="word" aria-label="WORLD">
-              <i className="w1">W</i>
-              <i className="w2">O</i>
-              <i className="w3">R</i>
-              <i className="w4">L</i>
-              <i className="w5">D</i>
+              {WORLD.map((letter, n) => (
+                <i key={letter} className={`w${n + 1} ${snow[n] ?? ""}`} onClick={() => dropSnow(n)}>
+                  {letter}
+                </i>
+              ))}
             </span>
             <br />
             go explore it.
@@ -156,9 +189,14 @@ export default function Site({ summary, courses, fields }: Props) {
         </div>
         {hero && (
           <div style={{ position: "relative" }}>
-            <HeroPlanet cities={hero.cities} onPick={(c) => router.push(c.href)} />
+            {winter ? (
+              <ChristmasTree cities={hero.cities} onPick={(c) => router.push(c.href)} />
+            ) : (
+              <HeroPlanet cities={hero.cities} onPick={(c) => router.push(c.href)} />
+            )}
             <div className="mono" style={{ color: "var(--muted)", textAlign: "center", marginTop: 8 }}>
-              Every square is a real topic from {hero.course}, Semester {hero.semester} · click one
+              <span className="no-winter">Real topics from every course and semester on the site · click one</span>
+              <span className="winter-only">The baubles are the most asked topics on the site · click one</span>
             </div>
           </div>
         )}
@@ -168,9 +206,17 @@ export default function Site({ summary, courses, fields }: Props) {
         <div>
           {Array.from({ length: 8 }).map((_, i) => (
             <span key={i} style={{ color: "inherit", margin: 0 }}>
-              <span>✦</span>Past papers<span>◆</span>By subject<span>✦</span>By exam and year<span>◆</span>Likely topics
+              <Mark glyph="✦" />
+              Past papers
+              <Mark glyph="◆" />
+              By subject
+              <Mark glyph="✦" />
+              By exam and year
+              <Mark glyph="◆" />
+              Likely topics
               <span className="winter-only">
-                <span>❄&#xFE0E;</span>Good luck in your End Sems
+                <Flake />
+                Good luck in your End Sems
               </span>
             </span>
           ))}

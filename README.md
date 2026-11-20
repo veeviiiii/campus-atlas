@@ -201,6 +201,11 @@ Directory `web`, default build settings, no environment variables. The build rea
 the repo root, which Vercel includes by default ("Include files outside the root directory").
 Every push to `main` redeploys.
 
+**Winter look.** From 20 November to 6 January the site wears a winter look by the visitor's own date
+(snow, a Christmas tree on the home page, baubles, a hat on the logo). One environment variable switches all of it:
+`WINTER_LOOK` = `auto` (the default, by date), `on` or `off`. Set it in Vercel (Project → Settings →
+Environment Variables), then redeploy. Its styles are all in `web/src/app/winter.css`.
+
 ## Repo layout
 
 ```

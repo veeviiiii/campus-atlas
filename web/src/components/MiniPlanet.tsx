@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-import { HEAT, PLANET, type Heat } from "@/lib/colors";
+import { HEAT, PLANET, WINTER, type Heat } from "@/lib/colors";
 
 export interface MiniTopic {
   heat: Heat;
@@ -15,6 +15,8 @@ const SPIN = 0.36; // radians a second (the same on a 60 Hz and a 120 Hz screen)
 /**
  * A small spinning planet for a subject card, drawn like the hero planet: a sphere tinted in the
  * subject's colour with one glowing square per topic (heat colours), spread evenly over the sphere.
+ * In the winter look (lib/season.ts) it is a Christmas bauble in the subject's colour instead, hanging
+ * from a thread and swaying a little, with the topics as square sequins turning on it.
  * Purely visual: the card around it is the link. Animates only while on screen.
  */
 export default function MiniPlanet({ topics, tint }: { topics: MiniTopic[]; tint: string }) {
@@ -27,6 +29,8 @@ export default function MiniPlanet({ topics, tint }: { topics: MiniTopic[]; tint
     // even spread over the sphere (Fibonacci lattice), kept away from the poles
     const pts = topics.map((t, i) => ({ t, lat: Math.asin(0.85 * (1 - (2 * (i + 0.5)) / n)), lon: i * GOLDEN }));
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const winter = document.documentElement.dataset.season === "winter"; // set before React runs (app/layout.tsx)
+    const phase = tint.charCodeAt(1) + tint.charCodeAt(2); // baubles side by side do not sway in step
     let W = 0;
     let rot = 0.6;
     let raf = 0;
@@ -42,7 +46,95 @@ export default function MiniPlanet({ topics, tint }: { topics: MiniTopic[]; tint
       cx.setTransform(d, 0, 0, d, 0, 0);
     };
 
+    /** The topics as sequins on a sphere of radius R at (c, cy), the front half only, back to front. */
+    const sequins = (R: number, c: number, cy: number) =>
+      pts
+        .map((p) => {
+          const a = p.lon + rot;
+          return {
+            p,
+            x: c + Math.cos(p.lat) * Math.sin(a) * R,
+            y: cy - Math.sin(p.lat) * R,
+            z: Math.cos(p.lat) * Math.cos(a),
+          };
+        })
+        .filter((q) => q.z > 0)
+        .sort((a, b) => a.z - b.z);
+
+    const bauble = () => {
+      const R = W * 0.3;
+      const c = W / 2;
+      const cy = c + W * 0.06;
+      const capH = R * 0.18;
+      const capW = R * 0.36;
+      const loop = R * 0.09;
+      const top = cy - R - capH; // the cap's top edge
+      cx.clearRect(0, 0, W, W);
+      cx.save();
+      // it hangs from the top of the card's picture and sways a little about that point
+      const sway = reduced ? 0 : Math.sin(performance.now() / 900 + phase) * 0.05;
+      cx.translate(c, 0);
+      cx.rotate(sway);
+      cx.translate(-c, 0);
+      const h = cx.createRadialGradient(c, cy, R * 0.9, c, cy, R * 1.35);
+      h.addColorStop(0, tint + "55");
+      h.addColorStop(1, tint + "00");
+      cx.fillStyle = h;
+      cx.beginPath();
+      cx.arc(c, cy, R * 1.35, 0, 7);
+      cx.fill();
+      cx.strokeStyle = WINTER.capShade;
+      cx.lineWidth = 1;
+      cx.beginPath();
+      cx.moveTo(c, 0);
+      cx.lineTo(c, top - loop * 2);
+      cx.stroke();
+      cx.lineWidth = 1.6;
+      cx.beginPath();
+      cx.arc(c, top - loop, loop, 0, 7);
+      cx.stroke();
+      // the ball: its colour, lit on the upper left, darker towards the rim
+      cx.fillStyle = tint;
+      cx.beginPath();
+      cx.arc(c, cy, R, 0, 7);
+      cx.fill();
+      const dk = cx.createRadialGradient(c - R * 0.3, cy - R * 0.35, R * 0.2, c, cy, R * 1.02);
+      dk.addColorStop(0, `rgba(${WINTER.shade},0)`);
+      dk.addColorStop(1, `rgba(${WINTER.shade},.6)`);
+      cx.fillStyle = dk;
+      cx.beginPath();
+      cx.arc(c, cy, R, 0, 7);
+      cx.fill();
+      sequins(R, c, cy).forEach(({ p, x, y, z }) => {
+        const s = (3 + p.t.weight * 1.1) * (0.55 + 0.45 * z); // square, as the page's key says
+        const col = HEAT[p.t.heat];
+        cx.fillStyle = col;
+        cx.shadowColor = col;
+        cx.shadowBlur = 6;
+        cx.fillRect(x - s / 2, y - s / 2, s, s);
+        cx.shadowBlur = 0;
+      });
+      // the shine, over the sequins as on glass
+      const hi = cx.createRadialGradient(c - R * 0.38, cy - R * 0.42, 0, c - R * 0.38, cy - R * 0.42, R * 0.42);
+      hi.addColorStop(0, `rgba(${WINTER.glint},.85)`);
+      hi.addColorStop(1, `rgba(${WINTER.glint},0)`);
+      cx.fillStyle = hi;
+      cx.beginPath();
+      cx.arc(c - R * 0.38, cy - R * 0.42, R * 0.42, 0, 7);
+      cx.fill();
+      const cap = cx.createLinearGradient(c - capW / 2, 0, c + capW / 2, 0);
+      cap.addColorStop(0, WINTER.capShade);
+      cap.addColorStop(0.45, WINTER.cap);
+      cap.addColorStop(1, WINTER.capShade);
+      cx.fillStyle = cap;
+      cx.beginPath();
+      cx.roundRect(c - capW / 2, top, capW, capH + R * 0.06, 2);
+      cx.fill();
+      cx.restore();
+    };
+
     const draw = () => {
+      if (winter) return bauble();
       const R = W * 0.34;
       const c = W / 2;
       cx.clearRect(0, 0, W, W);
@@ -72,22 +164,15 @@ export default function MiniPlanet({ topics, tint }: { topics: MiniTopic[]; tint
       cx.stroke();
       cx.restore();
 
-      pts
-        .map((p) => {
-          const a = p.lon + rot;
-          return { p, x: c + Math.cos(p.lat) * Math.sin(a) * R, y: c - Math.sin(p.lat) * R, z: Math.cos(p.lat) * Math.cos(a) };
-        })
-        .filter((q) => q.z > 0)
-        .sort((a, b) => a.z - b.z)
-        .forEach(({ p, x, y, z }) => {
-          const col = HEAT[p.t.heat];
-          const s = (4 + p.t.weight * 1.5) * (0.55 + 0.45 * z);
-          cx.fillStyle = col;
-          cx.shadowColor = col;
-          cx.shadowBlur = 8;
-          cx.fillRect(x - s / 2, y - s / 2, s, s);
-          cx.shadowBlur = 0;
-        });
+      sequins(R, c, c).forEach(({ p, x, y, z }) => {
+        const col = HEAT[p.t.heat];
+        const s = (4 + p.t.weight * 1.5) * (0.55 + 0.45 * z);
+        cx.fillStyle = col;
+        cx.shadowColor = col;
+        cx.shadowBlur = 8;
+        cx.fillRect(x - s / 2, y - s / 2, s, s);
+        cx.shadowBlur = 0;
+      });
     };
 
     const frame = (now: number) => {

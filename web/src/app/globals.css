@@ -35,9 +35,16 @@
   --heat-multi: #ff8a3d;
   --heat-once: var(--amber);
   --heat-repeat-soft: color-mix(in srgb, var(--heat-repeat) 45%, white); /* its text on a dark card */
-  /* the winter look (lib/season.ts; rules at the end of this file) */
+  /* the winter look (lib/season.ts; its rules are all in winter.css) */
   --snow: var(--foreground);
+  --flake: color-mix(in srgb, var(--cyan) 30%, white); /* the marquee's snowflakes */
+  --flake-glow: color-mix(in srgb, var(--cyan) 65%, transparent);
   --santa: var(--heat-repeat);
+  --bauble-cap: var(--taupe);
+  --bauble-cap-shade: var(--muted);
+  --bauble-shine: color-mix(in srgb, var(--foreground) 75%, transparent);
+  --bauble-shade: color-mix(in srgb, var(--ink) 38%, transparent);
+  --christmas-outline: var(--taupe); /* the pattern on the course area's paper */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   color-scheme: dark;
 }
@@ -1789,142 +1796,5 @@ a.card:active {
     flex-direction: column;
     align-items: flex-start;
     gap: 2px;
-  }
-}
-
-/* ------------------------------------------------------------------------------------------
-   Winter look: on from 20 November to 6 January (lib/season.ts sets html[data-season]). Snow on
-   the home page's hero, snow caps on WORLD, a hat on the logo, a line in the marquee. The pages
-   people read (course, subject, search) get only the hat.
-   ------------------------------------------------------------------------------------------ */
-.snow,
-.logo .hat,
-.logo .drift,
-.winter-only {
-  display: none;
-}
-.logo {
-  position: relative;
-}
-html[data-season="winter"] .logo .hat {
-  display: block;
-  position: absolute;
-  left: -2px;
-  top: -10px;
-  transform: rotate(-14deg);
-  transform-origin: 70% 90%;
-  transition: transform 0.6s var(--ease-out);
-  pointer-events: none;
-}
-html[data-season="winter"] .logo:hover .hat {
-  transform: rotate(-4deg) translateY(-3px);
-}
-html[data-season="winter"] .logo .drift {
-  display: block;
-  position: absolute;
-  left: -5px;
-  top: calc(50% + 9px);
-  pointer-events: none;
-}
-.logo:hover .drift {
-  transform: none; /* the globe turns on hover; its snow stays put */
-}
-html[data-season="winter"] .winter-only {
-  display: inline;
-}
-.mq .winter-only {
-  color: inherit;
-  margin: 0;
-}
-
-/* Snow: three layers of tiled flakes, each sliding down by one tile and starting over, at three
-   speeds. No z-index, so it falls behind the hero's words and the planet. */
-html[data-season="winter"] .snow {
-  display: block;
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-.snow i {
-  --s: 180px; /* tile */
-  --r: 1.4px; /* flake */
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(-1 * var(--s));
-  height: calc(100% + var(--s));
-  background-image:
-    radial-gradient(circle at 18% 22%, var(--snow) var(--r), transparent calc(var(--r) + 0.8px)),
-    radial-gradient(circle at 64% 48%, var(--snow) var(--r), transparent calc(var(--r) + 0.8px)),
-    radial-gradient(circle at 38% 86%, var(--snow) var(--r), transparent calc(var(--r) + 0.8px));
-  background-size: var(--s) var(--s);
-  opacity: 0.45;
-  animation: snowfall 16s linear infinite;
-  will-change: translate;
-}
-.snow i:nth-child(2) {
-  --s: 260px;
-  --r: 2px;
-  opacity: 0.6;
-  animation-duration: 11s;
-  background-position: 90px 40px;
-}
-.snow i:nth-child(3) {
-  --s: 340px;
-  --r: 2.8px;
-  opacity: 0.75;
-  animation-duration: 8s;
-  background-position: 200px 150px;
-}
-@keyframes snowfall {
-  to {
-    translate: 0 var(--s);
-  }
-}
-
-/* WORLD: a cap of snow on each tile, set at a slightly different tilt. */
-html[data-season="winter"] .word i {
-  position: relative;
-}
-html[data-season="winter"] .word i::before {
-  content: "";
-  position: absolute;
-  left: 0.02em;
-  right: 0.02em;
-  top: -0.07em;
-  height: 0.16em;
-  background: var(--snow);
-  border-radius: 0.12em 0.12em 0.07em 0.07em;
-  box-shadow: 0 0.02em 0 color-mix(in srgb, var(--lav) 55%, transparent);
-  rotate: -3deg;
-}
-html[data-season="winter"] .word i::after {
-  content: "";
-  position: absolute;
-  top: 0.05em;
-  left: 32%;
-  width: 0.07em;
-  height: 0.09em;
-  background: var(--snow);
-  border-radius: 0 0 0.05em 0.05em;
-}
-html[data-season="winter"] .word i:nth-child(even)::before {
-  rotate: 4deg;
-}
-html[data-season="winter"] .word i:nth-child(even)::after {
-  left: 62%;
-}
-html[data-season="winter"] .word .w4::before {
-  left: 0.12em;
-  right: 0.12em;
-  top: -0.05em;
-}
-html[data-season="winter"] .word .w4::after {
-  top: 0.07em;
-}
-@media (prefers-reduced-motion: reduce) {
-  .snow i {
-    animation: none;
   }
 }
