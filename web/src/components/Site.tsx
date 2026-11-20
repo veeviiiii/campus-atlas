@@ -95,6 +95,12 @@ export default function Site({ summary, courses, fields }: Props) {
       <SiteNav />
 
       <header className="hero">
+        {/* Falling snow, shown only in the winter look (lib/season.ts): three layers at three speeds. */}
+        <div className="snow" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </div>
         <div>
           <div className="mono" style={{ color: "var(--cyan)", marginBottom: 18, position: "relative" }}>
             ✦ Past papers of DAVV, Indore
@@ -139,6 +145,9 @@ export default function Site({ summary, courses, fields }: Props) {
           {Array.from({ length: 8 }).map((_, i) => (
             <span key={i} style={{ color: "inherit", margin: 0 }}>
               <span>✦</span>Past papers<span>◆</span>By subject<span>✦</span>By exam and year<span>◆</span>Likely topics
+              <span className="winter-only">
+                <span>❄&#xFE0E;</span>Good luck in your End Sems
+              </span>
             </span>
           ))}
         </div>

@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 
 import PageEnter from "@/components/PageEnter";
 import SoftScroll from "@/components/SoftScroll";
+import { SEASON_SCRIPT } from "@/lib/season";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -40,8 +41,8 @@ export const viewport: Viewport = { themeColor: "#09090b" };
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // data-scroll-behavior: Next turns the CSS smooth scrolling off while it changes page, so a new page
-    // starts at the top instead of animating there. suppressHydrationWarning: the subject page's inline
-    // script may set data-deep-tab before React hydrates.
+    // starts at the top instead of animating there. suppressHydrationWarning: inline scripts may set
+    // data-season (below) and the subject page's data-deep-tab before React hydrates.
     <html
       lang="en"
       data-scroll-behavior="smooth"
@@ -49,6 +50,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${display.variable} ${mono.variable} ${pixel.variable}`}
     >
       <body>
+        {/* The winter look (lib/season.ts): marks <html> before the first paint, by the visitor's date. */}
+        <script dangerouslySetInnerHTML={{ __html: SEASON_SCRIPT }} />
         <SoftScroll />
         <PageEnter>{children}</PageEnter>
       </body>
