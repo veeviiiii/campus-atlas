@@ -85,10 +85,11 @@ export default function Site({ summary, visits, courses, fields }: Props) {
   const winter = useSyncExternalStore(noChange, winterNow, () => false);
   // Winter look only (app/winter.css): a click on a letter of WORLD drops its snow cap under it; another
   // click brings fresh snow back.
-  const [snow, setSnow] = useState<Record<number, "fell" | "back">>({});
+  // (Not "back": .back is the "← Home" pill's class in globals.css.)
+  const [snow, setSnow] = useState<Record<number, "fell" | "fresh">>({});
   const dropSnow = (n: number) => {
     if (document.documentElement.dataset.season !== "winter") return;
-    setSnow((s) => ({ ...s, [n]: s[n] === "fell" ? "back" : "fell" }));
+    setSnow((s) => ({ ...s, [n]: s[n] === "fell" ? "fresh" : "fell" }));
   };
   // "How it works" counts every course on the site; the repeat check exists only for the course it was made for.
   const { hero, totals, checked, audited } = summary;
