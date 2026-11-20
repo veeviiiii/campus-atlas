@@ -37,6 +37,8 @@
   --heat-repeat-soft: color-mix(in srgb, var(--heat-repeat) 45%, white); /* its text on a dark card */
   /* the winter look (lib/season.ts; its rules are all in winter.css) */
   --snow: var(--foreground);
+  --flake: color-mix(in srgb, var(--cyan) 30%, white); /* the marquee's snowflakes */
+  --flake-glow: color-mix(in srgb, var(--cyan) 65%, transparent);
   --santa: var(--heat-repeat);
   --bauble-cap: var(--taupe);
   --bauble-cap-shade: var(--muted);

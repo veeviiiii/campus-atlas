@@ -121,7 +121,7 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    html[data-season="winter"]. It adds snow to the home hero, a Christmas tree in place of the hero planet
    (2D canvas, web/src/components/ChristmasTree.tsx; its 7 baubles are the most asked topics), snow caps
    on WORLD (a click drops a letter's snow under it), a good-luck line
-   in the marquee, an outline pattern on the course area, baubles for the course and field circles and
+   and glowing snowflakes in the marquee, an outline pattern on the course area, baubles for the course and field circles and
    the subject planets, and a hat on the logo on every page.
 D. Tests (no API key, no model calls): `python -m unittest discover -s pipeline/tests -t .` and, in
    web/, `npm test` (node --test on web/tests; Node 22.18+). `npm run check` = lint + tests + build.

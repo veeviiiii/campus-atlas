@@ -5,13 +5,15 @@
    Its colours are named at the top of globals.css; the canvas Christmas tree and baubles take theirs
    from TREE and WINTER in lib/colors.ts.
    Home: snow on the hero, a Christmas tree for the planet, snow caps on WORLD (click a letter: its snow
-   falls and piles up under it), a line in the marquee, an outline pattern on the course area,
+   falls and piles up under it), a line in the marquee and snowflakes between its words, an outline
+   pattern on the course area,
    baubles for the field and course circles. Semester pages: the subject planets hang as baubles.
    Every page: a hat on the logo.
    ------------------------------------------------------------------------------------------ */
 .snow,
 .logo .hat,
 .logo .drift,
+.mq .flake,
 .winter-only {
   display: none;
 }
@@ -50,6 +52,22 @@ html[data-season="winter"] .no-winter {
 .mq .winter-only {
   color: inherit;
   margin: 0;
+}
+/* Every marker in the marquee is a snowflake, icy white in a soft glow. */
+html[data-season="winter"] .mq .mark {
+  display: none;
+}
+html[data-season="winter"] .mq .flake {
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  margin: 0 20px;
+  vertical-align: -5px;
+  fill: none;
+  stroke: var(--flake);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 2px var(--flake-glow)) drop-shadow(0 0 7px var(--flake-glow));
 }
 
 /* Snow: three layers of tiled flakes, each sliding down by one tile and starting over, at three
