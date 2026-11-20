@@ -13,6 +13,7 @@ import path from "node:path";
 const OUT = path.resolve(".analytics.json");
 const API = "https://api.vercel.com/v1/query/web-analytics/visits/aggregate";
 const DAYS = 30; // Hobby keeps one month
+const MAX_ROWS = 100; // Vercel refuses a larger limit ("`limit` should be <= 100"); the site has fewer pages
 
 const token = process.env.VERCEL_ANALYTICS_TOKEN;
 const project = process.env.VERCEL_PROJECT_ID;
@@ -23,7 +24,7 @@ const day = (d) => d.toISOString().slice(0, 10);
 async function query(by, since, until, limit) {
   const params = new URLSearchParams({ projectId: project, since, until, by });
   if (team) params.set(team.startsWith("team_") ? "teamId" : "slug", team);
-  if (limit) params.set("limit", String(limit));
+  params.set("limit", String(Math.min(limit, MAX_ROWS)));
   const res = await fetch(`${API}?${params}`, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(20000) });
   if (!res.ok) throw new Error(`${by}: HTTP ${res.status} ${(await res.text()).slice(0, 200)}`);
   const body = await res.json();
@@ -44,8 +45,8 @@ async function main() {
   try {
     if (!project) throw new Error("VERCEL_PROJECT_ID is not set");
     const [daily, paths, countries, devices, referrers] = await Promise.all([
-      query("day", ...range),
-      query("requestPath", ...range, 500),
+      query("day", ...range, DAYS),
+      query("requestPath", ...range, MAX_ROWS),
       query("country", ...range, 10),
       query("deviceType", ...range, 5),
       query("referrerHostname", ...range, 10),
