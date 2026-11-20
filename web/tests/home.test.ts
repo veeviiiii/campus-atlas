@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { homeSummary } from "../src/lib/home";
+import { HERO_TOPICS_PER_SUBJECT, homeSummary } from "../src/lib/home";
 import { entry } from "./fixture";
 
 test("the home page gets a summary of the packs, not the packs", () => {
@@ -12,15 +12,19 @@ test("the home page gets a summary of the packs, not the packs", () => {
 
   assert.deepEqual(s.totals, { papers: 5, questions: 9, repeats: 1, dropped: 3 }); // every course on the site
   assert.deepEqual(s.checked, { course: "Test Course", expected: 19, found: 18 });
-  assert.equal(s.hero?.course, "Test Course");
-  assert.equal(s.hero?.semester, 1);
-
-  // the planet is the first pack's topics: a name, a heat, a weight and a link each, and nothing more
-  const lasers = s.hero?.cities.find((c) => c.name === "Lasers");
-  assert.deepEqual(Object.keys(lasers ?? {}).sort(), ["heat", "href", "lat", "lng", "name", "weight"]);
-  assert.equal(lasers?.href, "/c/test-college/test-course-sem1/physics/#topic-lasers");
-  assert.equal(lasers?.heat, "once");
-  assert.equal(s.hero?.cities.length, one.pack.subjects.flatMap((x) => x.units.flatMap((u) => u.topics)).length);
+  // the planet holds topics from every pack, at most HERO_TOPICS_PER_SUBJECT of each subject: a name, a
+  // heat, a weight and a link each, and nothing more
+  const lasers = s.hero?.cities.filter((c) => c.name === "Lasers") ?? [];
+  assert.deepEqual(
+    lasers.map((c) => c.href),
+    ["/c/test-college/test-course-sem1/physics/#topic-lasers", "/c/test-college/test-course-sem2/physics/#topic-lasers"],
+  );
+  assert.deepEqual(Object.keys(lasers[0] ?? {}).sort(), ["heat", "href", "lat", "lng", "name", "rank", "weight"]);
+  assert.equal(lasers[0]?.heat, "once");
+  for (const c of s.hero?.cities ?? []) assert.ok(c.rank >= 0 && c.rank < HERO_TOPICS_PER_SUBJECT);
+  const shown = (e: typeof one) => e.pack.subjects.reduce((n, x) => n + Math.min(HERO_TOPICS_PER_SUBJECT, x.units.flatMap((u) => u.topics).length), 0);
+  assert.equal(s.hero?.cities.length, shown(one) + shown(two));
+  assert.ok(s.hero?.cities.every((c) => Math.abs(c.lat) < 62), "every topic turns past the front of the planet");
   assert.ok(!JSON.stringify(s).includes("He-Ne"), "no question text");
 
   assert.deepEqual(homeSummary([]), { hero: null, totals: { papers: 0, questions: 0, repeats: 0, dropped: 0 }, checked: null, audited: null });

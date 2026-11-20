@@ -3,9 +3,10 @@ import localFont from "next/font/local";
 
 import PageEnter from "@/components/PageEnter";
 import SoftScroll from "@/components/SoftScroll";
-import { SEASON_SCRIPT } from "@/lib/season";
+import { seasonScript, winterMode } from "@/lib/season";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
+import "./winter.css";
 
 const OG_IMAGE = { url: "/og.png", width: 1200, height: 630, alt: "Campus Atlas: past papers of DAVV, Indore, by subject, exam and year" };
 
@@ -38,6 +39,9 @@ export const metadata: Metadata = {
 // The phone browser's own bar takes the page's background (--background in globals.css).
 export const viewport: Viewport = { themeColor: "#09090b" };
 
+// The winter look's one switch (lib/season.ts), read at build time: WINTER_LOOK = auto, on or off.
+const WINTER_SCRIPT = seasonScript(winterMode(process.env.WINTER_LOOK));
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // data-scroll-behavior: Next turns the CSS smooth scrolling off while it changes page, so a new page
@@ -50,8 +54,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${display.variable} ${mono.variable} ${pixel.variable}`}
     >
       <body>
-        {/* The winter look (lib/season.ts): marks <html> before the first paint, by the visitor's date. */}
-        <script dangerouslySetInnerHTML={{ __html: SEASON_SCRIPT }} />
+        {/* The winter look (lib/season.ts): marks <html> before the first paint. None when it is switched off. */}
+        {WINTER_SCRIPT && <script dangerouslySetInnerHTML={{ __html: WINTER_SCRIPT }} />}
         <SoftScroll />
         <PageEnter>{children}</PageEnter>
       </body>
