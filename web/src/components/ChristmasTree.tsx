@@ -265,7 +265,10 @@ export default function ChristmasTree({ cities, onPick }: Props) {
     // Drawing every needle is the costly part: a small tree draws every other one, and if frames still
     // come slowly (a slow phone), it draws fewer, down to one in three.
     let thin = 1;
-    let slow = 0; // how slow frames have been lately, in ms (an average that forgets)
+    let slow = 17; // how slow frames have been lately, in ms (an average that forgets)
+    let since = 0; // when thin last changed
+    let regained = 0; // how many times it has drawn more again
+    let backdrop: HTMLCanvasElement | null = null; // the halo and the snow, painted once for each size
 
     const size = () => {
       const r = cv.getBoundingClientRect();
@@ -274,6 +277,7 @@ export default function ChristmasTree({ cities, onPick }: Props) {
       cv.width = r.width * D;
       cv.height = r.height * D;
       cx.setTransform(D, 0, 0, D, 0, 0);
+      backdrop = null;
     };
     const ro = new ResizeObserver(size);
     ro.observe(cv);
@@ -332,6 +336,80 @@ export default function ChristmasTree({ cities, onPick }: Props) {
       cx.closePath();
     };
     const tint = (c: number[], b: number) => `rgb(${c.map((v) => Math.min(255, Math.round(v * b))).join(",")})`;
+
+    /** A branch's line as a band round its 5 points on screen, wider over its inner half, with round ends,
+     *  added to the path being built. */
+    const along = new Float32Array(10); // the band's direction on screen at each point
+    const armBand = (o: number) => {
+      let ux = 0;
+      let uy = -1; // a branch pointing at the eye has no direction on screen: its band stands upright
+      for (let i = 0; i < 5; i++) {
+        const a = o + Math.max(0, i - 1) * 2;
+        const b = o + Math.min(4, i + 1) * 2;
+        const dx = armAt[b] - armAt[a];
+        const dy = armAt[b + 1] - armAt[a + 1];
+        const l = Math.hypot(dx, dy);
+        if (l > 0.01) {
+          ux = dx / l;
+          uy = dy / l;
+        }
+        along[i * 2] = ux;
+        along[i * 2 + 1] = uy;
+      }
+      const inner = armAt[o + 10] / 2;
+      const outer = armAt[o + 11] / 2;
+      for (let i = 0; i < 5; i++) {
+        const h = i < 3 ? inner : outer;
+        const x = armAt[o + i * 2] - along[i * 2 + 1] * h;
+        const y = armAt[o + i * 2 + 1] + along[i * 2] * h;
+        if (i) cx.lineTo(x, y);
+        else cx.moveTo(x, y);
+      }
+      const tip = Math.atan2(along[9], along[8]);
+      cx.arc(armAt[o + 8], armAt[o + 9], outer, tip + Math.PI / 2, tip - Math.PI / 2, true);
+      for (let i = 4; i >= 0; i--) {
+        const h = i < 3 ? inner : outer;
+        cx.lineTo(armAt[o + i * 2] + along[i * 2 + 1] * h, armAt[o + i * 2 + 1] - along[i * 2] * h);
+      }
+      const foot = Math.atan2(along[1], along[0]);
+      cx.arc(armAt[o], armAt[o + 1], inner, foot - Math.PI / 2, foot - (3 * Math.PI) / 2, true);
+      cx.closePath();
+    };
+
+    /** The violet halo behind the tree, as behind the planet, and the snow it stands in with its shadow. They
+     *  do not turn, so they are painted once for each size of the canvas and stamped on every frame. */
+    const paintBackdrop = () => {
+      const c = document.createElement("canvas");
+      c.width = cv.width;
+      c.height = cv.height;
+      const g = c.getContext("2d")!;
+      g.setTransform(D, 0, 0, D, 0, 0);
+      const h = g.createRadialGradient(midX, midY, 0, midX, midY, W * 0.5);
+      h.addColorStop(0, `rgba(${PLANET.halo},.22)`);
+      h.addColorStop(1, `rgba(${PLANET.halo},0)`);
+      g.fillStyle = h;
+      g.fillRect(0, 0, W, W);
+      project(0, GROUND, 0);
+      const rx = BASE * 1.45 * S;
+      g.translate(px, py);
+      g.scale(1, sinP * 1.4);
+      const snow = g.createRadialGradient(0, 0, 0, 0, 0, rx);
+      snow.addColorStop(0, `rgba(${TREE.snow},.5)`);
+      snow.addColorStop(0.6, `rgba(${TREE.snow},.18)`);
+      snow.addColorStop(1, `rgba(${TREE.snow},0)`);
+      g.fillStyle = snow;
+      g.beginPath();
+      g.arc(0, 0, rx, 0, TAU);
+      g.fill();
+      const shade = g.createRadialGradient(0, 0, 0, 0, 0, rx * 0.6);
+      shade.addColorStop(0, `rgba(${TREE.shadow},.55)`);
+      shade.addColorStop(1, `rgba(${TREE.shadow},0)`);
+      g.fillStyle = shade;
+      g.beginPath();
+      g.arc(0, 0, rx * 0.6, 0, TAU);
+      g.fill();
+      return c;
+    };
 
     /** A wrapped present: its shadow on the snow, the faces that turn to the eye with a ribbon round each,
      *  and a bow on top. It turns with the tree. */
@@ -484,43 +562,22 @@ export default function ChristmasTree({ cities, onPick }: Props) {
       sc = Math.max(0.6, W / 560);
       const age = now - born;
       cx.clearRect(0, 0, W, W);
-
-      // the violet halo behind it, as behind the planet, and the snow it stands in
-      const h = cx.createRadialGradient(midX, midY, 0, midX, midY, W * 0.5);
-      h.addColorStop(0, `rgba(${PLANET.halo},.22)`);
-      h.addColorStop(1, `rgba(${PLANET.halo},0)`);
-      cx.fillStyle = h;
-      cx.fillRect(0, 0, W, W);
-      project(0, -0.03, 0);
-      const gx = px;
-      const gy = py;
-      const rx = BASE * 1.45 * S;
-      cx.save();
-      cx.translate(gx, gy);
-      cx.scale(1, sinP * 1.4);
-      const snow = cx.createRadialGradient(0, 0, 0, 0, 0, rx);
-      snow.addColorStop(0, `rgba(${TREE.snow},.5)`);
-      snow.addColorStop(0.6, `rgba(${TREE.snow},.18)`);
-      snow.addColorStop(1, `rgba(${TREE.snow},0)`);
-      cx.fillStyle = snow;
-      cx.beginPath();
-      cx.arc(0, 0, rx, 0, TAU);
-      cx.fill();
-      const shade = cx.createRadialGradient(0, 0, 0, 0, 0, rx * 0.6);
-      shade.addColorStop(0, `rgba(${TREE.shadow},.55)`);
-      shade.addColorStop(1, `rgba(${TREE.shadow},0)`);
-      cx.fillStyle = shade;
-      cx.beginPath();
-      cx.arc(0, 0, rx * 0.6, 0, TAU);
-      cx.fill();
-      cx.restore();
+      backdrop ??= paintBackdrop();
+      cx.drawImage(backdrop, 0, 0, W, W);
 
       // every needle on screen, with its depth slice and shade; then sorted by both (a counting sort)
-      if (age > 1500 && dt > 0) {
+      if (age > 3000 && dt > 0) {
         slow += (dt * 1000 - slow) * 0.05;
         if (slow > 26 && thin < 3) {
           thin++;
-          slow = 0;
+          slow = 17;
+          since = now;
+        } else if (slow < 19 && thin > 1 && regained < 2 && now - since > 5000) {
+          // fast again for 5 s (a slow start, another tab busy): draw more again, at most twice so it settles
+          thin--;
+          regained++;
+          slow = 17;
+          since = now;
         }
       }
       const step = (W < 420 ? 2 : 1) * thin;
@@ -541,7 +598,8 @@ export default function ChristmasTree({ cities, onPick }: Props) {
         const diffuse = Math.max(0, (nx * lx + 0.45 * ly + nz * lz) / 1.0966);
         const depth = clamp01((z0 + BASE) / (2 * BASE));
         const lit = (0.16 + 0.84 * diffuse) * (0.28 + 0.72 * Math.min(1, needles[o + 8])) * (0.55 + 0.45 * depth);
-        const g = needles[o + 9] ? LEVELS + Math.min(FROSTS - 1, Math.floor(lit * 1.4 * FROSTS)) : Math.min(LEVELS - 1, Math.floor(lit * 1.25 * LEVELS));
+        // (a little brighter than the light alone says: one pixel wide, a needle shows less of its colour)
+        const g = needles[o + 9] ? LEVELS + Math.min(FROSTS - 1, Math.floor(lit * 1.6 * FROSTS)) : Math.min(LEVELS - 1, Math.floor(lit * 1.5 * LEVELS));
         const key = sliceOf(z0) * GROUPS + g;
         keys[n] = key;
         starts[key + 1]++;
@@ -608,8 +666,10 @@ export default function ChristmasTree({ cities, onPick }: Props) {
         solidsIn[sliceOf(z)].push({ z, k });
       });
 
-      // a thinned tree draws its needles a little thicker
-      const needleWidth = Math.max(0.9, 1.3 * sc) * (1 + 0.25 * (step - 1));
+      // Needles are one pixel of the canvas wide: the browser draws lines that thin as hairlines, many
+      // times faster than any wider line (on a laptop's GPU, 16,000 needles run at about 60 frames a second
+      // against 10 at 1.6 pixels).
+      const needleWidth = 1 / D;
       cx.lineCap = "round";
       cx.lineJoin = "round";
       for (let s = 0; s < SLICES; s++) {
@@ -618,21 +678,14 @@ export default function ChristmasTree({ cities, onPick }: Props) {
           else if (k === -2) drawCore();
           else drawPresent(PRESENTS[k]);
         }
-        for (const a of armsIn[s]) {
-          const o = a * 12;
-          cx.strokeStyle = SHADES[armShade[a]];
-          cx.lineWidth = armAt[o + 10];
+        // the branches' bands, all of one shade filled in one go (far cheaper than a wide line for each)
+        const inSlice = armsIn[s].sort((a, b) => armShade[a] - armShade[b]);
+        for (let j = 0; j < inSlice.length; ) {
+          const shade = armShade[inSlice[j]];
+          cx.fillStyle = SHADES[shade];
           cx.beginPath();
-          cx.moveTo(armAt[o], armAt[o + 1]);
-          cx.lineTo(armAt[o + 2], armAt[o + 3]);
-          cx.lineTo(armAt[o + 4], armAt[o + 5]);
-          cx.stroke();
-          cx.lineWidth = armAt[o + 11];
-          cx.beginPath();
-          cx.moveTo(armAt[o + 4], armAt[o + 5]);
-          cx.lineTo(armAt[o + 6], armAt[o + 7]);
-          cx.lineTo(armAt[o + 8], armAt[o + 9]);
-          cx.stroke();
+          for (; j < inSlice.length && armShade[inSlice[j]] === shade; j++) armBand(inSlice[j] * 12);
+          cx.fill();
         }
         cx.lineWidth = needleWidth;
         for (let g = 0; g < GROUPS; g++) {
@@ -752,8 +805,9 @@ export default function ChristmasTree({ cities, onPick }: Props) {
       if (drag) {
         const d = e.clientX - drag.x;
         drag.m += Math.abs(d);
-        rot += d * 0.008;
-        drag.v = (d * 0.008) / Math.max(0.008, (e.timeStamp - drag.t) / 1000);
+        // the side facing you follows the pointer, as if you had hold of it (turning rot the other way)
+        rot -= d * 0.008;
+        drag.v = (-d * 0.008) / Math.max(0.008, (e.timeStamp - drag.t) / 1000);
         drag.x = e.clientX;
         drag.t = e.timeStamp;
       } else hov = hit(e);
