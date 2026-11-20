@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "2.119.0",
+    "@vercel/analytics": "2.0.1",
     "d3-geo": "^3.1.1",
     "d3-geo-voronoi": "^2.1.0",
     "katex": "^0.19.0",

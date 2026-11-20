@@ -99,7 +99,9 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    Reads ONLY pack JSON at build time; no AI calls at runtime. One exception to "no backend":
    /upload/ talks to Supabase from the browser (web/src/lib/supabase.ts; sign-in, the upload form,
    "My uploads"). Papers never come from there, no other page loads it, and without the two
-   NEXT_PUBLIC_SUPABASE_ variables /upload/ points to the Google Form. Still a static export: no
+   NEXT_PUBLIC_SUPABASE_ variables /upload/ points to the Google Form. Vercel Web Analytics
+   (components/SiteAnalytics.tsx, no cookies) counts page views and visitors for the maintainer's
+   dashboard on vercel.com; addresses are cleaned first (lib/analytics.ts). The site has no admin page. Still a static export: no
    server actions, cookies, proxy file or route handlers that read the request. Fonts are bundled in
    web/src/app/fonts (works offline). This Next.js has breaking changes: read
    web/node_modules/next/dist/docs before using an API you are unsure of.
