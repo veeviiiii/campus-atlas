@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 
 import PageEnter from "@/components/PageEnter";
+import SiteAnalytics from "@/components/SiteAnalytics";
 import SoftScroll from "@/components/SoftScroll";
 import { SEASON_SCRIPT } from "@/lib/season";
 import { SITE_URL } from "@/lib/site";
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: SEASON_SCRIPT }} />
         <SoftScroll />
         <PageEnter>{children}</PageEnter>
+        <SiteAnalytics />
       </body>
     </html>
   );
