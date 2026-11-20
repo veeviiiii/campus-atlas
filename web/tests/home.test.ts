@@ -10,7 +10,8 @@ test("the home page gets a summary of the packs, not the packs", () => {
   two.pack.harness = { eval: { found: 18, expected: 19, misses: [7], source: "expected_repeats.json" } };
   const s = homeSummary([one, two]);
 
-  assert.deepEqual(s.totals, { papers: 5, questions: 9, repeats: 1, dropped: 3 }); // every course on the site
+  const subjects = one.pack.subjects.length + two.pack.subjects.length;
+  assert.deepEqual(s.totals, { papers: 5, questions: 9, subjects, repeats: 1, dropped: 3 }); // every course on the site
   assert.deepEqual(s.checked, { course: "Test Course", expected: 19, found: 18 });
   // the planet holds topics from every pack, at most HERO_TOPICS_PER_SUBJECT of each subject: a name, a
   // heat, a weight and a link each, and nothing more
@@ -27,7 +28,7 @@ test("the home page gets a summary of the packs, not the packs", () => {
   assert.ok(s.hero?.cities.every((c) => Math.abs(c.lat) < 62), "every topic turns past the front of the planet");
   assert.ok(!JSON.stringify(s).includes("He-Ne"), "no question text");
 
-  assert.deepEqual(homeSummary([]), { hero: null, totals: { papers: 0, questions: 0, repeats: 0, dropped: 0 }, checked: null, audited: null });
+  assert.deepEqual(homeSummary([]), { hero: null, totals: { papers: 0, questions: 0, subjects: 0, repeats: 0, dropped: 0 }, checked: null, audited: null });
 });
 
 test("the second reader's check is said only once every pack is checked and no proposed fix is waiting", () => {

@@ -1,5 +1,5 @@
 // What the home page shows from the packs, worked out at build time: the hero planet's squares, the
-// totals in "How it works" and the repeat check. The page gets these few numbers and names, never a
+// counter under the hero, the totals in "How it works" and the repeat check. The page gets these few numbers and names, never a
 // whole pack (every question of every course would otherwise ride along in its HTML).
 
 import { topicHref } from "./paths";
@@ -18,7 +18,7 @@ export interface HeroCity extends LatLng {
 export interface HomeSummary {
   /** Topics from every course and semester on the site, so the caption names none of them. */
   hero: { cities: HeroCity[] } | null;
-  totals: { papers: number; questions: number; repeats: number; dropped: number };
+  totals: { papers: number; questions: number; subjects: number; repeats: number; dropped: number };
   /** How repeat finding did against the repeats found by hand, on the one course that has them. */
   checked: { course: string; expected: number; found: number } | null;
   /** A second reader's check of the questions against their page photos. Said only when every pack
@@ -81,7 +81,13 @@ export function homeSummary(entries: PackEntry[]): HomeSummary {
           }
         : null,
     hero: entries.length ? { cities: heroCities(entries) } : null,
-    totals: { papers: total("papers"), questions: total("questions"), repeats: total("repeats"), dropped: total("dropped_bleed_through") },
+    totals: {
+      papers: total("papers"),
+      questions: total("questions"),
+      subjects: entries.reduce((n, e) => n + e.pack.subjects.length, 0),
+      repeats: total("repeats"),
+      dropped: total("dropped_bleed_through"),
+    },
     checked: evalPack && result ? { course: evalPack.course.name, expected: result.expected, found: result.found } : null,
   };
 }
