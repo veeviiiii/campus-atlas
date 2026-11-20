@@ -3,7 +3,7 @@ import { test } from "node:test";
 
 import { buildReport, pageOf, type Directory, type RawAnalytics } from "../src/lib/analytics-report";
 import { seal } from "../src/lib/seal";
-import { unseal } from "../src/lib/unseal";
+import { deviceKey, unseal, unsealWith } from "../src/lib/unseal";
 
 const DIR: Directory = {
   packs: { "davv-sdsf/mtech-aids-dual-sem1": { course: "mtech-aids-dual", semester: 1 }, "davv-sdsf/mtech-aids-dual-sem4": { course: "mtech-aids-dual", semester: 4 } },
@@ -74,4 +74,15 @@ test("the admin data opens with the right password only", async () => {
   assert.ok(!sealed.data.includes("visits"));
   assert.equal(await unseal(sealed, "a long admin password"), '{"visits":7}');
   assert.equal(await unseal(sealed, "a wrong password"), null);
+});
+
+test("the key a device keeps opens later builds too, and only with the same password", async () => {
+  const today = seal('{"day":1}', "a long admin password", 1000);
+  const tomorrow = seal('{"day":2}', "a long admin password", 1000); // the daily rebuild: a new salt and iv
+  assert.notEqual(today.salt, tomorrow.salt);
+  const kept = await deviceKey("a long admin password", 1000);
+  assert.equal(await unsealWith(today, kept), '{"day":1}');
+  assert.equal(await unsealWith(tomorrow, kept), '{"day":2}');
+  const changed = seal('{"day":3}', "a new admin password", 1000); // the maintainer changed ADMIN_PASSWORD
+  assert.equal(await unsealWith(changed, kept), null);
 });

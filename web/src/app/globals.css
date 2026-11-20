@@ -1846,6 +1846,13 @@ a.card:active {
   flex-direction: column;
   gap: 18px;
 }
+.admin-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
 .admin-head p {
   color: var(--muted);
   margin: 10px 0 0;
