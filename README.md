@@ -197,10 +197,15 @@ GitHub Actions runs both test suites, the lint and the build on every push to `m
 
 The site is a static export (no server, no AI calls), so Vercel only serves files. Import this
 repo at vercel.com/new and choose **Import single project** next to `web` (Next.js): Root
-Directory `web`, default build settings, no environment variables (the analytics ones below are
+Directory `web`, default build settings, no environment variables (the winter switch and the analytics ones below are
 optional). The build reads `packs/` from
 the repo root, which Vercel includes by default ("Include files outside the root directory").
 Every push to `main` redeploys.
+
+**Winter look.** From 20 November to 6 January the site wears a winter look by the visitor's own date
+(snow, a Christmas tree on the home page, baubles, a hat on the logo). One environment variable switches all of it:
+`WINTER_LOOK` = `auto` (the default, by date), `on` or `off`. Set it in Vercel (Project → Settings →
+Environment Variables), then redeploy. Its styles are all in `web/src/app/winter.css`.
 
 ## Site analytics (maintainer)
 
