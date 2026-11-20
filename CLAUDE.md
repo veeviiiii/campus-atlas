@@ -105,7 +105,7 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    server actions, cookies, proxy file or route handlers that read the request. Fonts are bundled in
    web/src/app/fonts (works offline). This Next.js has breaking changes: read
    web/node_modules/next/dist/docs before using an API you are unsure of.
-   Routes: / (home: hero, pick a field, then its courses (?field=<id>; the search box finds any course), how it works),
+   Routes: / (home: hero with a count-up of papers, questions and subjects from the packs, pick a field, then its courses (?field=<id>; the search box finds any course), how it works),
    /course/<course>/ (pick year and semester; semesters without papers ask for them),
    /c/<college>/<pack>/ (one semester: subject cards), /c/<college>/<pack>/<subject>/ (subject page:
    tabs Papers, Likely topics, Marks by unit; #likely, #topic-<id>, #marks open a tab; "Print this

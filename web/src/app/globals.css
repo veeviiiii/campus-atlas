@@ -319,6 +319,45 @@ nav.top ul a[aria-current]::after {
   margin: 28px 0;
   position: relative;
 }
+/* the counter under the hero's buttons (CountUp): real totals from the packs */
+.counter {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 36px;
+  margin: 36px 0 0;
+}
+.counter div {
+  display: flex;
+  flex-direction: column-reverse; /* the number on top, its label under it; dt stays first for screen readers */
+  gap: 4px;
+}
+.counter dt {
+  color: var(--muted);
+}
+.counter dd {
+  margin: 0;
+  font: 700 clamp(30px, 4vw, 44px) / 1 var(--font-space-grotesk);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.counter div:nth-child(1) dd {
+  color: var(--accent);
+}
+.counter div:nth-child(2) dd {
+  color: var(--cyan);
+}
+.counter div:nth-child(3) dd {
+  color: var(--lav);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .cta {
   display: flex;
   gap: 12px;
