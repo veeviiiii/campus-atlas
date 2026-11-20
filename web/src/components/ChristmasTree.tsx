@@ -33,14 +33,34 @@ const steady = (k: number) => {
 const reach = (y: number) => BASE * Math.pow(Math.max(0, 1 - y), 1.05);
 
 const NEEDLE = 10; // numbers per needle: base x y z, tip x y z, the branch's way out (x, z), how far out it is, frost
+const BRANCH = 4; // numbers per branch: its height on the trunk, its way out (x, z), its length
+const SPINE = [0.06, 0.28, 0.5, 0.72, 0.92]; // where along a branch its line is drawn (0 trunk, 1 tip)
+const GROUND = -0.03; // the snow the tree stands in
+
+/** The presents under the tree, round the trunk: where (angle, distance from the trunk), turned how far,
+ *  how wide, deep and tall (tree units), and which wrapping (TREE.presents). */
+const PRESENTS = [
+  { az: 0.25, r: 0.13, yaw: 0.3, w: 0.11, d: 0.09, h: 0.1, k: 0 },
+  { az: 1.15, r: 0.145, yaw: -0.4, w: 0.08, d: 0.08, h: 0.075, k: 1 },
+  { az: 2.0, r: 0.12, yaw: 0.9, w: 0.085, d: 0.07, h: 0.12, k: 2 },
+  { az: 2.95, r: 0.15, yaw: 0.2, w: 0.12, d: 0.09, h: 0.075, k: 3 },
+  { az: 3.85, r: 0.125, yaw: -0.7, w: 0.075, d: 0.075, h: 0.095, k: 4 },
+  { az: 4.75, r: 0.14, yaw: 0.5, w: 0.1, d: 0.085, h: 0.105, k: 5 },
+  { az: 5.6, r: 0.125, yaw: -0.2, w: 0.08, d: 0.07, h: 0.075, k: 6 },
+  { az: 0.75, r: 0.25, yaw: 0.6, w: 0.065, d: 0.06, h: 0.06, k: 2 },
+  { az: 3.5, r: 0.26, yaw: -0.5, w: 0.07, d: 0.055, h: 0.055, k: 0 },
+];
+const RIBBON = 0.0075; // half a ribbon's width, tree units
 
 /**
  * The tree, once: tiers of branches round the trunk (more and longer ones low down), each rising a little
  * off the trunk and then drooping, with side twigs of needles along it, and a leader at the top. Every
- * needle is a short stroke. Deterministic: the same tree on every visit.
+ * needle is a short stroke; each branch also keeps its line, along which the tree is filled in dark green
+ * behind its needles, so it looks dense. Deterministic: the same tree on every visit.
  */
-function grow(): Float32Array {
+function grow(): { needles: Float32Array; branches: Float32Array } {
   const out: number[] = [];
+  const arms: number[] = [];
   let seed = 0;
   const rnd = () => steady(++seed);
   const needle = (bx: number, by: number, bz: number, dx: number, dy: number, dz: number, len: number, ca: number, sa: number, frac: number, frost: boolean) => {
@@ -57,6 +77,7 @@ function grow(): Float32Array {
       const ca = Math.cos(az);
       const sa = Math.sin(az);
       const L = reach(yb) * (0.82 + 0.3 * rnd()) + 0.02;
+      arms.push(yb, ca, sa, L);
       const samples = Math.round(5 + (28 * L) / BASE);
       for (let i = 0; i < samples; i++) {
         const s = 0.12 + (0.88 * (i + rnd() * 0.8)) / samples;
@@ -90,7 +111,7 @@ function grow(): Float32Array {
     const off = 0.022 * (1 - (y - 0.9) / 0.1) * rnd();
     needle(ca * off, y, sa * off, ca, 0.6, sa, 0.016 + 0.01 * rnd(), ca, sa, 0.9, false);
   }
-  return new Float32Array(out);
+  return { needles: new Float32Array(out), branches: new Float32Array(arms) };
 }
 
 /** "#rrggbb" and a mix of two of them. */
@@ -187,12 +208,23 @@ export default function ChristmasTree({ cities, onPick }: Props) {
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const monoFamily = getComputedStyle(document.documentElement).getPropertyValue("--font-plex-mono").trim() || "monospace";
 
-    const needles = grow();
+    const { needles, branches } = grow();
     const count = needles.length / NEEDLE;
     const screen = new Float32Array(count * 4); // each needle's two ends on screen
     const keys = new Uint16Array(count); // depth slice and shade
     const order = new Uint32Array(count);
     const starts = new Uint32Array(SLICES * GROUPS + 1);
+    const arms = branches.length / BRANCH;
+    const armAt = new Float32Array(arms * 12); // each branch's line on screen (5 points), its inner and outer width
+    const armShade = new Uint8Array(arms);
+    // the star's ten facets, each lit by how it faces the light (upper left)
+    const facets = Array.from({ length: 10 }, (_, k) => {
+      const tip = -Math.PI / 2 + Math.floor(k / 2) * ((2 * Math.PI) / 5);
+      const side = k % 2 ? 1 : -1;
+      const facing = tip + (side * Math.PI) / 10;
+      return { tip, side, color: mix(TREE.starShade, TREE.starCore, 0.5 + 0.5 * Math.cos(facing + (3 * Math.PI) / 4)) };
+    });
+    const wraps = TREE.presents.map(([paper, ribbon]) => [rgbOf(paper), rgbOf(ribbon)]);
 
     // fairy lights: most on a spiral round the tree, the rest scattered over it
     const lights = Array.from({ length: 130 }, (_, i) => {
@@ -258,6 +290,8 @@ export default function ChristmasTree({ cities, onPick }: Props) {
     let px = 0;
     let py = 0;
     let f = 1;
+    let qx = 0; // the point as the eye sees it (across, up), before the perspective
+    let qy = 0;
     /** Puts (x, y, z) on screen in px, py; returns its depth (towards the eye) and sets the scale in f. */
     const project = (x: number, y: number, z: number) => {
       const xr = x * cosT - z * sinT;
@@ -265,6 +299,8 @@ export default function ChristmasTree({ cities, onPick }: Props) {
       const yv = y * cosP - zr * sinP;
       const zv = zr * cosP + y * sinP;
       f = EYE / (EYE - zv);
+      qx = xr;
+      qy = yv;
       px = midX + xr * S * f;
       py = midY - (yv - 0.5 * cosP) * S * f;
       return zv;
@@ -274,6 +310,162 @@ export default function ChristmasTree({ cities, onPick }: Props) {
     const lx = -0.5;
     const ly = 0.55;
     const lz = 0.67;
+    let sc = 1; // the canvas's size against a 560px one, for line widths and sprites
+
+    /** How lit a flat face is, from its outward normal (x, y, z): 0.42 facing away to 1.1 facing the light. */
+    const lightOn = (nx: number, ny: number, nz: number) => 0.42 + 0.68 * Math.max(0, (nx * cosT - nz * sinT) * lx + ny * ly + (nx * sinT + nz * cosT) * lz);
+    /** Whether a face at p with outward normal (x, y, z) turns towards the eye. */
+    const facesEye = (p: number[], nx: number, ny: number, nz: number) => {
+      const zc = project(p[0], p[1], p[2]);
+      const xr = nx * cosT - nz * sinT;
+      const zr = nx * sinT + nz * cosT;
+      return xr * -qx + (ny * cosP - zr * sinP) * (0.5 * cosP - qy) + (zr * cosP + ny * sinP) * (EYE - zc) > 0;
+    };
+    /** A closed path through these points, on screen. */
+    const poly = (pts: number[][]) => {
+      cx.beginPath();
+      pts.forEach(([x, y, z], i) => {
+        project(x, y, z);
+        if (i) cx.lineTo(px, py);
+        else cx.moveTo(px, py);
+      });
+      cx.closePath();
+    };
+    const tint = (c: number[], b: number) => `rgb(${c.map((v) => Math.min(255, Math.round(v * b))).join(",")})`;
+
+    /** A wrapped present: its shadow on the snow, the faces that turn to the eye with a ribbon round each,
+     *  and a bow on top. It turns with the tree. */
+    const drawPresent = (p: (typeof PRESENTS)[number]) => {
+      const cy = Math.cos(p.yaw);
+      const sy = Math.sin(p.yaw);
+      const ox = Math.cos(p.az) * p.r;
+      const oz = Math.sin(p.az) * p.r;
+      // a point on the box: a across its width, b across its depth (both -1..1), up from the snow
+      const at = (a: number, b: number, up: number) => [ox + (a * cy * p.w) / 2 - (b * sy * p.d) / 2, GROUND + up, oz + (a * sy * p.w) / 2 + (b * cy * p.d) / 2];
+      const [paper, ribbon] = wraps[p.k % wraps.length];
+      const ra = RIBBON / (p.w / 2);
+      const rb = RIBBON / (p.d / 2);
+      cx.fillStyle = `rgba(${TREE.shadow},.5)`;
+      poly([at(-1.2, -1.2, 0), at(1.2, -1.2, 0), at(1.2, 1.2, 0), at(-1.2, 1.2, 0)]);
+      cx.fill();
+      for (const [across, sign] of [
+        [true, 1],
+        [true, -1],
+        [false, 1],
+        [false, -1],
+      ] as const) {
+        // the two sides across the width (the ribbon runs down them across the depth), then the other two
+        const nx = across ? sign * cy : -sign * sy;
+        const nz = across ? sign * sy : sign * cy;
+        const side = (q: number, up: number) => (across ? at(sign, q, up) : at(q, sign, up));
+        if (!facesEye(side(0, p.h / 2), nx, 0, nz)) continue;
+        const lit = lightOn(nx, 0, nz);
+        const band = across ? rb : ra;
+        cx.fillStyle = tint(paper, lit);
+        poly([side(-1, 0), side(1, 0), side(1, p.h), side(-1, p.h)]);
+        cx.fill();
+        cx.fillStyle = tint(ribbon, lit);
+        poly([side(-band, 0), side(band, 0), side(band, p.h), side(-band, p.h)]);
+        cx.fill();
+      }
+      const top = lightOn(0, 1, 0);
+      cx.fillStyle = tint(paper, top);
+      poly([at(-1, -1, p.h), at(1, -1, p.h), at(1, 1, p.h), at(-1, 1, p.h)]);
+      cx.fill();
+      cx.strokeStyle = `rgba(${TREE.shine},.16)`;
+      cx.lineWidth = 0.8;
+      cx.stroke();
+      cx.fillStyle = tint(ribbon, top);
+      poly([at(-1, -rb, p.h), at(1, -rb, p.h), at(1, rb, p.h), at(-1, rb, p.h)]);
+      cx.fill();
+      poly([at(-ra, -1, p.h), at(ra, -1, p.h), at(ra, 1, p.h), at(-ra, 1, p.h)]);
+      cx.fill();
+      // the bow: two loops and a knot
+      project(ox, GROUND + p.h, oz);
+      const s = Math.min(p.w, p.d) * 0.3 * S * f;
+      for (const side of [-1, 1]) {
+        cx.fillStyle = tint(ribbon, top * 1.05);
+        cx.beginPath();
+        cx.ellipse(px + side * s * 0.62, py - s * 0.32, s * 0.68, s * 0.4, side * -0.45, 0, TAU);
+        cx.fill();
+        cx.fillStyle = tint(ribbon, top * 0.55);
+        cx.beginPath();
+        cx.ellipse(px + side * s * 0.66, py - s * 0.32, s * 0.36, s * 0.17, side * -0.45, 0, TAU);
+        cx.fill();
+      }
+      cx.fillStyle = tint(ribbon, top * 1.15);
+      cx.beginPath();
+      cx.arc(px, py - s * 0.28, s * 0.24, 0, TAU);
+      cx.fill();
+    };
+
+    /** The dark inside of the tree: a cone about two thirds as wide as the branches reach, round the trunk. Being round,
+     *  it looks the same from every side: its outline is drawn where the eye sees its edges. */
+    const drawCore = () => {
+      const pts: number[][] = [];
+      const at = (across: number, y: number, toward: number) => [across * cosT + toward * sinT, y, -across * sinT + toward * cosT];
+      const r = (y: number) => reach(y) * 0.62;
+      for (let i = 0; i <= 12; i++) {
+        const y = 0.12 + (0.84 * i) / 12;
+        pts.push(at(-r(y), y, 0));
+      }
+      for (let i = 12; i >= 0; i--) {
+        const y = 0.12 + (0.84 * i) / 12;
+        pts.push(at(r(y), y, 0));
+      }
+      for (let i = 1; i < 12; i++) {
+        const a = (Math.PI * i) / 12;
+        pts.push(at(r(0.12) * Math.cos(a), 0.12, r(0.12) * Math.sin(a)));
+      }
+      const shade = cx.createLinearGradient(midX - r(0.12) * S, 0, midX + r(0.12) * S, 0);
+      shade.addColorStop(0, TREE.needleDark);
+      shade.addColorStop(0.35, mix(TREE.needleDark, TREE.needleMid, 0.4));
+      shade.addColorStop(1, TREE.needleDark);
+      cx.fillStyle = shade;
+      poly(pts);
+      cx.fill();
+    };
+
+    /** The trunk: wider at the foot with a flare of roots, darker on the side away from the light, with
+     *  furrows in its bark that turn with the tree. */
+    const drawTrunk = () => {
+      project(0, GROUND, 0);
+      const bx = px;
+      const by = py;
+      const w0 = 0.034 * S * f;
+      const flare = 0.058 * S * f;
+      const rise = 0.04 * S;
+      project(0, 0.32, 0);
+      const tx = px;
+      const ty = py;
+      const w1 = 0.015 * S * f;
+      const bark = cx.createLinearGradient(bx - w0, 0, bx + w0, 0);
+      bark.addColorStop(0, TREE.trunkDark);
+      bark.addColorStop(0.3, TREE.trunkLit);
+      bark.addColorStop(0.65, mix(TREE.trunkLit, TREE.trunkDark, 0.55));
+      bark.addColorStop(1, TREE.trunkDark);
+      cx.fillStyle = bark;
+      cx.beginPath();
+      cx.moveTo(bx - flare, by);
+      cx.quadraticCurveTo(bx - w0, by - rise * 0.15, bx - w0, by - rise);
+      cx.lineTo(tx - w1, ty);
+      cx.lineTo(tx + w1, ty);
+      cx.lineTo(bx + w0, by - rise);
+      cx.quadraticCurveTo(bx + w0, by - rise * 0.15, bx + flare, by);
+      cx.closePath();
+      cx.fill();
+      cx.lineWidth = Math.max(0.8, 1.1 * sc);
+      for (let k = 0; k < 9; k++) {
+        const a = k * 0.7 + steady(k + 900) * 0.4 + rot;
+        const toward = Math.sin(a);
+        if (toward < 0.1) continue;
+        cx.strokeStyle = `rgba(${TREE.depth},${(0.45 * toward).toFixed(3)})`;
+        cx.beginPath();
+        cx.moveTo(bx + Math.cos(a) * w0 * 0.92, by - rise * 0.4);
+        cx.lineTo(tx + Math.cos(a) * w1 * 0.9, ty);
+        cx.stroke();
+      }
+    };
 
     const frame = (now: number) => {
       raf = 0;
@@ -289,7 +481,7 @@ export default function ChristmasTree({ cities, onPick }: Props) {
       S = W * 0.74;
       midX = W / 2;
       midY = W * 0.5;
-      const sc = Math.max(0.6, W / 560);
+      sc = Math.max(0.6, W / 560);
       const age = now - born;
       cx.clearRect(0, 0, W, W);
 
@@ -377,23 +569,72 @@ export default function ChristmasTree({ cities, onPick }: Props) {
         return { i, x: px, y: py, z, r: 0.024 * S * f * (1 + 0.25 * lift[i]) };
       });
 
-      const trunkSlice = sliceOf(0.12 * sinP);
-      cx.lineCap = "round";
-      cx.lineWidth = Math.max(0.9, 1.3 * sc);
-      for (let s = 0; s < SLICES; s++) {
-        if (s === trunkSlice) {
-          project(0, -0.03, 0);
-          const tx = px;
-          const ty = py;
-          project(0, 0.14, 0);
-          const tw = 0.032 * S * f;
-          const bark = cx.createLinearGradient(tx - tw, 0, tx + tw, 0);
-          bark.addColorStop(0, TREE.trunkDark);
-          bark.addColorStop(0.35, TREE.trunkLit);
-          bark.addColorStop(1, TREE.trunkDark);
-          cx.fillStyle = bark;
-          cx.fillRect(tx - tw, py, tw * 2, ty - py);
+      // each branch's line, to fill the tree in behind its needles: the deep green of the shade inside a tree
+      const armsIn: number[][] = Array.from({ length: SLICES }, () => []);
+      for (let a = 0; a < arms; a++) {
+        const yb = branches[a * BRANCH];
+        const ca = branches[a * BRANCH + 1];
+        const sa = branches[a * BRANCH + 2];
+        const L = branches[a * BRANCH + 3];
+        let zMid = 0;
+        let fMid = 1;
+        for (let i = 0; i < SPINE.length; i++) {
+          const s = SPINE[i];
+          const z = project(ca * L * s, yb + L * (0.1 * s - 0.32 * s * s), sa * L * s);
+          armAt[a * 12 + i * 2] = px;
+          armAt[a * 12 + i * 2 + 1] = py;
+          if (i === 2) {
+            zMid = z;
+            fMid = f;
+          }
         }
+        const spread = L * 0.115 * S * fMid; // about half the way its twigs reach out round it
+        armAt[a * 12 + 10] = spread * 0.84;
+        armAt[a * 12 + 11] = spread * 0.58;
+        const nx = ca * cosT - sa * sinT;
+        const nz = ca * sinT + sa * cosT;
+        const diffuse = Math.max(0, (nx * lx + 0.45 * ly + nz * lz) / 1.0966);
+        const lit = (0.16 + 0.84 * diffuse) * 0.2 * (0.55 + 0.45 * clamp01((zMid + BASE) / (2 * BASE)));
+        armShade[a] = Math.min(LEVELS - 1, Math.floor(lit * 1.25 * LEVELS));
+        armsIn[sliceOf(zMid)].push(a);
+      }
+      // the trunk (-1), the tree's dark core round it (-2) and the presents, each in its depth slice, far
+      // ones first
+      const solidsIn: { z: number; k: number }[][] = Array.from({ length: SLICES }, () => []);
+      const tz = project(0, 0.05, 0);
+      solidsIn[sliceOf(tz)].push({ z: tz, k: -1 }, { z: tz + 1e-4, k: -2 });
+      PRESENTS.forEach((p, k) => {
+        const z = project(Math.cos(p.az) * p.r, GROUND + p.h / 2, Math.sin(p.az) * p.r);
+        solidsIn[sliceOf(z)].push({ z, k });
+      });
+
+      // a thinned tree draws its needles a little thicker
+      const needleWidth = Math.max(0.9, 1.3 * sc) * (1 + 0.25 * (step - 1));
+      cx.lineCap = "round";
+      cx.lineJoin = "round";
+      for (let s = 0; s < SLICES; s++) {
+        for (const { k } of solidsIn[s].sort((a, b) => a.z - b.z)) {
+          if (k === -1) drawTrunk();
+          else if (k === -2) drawCore();
+          else drawPresent(PRESENTS[k]);
+        }
+        for (const a of armsIn[s]) {
+          const o = a * 12;
+          cx.strokeStyle = SHADES[armShade[a]];
+          cx.lineWidth = armAt[o + 10];
+          cx.beginPath();
+          cx.moveTo(armAt[o], armAt[o + 1]);
+          cx.lineTo(armAt[o + 2], armAt[o + 3]);
+          cx.lineTo(armAt[o + 4], armAt[o + 5]);
+          cx.stroke();
+          cx.lineWidth = armAt[o + 11];
+          cx.beginPath();
+          cx.moveTo(armAt[o + 4], armAt[o + 5]);
+          cx.lineTo(armAt[o + 6], armAt[o + 7]);
+          cx.lineTo(armAt[o + 8], armAt[o + 9]);
+          cx.stroke();
+        }
+        cx.lineWidth = needleWidth;
         for (let g = 0; g < GROUPS; g++) {
           const k = s * GROUPS + g;
           if (starts[k] === starts[k + 1]) continue;
@@ -432,7 +673,8 @@ export default function ChristmasTree({ cities, onPick }: Props) {
         }
       }
 
-      // the star on top, always facing the eye, with a soft glow and a slow sparkle
+      // the star on top of the trunk's line, upright and facing the eye, in a soft glow that breathes; its
+      // five points are each two facets, lit or in shade by how they face the light
       project(0, 1.035, 0);
       const flare = reduced ? 1 : easeOut(clamp01((age - 1600) / 700));
       if (flare > 0) {
@@ -444,29 +686,17 @@ export default function ChristmasTree({ cities, onPick }: Props) {
         sg.addColorStop(1, `rgba(${TREE.starGlow},0)`);
         cx.fillStyle = sg;
         cx.fillRect(px - R * 3.2, py - R * 3.2, R * 6.4, R * 6.4);
-        cx.strokeStyle = `rgba(${TREE.starGlow},${(0.35 * pulse).toFixed(3)})`;
-        cx.lineWidth = 1;
-        cx.beginPath();
-        cx.moveTo(px - R * 2.6 * pulse, py);
-        cx.lineTo(px + R * 2.6 * pulse, py);
-        cx.moveTo(px, py - R * 2.4 * pulse);
-        cx.lineTo(px, py + R * 2.4 * pulse);
-        cx.stroke();
         cx.globalCompositeOperation = "source-over";
-        const sway = reduced ? 0 : Math.sin(now / 1300) * 0.08;
-        const body = cx.createRadialGradient(px - R * 0.2, py - R * 0.25, 0, px, py, R);
-        body.addColorStop(0, TREE.starCore);
-        body.addColorStop(1, TREE.star);
-        cx.fillStyle = body;
-        cx.beginPath();
-        for (let k = 0; k < 10; k++) {
-          const a = -Math.PI / 2 + sway + (k * Math.PI) / 5;
-          const rr = k % 2 ? R * 0.44 : R;
-          if (k) cx.lineTo(px + Math.cos(a) * rr, py + Math.sin(a) * rr);
-          else cx.moveTo(px + Math.cos(a) * rr, py + Math.sin(a) * rr);
+        for (const { tip, side, color } of facets) {
+          const inner = tip + (side * Math.PI) / 5;
+          cx.fillStyle = color;
+          cx.beginPath();
+          cx.moveTo(px, py);
+          cx.lineTo(px + Math.cos(tip) * R, py + Math.sin(tip) * R);
+          cx.lineTo(px + Math.cos(inner) * R * 0.42, py + Math.sin(inner) * R * 0.42);
+          cx.closePath();
+          cx.fill();
         }
-        cx.closePath();
-        cx.fill();
       }
 
       // the label of the bauble under the pointer, last, on a pill kept inside the canvas

@@ -14,10 +14,11 @@ export const WINTER = { cap: "#d8d2c7", capShade: "#a09fb0", shade: "40,48,80", 
 
 /** The winter look's Christmas tree in the hero (ChristmasTree.tsx). Needles go from the dark inside of the
  *  tree to its lit tips (three stops, blended between); frost on the outer tips, from its shaded to its lit
- *  side; the trunk; the fairy lights (warm white and amber) and the star, with their glow ("r,g,b"); the
- *  snow on the ground and the shadow on it ("r,g,b"); the baubles (the site's palette), their shine and
- *  shade ("r,g,b"), silver cap and loop; the hover label's pill. The violet halo
- *  behind it is PLANET.halo, so it sits in the site like the planet does. */
+ *  side; the trunk; the fairy lights (warm white and amber) and the star (its facets go from shade to core),
+ *  with their glow ("r,g,b"); the snow on the ground and the shadow on it ("r,g,b"); the baubles (the site's
+ *  palette), their shine and shade ("r,g,b"), silver cap and loop; the presents under the tree as
+ *  [paper, ribbon]; the hover label's pill. The violet halo behind it is PLANET.halo, so it sits in the site
+ *  like the planet does. */
 export const TREE = {
   needleDark: "#04170f",
   needleMid: "#11553a",
@@ -30,6 +31,7 @@ export const TREE = {
   lightAmber: "255,194,74",
   star: "#ffd36a",
   starCore: "#fff7dc",
+  starShade: "#c98a22",
   starGlow: "255,205,100",
   snow: "214,228,242",
   shadow: "2,6,5",
@@ -39,6 +41,15 @@ export const TREE = {
   cap: "#e8e4dc",
   capShade: "#8f8a99",
   loop: "#a09fb0",
+  presents: [
+    ["#b3202f", "#ffc24a"],
+    ["#5b3fd6", "#e8e4dc"],
+    ["#e8e2d4", "#ff3b4e"],
+    ["#2c4bc7", "#ffc24a"],
+    ["#d39a2c", "#b3202f"],
+    ["#a3286a", "#e8e4dc"],
+    ["#1f8fa8", "#fff7dc"],
+  ],
   label: "#13121a",
   labelInk: "#ffffff",
 } as const;
