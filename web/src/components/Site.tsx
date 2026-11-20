@@ -6,6 +6,7 @@ import { type MouseEvent, useState, useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 
 import { BottomBar, SiteNav } from "./Chrome";
+import CountUp from "./CountUp";
 import HeroPlanet from "./HeroPlanet";
 import { FIELD_COLORS } from "@/lib/colors";
 import type { HomeSummary } from "@/lib/home";
@@ -129,6 +130,29 @@ export default function Site({ summary, courses, fields }: Props) {
               How it works
             </a>
           </div>
+          {/* Counted from the packs at build time; nothing here is estimated. */}
+          {totals.papers > 0 && (
+            <dl className="counter">
+              <div>
+                <dt className="mono">Past papers</dt>
+                <dd>
+                  <CountUp value={totals.papers} />
+                </dd>
+              </div>
+              <div>
+                <dt className="mono">Questions</dt>
+                <dd>
+                  <CountUp value={totals.questions} />
+                </dd>
+              </div>
+              <div>
+                <dt className="mono">Subjects</dt>
+                <dd>
+                  <CountUp value={totals.subjects} />
+                </dd>
+              </div>
+            </dl>
+          )}
         </div>
         {hero && (
           <div style={{ position: "relative" }}>
