@@ -218,8 +218,11 @@ days. The build turns that into two things:
   (`SHOW_VISITS_FROM` in `web/src/components/Site.tsx`); nothing is estimated.
 - **`/admin/`**: visits per day, and which courses, semesters and subjects are opened most. The page
   is public static HTML, so its numbers are encrypted with your admin password at build time
-  (AES-GCM, key from PBKDF2) and the browser opens them only with that password. It is not in the
-  sitemap, search engines are told to skip it, and your own visits to it are not counted.
+  (AES-GCM, key from PBKDF2 then HKDF) and the browser opens them only with that password. It is not
+  in the sitemap, search engines are told to skip it, and your own visits to it are not counted.
+  After you open it once, that device stays signed in, through reloads and the daily rebuilds, until
+  you press **Sign out**: the browser keeps a key made from the password (in IndexedDB, and it cannot
+  be read back out), never the password itself. Changing `ADMIN_PASSWORD` signs every device out.
 
 A visit is one person on one day: Vercel recognises a visitor for 24 hours, so someone who comes back
 on three days counts three times. Hobby plans keep one month of data.

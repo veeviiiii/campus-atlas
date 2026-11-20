@@ -1,9 +1,10 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 
+import { forget, recall, remember } from "@/lib/admin-device";
 import type { Bar, Report } from "@/lib/analytics-report";
-import { type Sealed, unseal } from "@/lib/unseal";
+import { deviceKey, type Sealed, unsealWith } from "@/lib/unseal";
 
 export type AdminState =
   | { kind: "no-password" }
@@ -14,31 +15,68 @@ export type AdminState =
 const num = (n: number) => n.toLocaleString("en-IN");
 const shortDate = (iso: string) => new Date(`${iso.slice(0, 10)}T00:00:00Z`).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "UTC" });
 
-/** /admin/: locked until the maintainer's password opens the report the build sealed into the page. */
+/** /admin/: locked until the maintainer's password opens the report the build sealed into the page. It
+ *  then stays open on this device, reloads and later builds included, until Sign out (lib/admin-device.ts). */
 export default function AdminView({ state }: { state: AdminState }) {
   const [report, setReport] = useState<Report | null>(null);
+  const [checking, setChecking] = useState(state.kind === "locked"); // looking for a key this device kept
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [wrong, setWrong] = useState(false);
 
+  useEffect(() => {
+    if (state.kind !== "locked") return;
+    let live = true;
+    (async () => {
+      const kept = await recall();
+      const text = kept && kept.iterations === state.sealed.iterations ? await unsealWith(state.sealed, kept.key) : null;
+      if (kept && !text) await forget(); // the password changed since: ask for the new one
+      if (!live) return;
+      if (text) setReport(JSON.parse(text) as Report);
+      setChecking(false);
+    })();
+    return () => {
+      live = false;
+    };
+  }, [state]);
+
   if (state.kind !== "locked") return <NotReady state={state} />;
-  if (report) return <Dashboard report={report} />;
+  if (report) return <Dashboard report={report} onSignOut={signOut} />;
+  if (checking)
+    return (
+      <section className="admin-lock">
+        <h1 className="page-title">Admin</h1>
+        <p className="lead">Opening…</p>
+      </section>
+    );
 
   async function open(e: FormEvent) {
     e.preventDefault();
     if (state.kind !== "locked" || !password) return;
     setBusy(true);
     setWrong(false);
-    const text = await unseal(state.sealed, password);
+    const key = await deviceKey(password, state.sealed.iterations);
+    const text = await unsealWith(state.sealed, key);
+    if (text) await remember({ key, iterations: state.sealed.iterations });
     setBusy(false);
-    if (text) setReport(JSON.parse(text) as Report);
-    else setWrong(true);
+    if (text) {
+      setPassword("");
+      setReport(JSON.parse(text) as Report);
+    } else setWrong(true);
+  }
+
+  async function signOut() {
+    await forget();
+    setReport(null);
   }
 
   return (
     <form className="admin-lock" onSubmit={open}>
       <h1 className="page-title">Admin</h1>
-      <p className="lead">Site analytics for the maintainer. The numbers in this page are locked; your password opens them.</p>
+      <p className="lead">
+        Site analytics for the maintainer. The numbers in this page are locked; your password opens them, and this device stays signed in
+        until you sign out.
+      </p>
       <label>
         <span className="mono">Admin password</span>
         <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} autoFocus />
@@ -65,15 +103,20 @@ function NotReady({ state }: { state: Exclude<AdminState, { kind: "locked" }> })
   );
 }
 
-function Dashboard({ report: r }: { report: Report }) {
+function Dashboard({ report: r, onSignOut }: { report: Report; onSignOut: () => void }) {
   const updated = new Date(r.fetchedAt).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
   return (
     <div className="admin-dash">
       <header className="admin-head">
-        <h1 className="page-title">Site analytics</h1>
-        <p className="mono">
-          Last 30 days · {shortDate(r.since)} – {shortDate(r.until)} · updated {updated}
-        </p>
+        <div>
+          <h1 className="page-title">Site analytics</h1>
+          <p className="mono">
+            Last 30 days · {shortDate(r.since)} – {shortDate(r.until)} · updated {updated}
+          </p>
+        </div>
+        <button type="button" className="pill sm" onClick={onSignOut}>
+          Sign out
+        </button>
       </header>
       {r.error && <p className="admin-wrong">Vercel did not answer when this build asked: {r.error}</p>}
 

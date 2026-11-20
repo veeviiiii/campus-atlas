@@ -104,7 +104,8 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    is not counted (lib/analytics.ts). Before each build scripts/fetch-analytics.mjs asks Vercel's Web
    Analytics API for the last 30 days (token only in Vercel's env, never NEXT_PUBLIC_; without it the
    step does nothing) for the home page's visits number and /admin/, whose report is encrypted with
-   ADMIN_PASSWORD at build time (lib/seal.ts) and opened in the browser (lib/unseal.ts). A daily
+   ADMIN_PASSWORD at build time (lib/seal.ts) and opened in the browser (lib/unseal.ts); a device stays
+   signed in until Sign out by keeping a key made from the password, never the password (lib/admin-device.ts). A daily
    GitHub Action calls a Vercel deploy hook so the numbers are at most a day old (README, Site analytics). Still a static export: no
    server actions, cookies, proxy file or route handlers that read the request. Fonts are bundled in
    web/src/app/fonts (works offline). This Next.js has breaking changes: read
