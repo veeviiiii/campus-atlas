@@ -12,6 +12,8 @@ __pycache__/
 node_modules/
 .next/
 out/
+# What the build fetched from Vercel Web Analytics (web/scripts/fetch-analytics.mjs)
+web/.analytics.json
 
 # Pipeline working files (rendered pages, caches)
 data/work/

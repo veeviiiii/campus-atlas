@@ -1,0 +1,23 @@
+name: refresh-analytics
+
+# Every morning, ask Vercel to rebuild the live site, so the home page's visits number and /admin/ carry
+# the day's analytics (web/scripts/fetch-analytics.mjs runs before each build). Needs the repository
+# secret VERCEL_DEPLOY_HOOK (a Vercel deploy hook for main); without it this does nothing.
+on:
+  schedule:
+    - cron: "30 0 * * *" # 06:00 IST
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask Vercel to rebuild main
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "No VERCEL_DEPLOY_HOOK secret: nothing to do."; exit 0; fi
+          curl -fsS -X POST "$HOOK" > /dev/null
+          echo "Rebuild asked."

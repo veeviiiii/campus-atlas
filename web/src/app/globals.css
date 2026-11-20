@@ -357,6 +357,9 @@ nav.top ul a[aria-current]::after {
 .counter div:nth-child(3) dd {
   color: var(--lav);
 }
+.counter div:nth-child(4) dd {
+  color: var(--pink);
+}
 .sr-only {
   position: absolute;
   width: 1px;
@@ -1797,4 +1800,225 @@ a.card:active {
     align-items: flex-start;
     gap: 2px;
   }
+}
+
+/* ------------------------------------------------------------------------------------------
+   /admin/ (AdminView): the lock, then the analytics. Every chart is one series in one colour
+   (--chart); numbers and names wear the text colours, never the bar's.
+   ------------------------------------------------------------------------------------------ */
+.admin {
+  --chart: var(--primary);
+  --chart-on: var(--lav);
+}
+.admin-lock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  max-width: 460px;
+}
+.admin-lock label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  color: var(--muted);
+}
+.admin-lock input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  font: inherit;
+}
+.admin-lock button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.admin-wrong {
+  color: var(--heat-repeat-soft);
+  margin: 0;
+}
+.admin-dash {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.admin-head p {
+  color: var(--muted);
+  margin: 10px 0 0;
+}
+.admin-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+.admin-tile,
+.admin-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px 18px;
+}
+.admin-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.admin-tile .mono {
+  color: var(--muted);
+}
+.admin-tile strong {
+  font: 600 clamp(28px, 4vw, 40px) / 1 var(--font-inter);
+  letter-spacing: -0.02em;
+}
+.admin-card h2 {
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+.admin-grid.small {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+/* visits per day: columns from one baseline, 4px round tops, a 2px gap, at most 24px wide */
+.daily {
+  position: relative;
+  height: 180px;
+  margin-left: 40px;
+}
+.daily-grid span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px solid var(--border);
+  font: 11px var(--font-plex-mono);
+  color: var(--muted);
+}
+.daily-grid span {
+  text-indent: -40px;
+  line-height: 0;
+}
+.daily-cols {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2px;
+}
+.daily-cols button {
+  flex: 1 1 0;
+  max-width: 24px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.daily-cols i {
+  display: block;
+  width: 100%;
+  min-height: 0;
+  background: var(--chart);
+  border-radius: 4px 4px 0 0;
+}
+.daily-cols button.on i,
+.daily-cols button:focus-visible i {
+  background: var(--chart-on);
+}
+.daily-tip {
+  position: absolute;
+  top: -8px;
+  translate: -50% -100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+  font-size: 13px;
+  pointer-events: none;
+  z-index: 2;
+}
+.daily-tip span {
+  color: var(--muted);
+}
+.daily-x {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0 0 40px;
+  color: var(--muted);
+}
+.admin-table {
+  margin-top: 12px;
+  color: var(--muted);
+}
+.admin-table summary {
+  cursor: pointer;
+}
+.admin-table table {
+  margin-top: 8px;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: var(--foreground);
+}
+.admin-table th,
+.admin-table td {
+  text-align: right;
+  padding: 3px 12px;
+  border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+.admin-table th:first-child,
+.admin-table td:first-child {
+  text-align: left;
+}
+
+/* ranked lists: name and value on one line, a bar under it from the left edge */
+.ranked-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ranked-bars li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  align-items: baseline;
+}
+.rb-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.rb-name small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.rb-value {
+  font-variant-numeric: tabular-nums;
+}
+.ranked-bars i {
+  grid-column: 1 / -1;
+  display: block;
+  height: 8px;
+  min-width: 4px;
+  background: var(--chart);
+  border-radius: 0 4px 4px 0;
 }

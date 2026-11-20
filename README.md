@@ -197,7 +197,8 @@ GitHub Actions runs both test suites, the lint and the build on every push to `m
 
 The site is a static export (no server, no AI calls), so Vercel only serves files. Import this
 repo at vercel.com/new and choose **Import single project** next to `web` (Next.js): Root
-Directory `web`, default build settings, no environment variables. The build reads `packs/` from
+Directory `web`, default build settings, no environment variables (the winter switch and the analytics ones below are
+optional). The build reads `packs/` from
 the repo root, which Vercel includes by default ("Include files outside the root directory").
 Every push to `main` redeploys.
 
@@ -205,6 +206,39 @@ Every push to `main` redeploys.
 (snow, a Christmas tree on the home page, baubles, a hat on the logo). One environment variable switches all of it:
 `WINTER_LOOK` = `auto` (the default, by date), `on` or `off`. Set it in Vercel (Project → Settings →
 Environment Variables), then redeploy. Its styles are all in `web/src/app/winter.css`.
+
+## Site analytics (maintainer)
+
+Every page counts its views with Vercel Web Analytics (no cookies; `web/src/components/SiteAnalytics.tsx`).
+Before each build, `web/scripts/fetch-analytics.mjs` asks Vercel's Web Analytics API for the last 30
+days. The build turns that into two things:
+
+- **The home page's visits number** (“Visits, last 30 days”), next to papers, questions and subjects.
+  It is shown only when the build has real numbers; nothing is estimated.
+- **`/admin/`**: visits per day, and which courses, semesters and subjects are opened most. The page
+  is public static HTML, so its numbers are encrypted with your admin password at build time
+  (AES-GCM, key from PBKDF2) and the browser opens them only with that password. It is not in the
+  sitemap, search engines are told to skip it, and your own visits to it are not counted.
+
+A visit is one person on one day: Vercel recognises a visitor for 24 hours, so someone who comes back
+on three days counts three times. Hobby plans keep one month of data.
+
+Set up once:
+
+1. Vercel → the project → **Analytics** → **Enable** (free on Hobby: 50,000 events a month).
+2. vercel.com → Account settings → **Tokens** → create a token scoped to the team that owns the
+   project, with an expiry date.
+3. Vercel → the project → **Settings → Environment Variables**, for Production, marked Sensitive:
+   - `VERCEL_ANALYTICS_TOKEN`: the token. Never `NEXT_PUBLIC_`: only the build sees it.
+   - `VERCEL_ANALYTICS_TEAM`: the team's slug, the name in `vercel.com/<slug>/campus-atlas`.
+   - `ADMIN_PASSWORD`: at least 12 characters (a long phrase is best). It locks `/admin/`.
+4. For a fresh `/admin/` every day: Vercel → Settings → Git → **Deploy Hooks** → create one for
+   `main`, then GitHub → the repo → Settings → Secrets and variables → Actions → a secret named
+   `VERCEL_DEPLOY_HOOK` with the hook's URL. `.github/workflows/refresh-analytics.yml` calls it every
+   morning (06:00 IST), which rebuilds the site with the day's numbers.
+5. Redeploy once (Deployments → ⋯ → Redeploy), then open `/admin/`.
+
+Without the token (CI, a laptop) the fetch step does nothing and the site builds as before.
 
 ## Repo layout
 

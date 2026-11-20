@@ -7,7 +7,7 @@ export const dynamic = "force-static";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: "*", allow: "/", disallow: "/search-index.json" }, // the search page's data, not a page
+    rules: { userAgent: "*", allow: "/", disallow: ["/search-index.json", "/admin/"] }, // the search page's data; the maintainer's page
     sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }
