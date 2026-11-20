@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { isWinter, SEASON_SCRIPT, seasonScript, SNOWBALL_STICKS, snowballSticks, winterMode } from "../src/lib/season";
+import { isWinter, SEASON_SCRIPT, seasonScript, TREE_BAUBLES, treeTopics, winterMode } from "../src/lib/season";
 
 /** Runs the inline script as if today were `day`, and says whether it marked the page. */
 function scriptMarks(day: Date, script = SEASON_SCRIPT): boolean {
@@ -30,11 +30,11 @@ test("the inline script follows the same rule on every day of a year", () => {
   }
 });
 
-test("the snowball shows only a few sticks: the most asked topic of the subjects asked most", () => {
+test("the tree carries only a few baubles: the most asked topic of the subjects asked most", () => {
   const t = (name: string, rank: number, weight: number) => ({ name, rank, weight });
   const cities = [t("a0", 0, 2), t("a1", 1, 5), t("b0", 0, 4), t("c0", 0, 4), t("d0", 0, 1)];
-  assert.deepEqual(snowballSticks(cities, 3).map((c) => c.name), ["b0", "c0", "a0"]); // a1 is not its subject's first
-  assert.equal(snowballSticks(Array.from({ length: 40 }, (_, i) => t(`s${i}`, 0, 1))).length, SNOWBALL_STICKS);
+  assert.deepEqual(treeTopics(cities, 3).map((c) => c.name), ["b0", "c0", "a0"]); // a1 is not its subject's first
+  assert.equal(treeTopics(Array.from({ length: 40 }, (_, i) => t(`s${i}`, 0, 1))).length, TREE_BAUBLES);
 });
 
 test("one switch: WINTER_LOOK is auto unless it says on or off", () => {

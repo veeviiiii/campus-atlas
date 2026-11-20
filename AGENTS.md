@@ -118,8 +118,9 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    do not write a new hex value in a rule. Motion goes off under prefers-reduced-motion. A winter look
    (web/src/lib/season.ts) is one switch: WINTER_LOOK in Vercel (auto = 20 November to 6 January by the
    visitor's date, the default; on; off), all its rules in web/src/app/winter.css under
-   html[data-season="winter"]. It adds snow to the home hero, the hero planet as a snowball (topics as
-   baubles and twig arms), snow caps on WORLD (a click drops a letter's snow under it), a good-luck line
+   html[data-season="winter"]. It adds snow to the home hero, a Christmas tree in place of the hero planet
+   (2D canvas, web/src/components/ChristmasTree.tsx; its 7 baubles are the most asked topics), snow caps
+   on WORLD (a click drops a letter's snow under it), a good-luck line
    in the marquee, an outline pattern on the course area, baubles for the course and field circles and
    the subject planets, and a hat on the logo on every page.
 D. Tests (no API key, no model calls): `python -m unittest discover -s pipeline/tests -t .` and, in

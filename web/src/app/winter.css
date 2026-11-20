@@ -2,9 +2,9 @@
    The winter look: every rule of it is in this file, all under html[data-season="winter"].
    lib/season.ts sets that on <html>. One switch, WINTER_LOOK, set in Vercel (then redeploy):
    "auto" (or unset) from 20 November to 6 January by the visitor's date, "on", or "off".
-   Its colours are named at the top of globals.css; the canvas snowball and baubles take theirs from
-   WINTER in lib/colors.ts.
-   Home: snow on the hero, the planet as a snowball with a few sticks, snow caps on WORLD (click a letter: its snow
+   Its colours are named at the top of globals.css; the canvas Christmas tree and baubles take theirs
+   from TREE and WINTER in lib/colors.ts.
+   Home: snow on the hero, a Christmas tree for the planet, snow caps on WORLD (click a letter: its snow
    falls and piles up under it), a line in the marquee, an outline pattern on the course area,
    baubles for the field and course circles. Semester pages: the subject planets hang as baubles.
    Every page: a hat on the logo.

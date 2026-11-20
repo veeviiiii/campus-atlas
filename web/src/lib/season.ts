@@ -1,4 +1,4 @@
-// The winter look (snow and a snowball on the home page, baubles, a hat on the logo): all of it hangs on
+// The winter look (snow and a Christmas tree on the home page, baubles, a hat on the logo): all of it hangs on
 // html[data-season="winter"], and all its styles are in app/winter.css, so one switch turns it all on or
 // off. The switch is WINTER_LOOK, read when the site is built (set it in Vercel's environment variables,
 // then redeploy):
@@ -32,12 +32,12 @@ export function seasonScript(mode: WinterMode): string | null {
   return mode === "on" ? 'document.documentElement.setAttribute("data-season","winter")' : SEASON_SCRIPT;
 }
 
-/** Sticks on the winter snowball: a few, so it still looks like a snowball. */
-export const SNOWBALL_STICKS = 7;
+/** Baubles on the winter Christmas tree: a few, so it stays a tree and not a chart. */
+export const TREE_BAUBLES = 7;
 
-/** The topics that stick out of the winter snowball: each subject's most asked one (rank 0), then the
- *  most asked of those across the site (ties keep the site's order), at most n. */
-export function snowballSticks<T extends { rank: number; weight: number }>(cities: T[], n = SNOWBALL_STICKS): T[] {
+/** The topics that hang on the winter Christmas tree as baubles: each subject's most asked one (rank 0),
+ *  then the most asked of those across the site (ties keep the site's order), at most n. */
+export function treeTopics<T extends { rank: number; weight: number }>(cities: T[], n = TREE_BAUBLES): T[] {
   return cities
     .filter((c) => c.rank === 0)
     .map((c, i) => ({ c, i }))

@@ -6,6 +6,7 @@ import { type MouseEvent, useState, useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 
 import { BottomBar, SiteNav } from "./Chrome";
+import ChristmasTree from "./ChristmasTree";
 import HeroPlanet from "./HeroPlanet";
 import { FIELD_COLORS } from "@/lib/colors";
 import type { HomeSummary } from "@/lib/home";
@@ -43,6 +44,11 @@ function onFieldChange(update: () => void) {
 }
 const fieldInAddress = () => new URLSearchParams(location.search).get("field");
 
+// The winter look is set on <html> before React runs (lib/season.ts) and does not change while the page
+// is open; the static page is built without it, so the planet is drawn until the page knows.
+const noChange = () => () => {};
+const winterNow = () => document.documentElement.dataset.season === "winter";
+
 /** A plain click on a field link changes the list in place (Link skips a click whose default is
  *  prevented); ctrl/cmd/middle-click still opens a new tab. */
 const plainClick = (e: MouseEvent) => e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
@@ -52,6 +58,7 @@ export default function Site({ summary, courses, fields }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const picked = useSyncExternalStore(onFieldChange, fieldInAddress, () => null);
+  const winter = useSyncExternalStore(noChange, winterNow, () => false);
   // Winter look only (app/winter.css): a click on a letter of WORLD drops its snow cap under it; another
   // click brings fresh snow back.
   const [snow, setSnow] = useState<Record<number, "fell" | "back">>({});
@@ -140,10 +147,14 @@ export default function Site({ summary, courses, fields }: Props) {
         </div>
         {hero && (
           <div style={{ position: "relative" }}>
-            <HeroPlanet cities={hero.cities} onPick={(c) => router.push(c.href)} />
+            {winter ? (
+              <ChristmasTree cities={hero.cities} onPick={(c) => router.push(c.href)} />
+            ) : (
+              <HeroPlanet cities={hero.cities} onPick={(c) => router.push(c.href)} />
+            )}
             <div className="mono" style={{ color: "var(--muted)", textAlign: "center", marginTop: 8 }}>
               <span className="no-winter">Real topics from every course and semester on the site · click one</span>
-              <span className="winter-only">The most asked topics on the site · click a stick</span>
+              <span className="winter-only">The baubles are the most asked topics on the site · click one</span>
             </div>
           </div>
         )}
