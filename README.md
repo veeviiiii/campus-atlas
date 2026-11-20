@@ -214,7 +214,8 @@ Before each build, `web/scripts/fetch-analytics.mjs` asks Vercel's Web Analytics
 days. The build turns that into two things:
 
 - **The home page's visits number** (“Visits, last 30 days”), next to papers, questions and subjects.
-  It is shown only when the build has real numbers; nothing is estimated.
+  It is shown only when the build has real numbers and the last 30 days reach 300 visits
+  (`SHOW_VISITS_FROM` in `web/src/components/Site.tsx`); nothing is estimated.
 - **`/admin/`**: visits per day, and which courses, semesters and subjects are opened most. The page
   is public static HTML, so its numbers are encrypted with your admin password at build time
   (AES-GCM, key from PBKDF2) and the browser opens them only with that password. It is not in the

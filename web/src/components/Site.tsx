@@ -15,6 +15,9 @@ import { programmeHref } from "@/lib/paths";
 import { softScrollToElement } from "@/lib/scroll";
 import type { CourseCard, Field } from "@/lib/types";
 
+/** The visits number appears once the last 30 days have at least this many visits. */
+const SHOW_VISITS_FROM = 300;
+
 interface Props {
   summary: HomeSummary;
   /** Visits in the last 30 days from Vercel Web Analytics; null when this build has none. */
@@ -186,7 +189,7 @@ export default function Site({ summary, visits, courses, fields }: Props) {
                   <CountUp value={totals.subjects} />
                 </dd>
               </div>
-              {visits !== null && visits > 0 && (
+              {visits !== null && visits >= SHOW_VISITS_FROM && (
                 <div>
                   <dt className="mono">Visits, last 30 days</dt>
                   <dd>
