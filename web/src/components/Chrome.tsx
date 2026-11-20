@@ -44,11 +44,15 @@ export function SiteNav() {
           <path d="M3 15h24M15 3c-6 6-6 18 0 24" stroke="var(--lav)" strokeWidth="2" fill="none" />
           <rect x="21" y="5" width="5" height="5" fill="var(--accent)" />
         </svg>
-        {/* Shown only in the winter look (lib/season.ts). */}
+        {/* Shown only in the winter look (lib/season.ts): a hat whose tip hangs off the left, towards the
+            page's edge, and a little snow for the globe to sit in. */}
         <svg className="hat" width="22" height="18" viewBox="0 0 22 18" aria-hidden="true">
-          <path d="M2 15C4 7 9 2 15 3c3 1 4 4 5 8-2-2-4-3-5-2-2 1-3 4-3 6z" fill="var(--santa)" />
-          <rect x="1" y="13" width="14" height="4" rx="2" fill="var(--snow)" />
-          <circle cx="19.5" cy="12" r="2.4" fill="var(--snow)" />
+          <path d="M20 15C18 7 13 2 7 3C4 4 3 7 2 11C4 9 6 8 7 9C9 10 10 13 10 15z" fill="var(--santa)" />
+          <rect x="7" y="13" width="14" height="4" rx="2" fill="var(--snow)" />
+          <circle cx="2.5" cy="12" r="2.4" fill="var(--snow)" />
+        </svg>
+        <svg className="drift" width="40" height="9" viewBox="0 0 40 9" aria-hidden="true">
+          <path d="M0 9C1 6 4 4 8 5c2-3 7-4 10-1 3-2 8-2 11 0 4-1 8 1 9 3 1 1 2 2 2 2z" fill="var(--snow)" />
         </svg>
         campus atlas
       </Link>
