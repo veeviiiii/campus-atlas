@@ -7,7 +7,7 @@
     "copy-pages": "node scripts/copy-pages.mjs",
     "predev": "node scripts/copy-pages.mjs",
     "dev": "next dev",
-    "prebuild": "node scripts/copy-pages.mjs",
+    "prebuild": "node scripts/copy-pages.mjs && node scripts/fetch-analytics.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

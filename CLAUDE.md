@@ -100,18 +100,23 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    /upload/ talks to Supabase from the browser (web/src/lib/supabase.ts; sign-in, the upload form,
    "My uploads"). Papers never come from there, no other page loads it, and without the two
    NEXT_PUBLIC_SUPABASE_ variables /upload/ points to the Google Form. Vercel Web Analytics
-   (components/SiteAnalytics.tsx, no cookies) counts page views and visitors for the maintainer's
-   dashboard on vercel.com; addresses are cleaned first (lib/analytics.ts). The site has no admin page. Still a static export: no
+   (components/SiteAnalytics.tsx, no cookies) counts page views; addresses are cleaned first and /admin/
+   is not counted (lib/analytics.ts). Before each build scripts/fetch-analytics.mjs asks Vercel's Web
+   Analytics API for the last 30 days (token only in Vercel's env, never NEXT_PUBLIC_; without it the
+   step does nothing) for the home page's visits number and /admin/, whose report is encrypted with
+   ADMIN_PASSWORD at build time (lib/seal.ts) and opened in the browser (lib/unseal.ts). A daily
+   GitHub Action calls a Vercel deploy hook so the numbers are at most a day old (README, Site analytics). Still a static export: no
    server actions, cookies, proxy file or route handlers that read the request. Fonts are bundled in
    web/src/app/fonts (works offline). This Next.js has breaking changes: read
    web/node_modules/next/dist/docs before using an API you are unsure of.
-   Routes: / (home: hero with a count-up of papers, questions and subjects from the packs, pick a field, then its courses (?field=<id>; the search box finds any course), how it works),
+   Routes: / (home: hero with a count-up of papers, questions and subjects from the packs, and
+   real visits from Vercel when the build has them, pick a field, then its courses (?field=<id>; the search box finds any course), how it works),
    /course/<course>/ (pick year and semester; semesters without papers ask for them),
    /c/<college>/<pack>/ (one semester: subject cards), /c/<college>/<pack>/<subject>/ (subject page:
    tabs Papers, Likely topics, Marks by unit; #likely, #topic-<id>, #marks open a tab; "Print this
    paper"), /search/ (every question; matches in the browser on /search-index.json, built from the
    packs), /send/ (send us your papers), /upload/ (sign in, upload a paper, see what became of
-   it). Also built: /sitemap.xml, /robots.txt, /og.png (link
+   it), /admin/ (the maintainer's analytics, password-locked; not in the sitemap). Also built: /sitemap.xml, /robots.txt, /og.png (link
    preview). Deploy: Vercel, project Root Directory web (Next.js
    preset; the build reads ../packs and ../catalog). Live: https://campus-atlas.vercel.app
    Design: keep the current look (dark theme, lime/violet palette, Space Grotesk / Inter / Plex Mono,
@@ -146,5 +151,6 @@ web/ (+ tests/) · .github/workflows/ (CI) · README.md · CONTRIBUTING.md · AD
 - Keep it simple. A feature must be explainable in one sentence to a fresher, or it waits.
 - Commit small and often with clear messages. Git author: veeviiiii <vedantkhare007@gmail.com>.
 - Secrets only in .env (never committed). Check git history before anything goes public. The
-  Supabase service key is one of them: root .env only, never in web/ or Vercel.
+  Supabase service key is one of them: root .env only, never in web/ or Vercel. The Vercel
+  analytics token and ADMIN_PASSWORD live only in Vercel's environment variables.
 - When unsure, ask before building.

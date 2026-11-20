@@ -16,6 +16,8 @@ import type { CourseCard, Field } from "@/lib/types";
 
 interface Props {
   summary: HomeSummary;
+  /** Visits in the last 30 days from Vercel Web Analytics; null when this build has none. */
+  visits: number | null;
   courses: CourseCard[];
   fields: Field[];
 }
@@ -48,7 +50,7 @@ const fieldInAddress = () => new URLSearchParams(location.search).get("field");
 const plainClick = (e: MouseEvent) => e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
 
 /** Home: what this is in one line, then the fields; pick one to see its courses. */
-export default function Site({ summary, courses, fields }: Props) {
+export default function Site({ summary, visits, courses, fields }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const picked = useSyncExternalStore(onFieldChange, fieldInAddress, () => null);
@@ -130,7 +132,7 @@ export default function Site({ summary, courses, fields }: Props) {
               How it works
             </a>
           </div>
-          {/* Counted from the packs at build time; nothing here is estimated. */}
+          {/* Counted at build time: the packs, and Vercel's visits when the build has them. Nothing is estimated. */}
           {totals.papers > 0 && (
             <dl className="counter">
               <div>
@@ -151,6 +153,14 @@ export default function Site({ summary, courses, fields }: Props) {
                   <CountUp value={totals.subjects} />
                 </dd>
               </div>
+              {visits !== null && visits > 0 && (
+                <div>
+                  <dt className="mono">Visits, last 30 days</dt>
+                  <dd>
+                    <CountUp value={visits} />
+                  </dd>
+                </div>
+              )}
             </dl>
           )}
         </div>
