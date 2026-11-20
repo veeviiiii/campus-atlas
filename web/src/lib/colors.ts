@@ -8,6 +8,27 @@ export type Heat = keyof typeof HEAT;
  *  halo, the latitude lines (lavender) and the orbit ring (cyan), as "r,g,b" where an alpha is added. */
 export const PLANET = { lit: "#3a3a9a", core: "#15133a", edge: "#07071a", halo: "118,87,255", lines: "196,181,253", ring: "84,228,255" } as const;
 
+/** The winter look (lib/season.ts). The hero planet is a snowball of old, packed snow: its lit side, its
+ *  blue-grey shade and its rim, a cool halo, then ("r,g,b") the grey-green and blue-grey patches in it, the
+ *  grain, the shadow where a stick goes in; the sticks. The subject cards' planets are baubles: a silver cap
+ *  and loop, and a shine ("r,g,b"). Last, the hover label's pill, which has to read on white snow. */
+export const WINTER = {
+  lit: "#eef3f5",
+  core: "#cfdbe2",
+  edge: "#7f95a6",
+  halo: "200,225,255",
+  patchGreen: "138,160,148",
+  patchBlue: "112,138,164",
+  grain: "60,72,84",
+  shade: "40,48,80",
+  glint: "255,255,255",
+  twig: "#5e3a30",
+  cap: "#d8d2c7",
+  capShade: "#a09fb0",
+  label: "#13121a",
+  labelInk: "#ffffff",
+} as const;
+
 /** Field of study (catalog/davv.json) -> its dot and orb gradient on the course cards. */
 export const FIELD_COLORS: Record<string, [string, string]> = {
   engineering: ["#4268ff", "#54e4ff"],
