@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- The site icon: the nav logo (components/Chrome.tsx) on the site's dark surface, in the primary, lav,
+       accent and surface colours of globals.css. The lines go under the ring, which covers their ends.
+       favicon.ico and apple-icon.png are drawn from this file: after changing it, run node scripts/make-icons.mjs in web/. -->
+  <rect width="48" height="48" rx="11" fill="#13121a"/>
+  <path d="M9 24h30M24 9c-7.5 7.5-7.5 22.5 0 30" stroke="#c4b5fd" stroke-width="3" fill="none"/>
+  <circle cx="24" cy="24" r="15" fill="none" stroke="#7657ff" stroke-width="4"/>
+  <rect x="31.5" y="11.5" width="7" height="7" fill="#d7ff52"/>
+</svg>

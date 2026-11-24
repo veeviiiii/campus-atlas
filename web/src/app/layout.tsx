@@ -30,9 +30,11 @@ const pixel = localFont({ src: "./fonts/silkscreen-700-latin.woff2", weight: "70
 // own title and description.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Campus Atlas · Past papers of DAVV, Indore",
+  applicationName: "Campus Atlas",
+  // The home page's search result. Short enough (under about 150 characters) not to be cut off.
+  title: "Campus Atlas · DAVV previous year papers by subject",
   description:
-    "Past exam papers of DAVV, Indore, by course, semester and subject: every question as text with a photo of its page, the topics that keep coming back, and the marks by unit. Made by students.",
+    "Free previous year papers for DAVV, Indore, by subject: every MST and End Sem question, a photo of each page, and the topics asked most often.",
   openGraph: { siteName: "Campus Atlas", type: "website", locale: "en_IN", images: [OG_IMAGE] },
   twitter: { card: "summary_large_image", images: [OG_IMAGE] },
 };

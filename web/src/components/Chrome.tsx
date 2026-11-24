@@ -38,8 +38,9 @@ export function SiteNav() {
     <nav className={`top ${scrolled ? "s" : ""}`}>
       <Link className="logo" href="/">
         <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
-          <circle cx="15" cy="15" r="12" fill="none" stroke="var(--primary)" strokeWidth="3" />
+          {/* The lines first, so the ring covers their ends. */}
           <path d="M3 15h24M15 3c-6 6-6 18 0 24" stroke="var(--lav)" strokeWidth="2" fill="none" />
+          <circle cx="15" cy="15" r="12" fill="none" stroke="var(--primary)" strokeWidth="3" />
           <rect x="21" y="5" width="5" height="5" fill="var(--accent)" />
         </svg>
         {/* Shown only in the winter look (lib/season.ts): a hat whose tip hangs off the left, towards the
