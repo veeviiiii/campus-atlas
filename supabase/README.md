@@ -6,8 +6,8 @@ The maintainer's laptop fetches what was sent (`python -m pipeline.fetch_uploads
 is the review queue. Until the two website variables below are set, `/upload/` points to the Google
 Form and nothing else on the site changes.
 
-Not yet run against a real project: the SQL, the access tests and the fetch script were written and
-checked with stand-ins only. The first run of `npm run test:access` on a test project is the proof.
+The rules are tried on a real project: `npm run test:access` passed all 17 tests on the test project on
+24 November 2026. The fetch script has not yet fetched a real upload.
 
 ## One-time setup
 
