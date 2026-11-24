@@ -14,6 +14,7 @@ create table public.heartbeat (
 -- Row-level security on, and no policy at all: only keep_alive() and the service key touch it.
 alter table public.heartbeat enable row level security;
 revoke all on public.heartbeat from anon, authenticated;
+grant all on public.heartbeat to service_role; -- not given by default in newer projects
 
 create function public.keep_alive() returns void
 language sql security definer set search_path = '' as $$

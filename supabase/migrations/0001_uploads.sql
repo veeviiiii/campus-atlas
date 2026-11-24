@@ -63,6 +63,9 @@ create table public.banned_users (
 -- Row-level security on, and no policy at all: only the service key can read or change this table.
 alter table public.banned_users enable row level security;
 revoke all on public.banned_users from anon, authenticated;
+-- The service key (the maintainer's laptop) may do anything here. Newer Supabase projects no longer give
+-- it new tables on their own, so it is granted by name.
+grant all on public.banned_users to service_role;
 
 create function private.is_banned() returns boolean
 language sql stable security definer set search_path = '' as $$
@@ -79,6 +82,7 @@ alter table public.paper_uploads enable row level security;
 -- policies below) and may insert only the columns of the form. They cannot send id, uploader,
 -- status, message, answer or pack_key at all: those take their defaults.
 revoke all on public.paper_uploads from anon, authenticated;
+grant all on public.paper_uploads to service_role; -- see the bans section
 grant select, delete on public.paper_uploads to authenticated;
 grant insert (course_id, semester, subject, exam_kind, session, exam_month, note, page_count)
   on public.paper_uploads to authenticated;
