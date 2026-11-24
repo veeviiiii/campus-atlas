@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { formProblems, pagePath, recentSessions, statusText, type UploadForm } from "../src/lib/uploads";
+import { formProblems, pagePath, recentSessions, statusText, statusTone, type UploadForm } from "../src/lib/uploads";
 
 const FORM: UploadForm = { course_id: "bca", semester: 3, subject: "Data Structures", exam_kind: "mst1", session: "2025-26", note: null, page_count: 2 };
 const photo = { type: "image/jpeg", size: 400_000 };
@@ -37,6 +37,14 @@ test("a status reads as what it means to the student", () => {
   assert.equal(statusText({ status: "pending", answer: null }), "Waiting to be checked");
   assert.equal(statusText({ status: "held", answer: null }), "We have a question for you");
   assert.equal(statusText({ status: "held", answer: "2024-25" }), "Answered: waiting to be checked again");
-  assert.equal(statusText({ status: "published", answer: null }), "On the site");
-  assert.equal(statusText({ status: "rejected", answer: null }), "Not used");
+  assert.equal(statusText({ status: "published", answer: null }), "Accepted: on the site");
+  assert.equal(statusText({ status: "rejected", answer: null }), "Rejected");
+});
+
+test("accepted is green, rejected red, a question waiting for the student amber", () => {
+  assert.equal(statusTone({ status: "published", answer: null }), "good");
+  assert.equal(statusTone({ status: "rejected", answer: null }), "bad");
+  assert.equal(statusTone({ status: "held", answer: null }), "ask");
+  assert.equal(statusTone({ status: "held", answer: "2024-25" }), "");
+  assert.equal(statusTone({ status: "pending", answer: null }), "");
 });

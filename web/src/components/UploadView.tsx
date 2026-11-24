@@ -14,6 +14,7 @@ import {
   pagePath,
   recentSessions,
   statusText,
+  statusTone,
   type ExamKind,
   type UploadCourse,
   type UploadForm,
@@ -368,7 +369,7 @@ export default function UploadView({ courses, formUrl }: Props) {
         )}
         {sent && (
           <p className="note wide" role="status">
-            Sent. We check every paper by hand, so it can take a few days; it will show as &quot;On the site&quot; below when it is live.
+            Sent. We check every paper by hand, so it can take a few days; it will show as &quot;Accepted: on the site&quot; below when it is live.
           </p>
         )}
       </form>
@@ -382,7 +383,7 @@ export default function UploadView({ courses, formUrl }: Props) {
             <li key={r.id} className="q">
               <div className="upload-head">
                 <b>{r.subject}</b>
-                <span className={`chip ${r.status === "held" && !r.answer ? "hot" : ""}`}>{statusText(r)}</span>
+                <span className={`chip ${statusTone(r)}`}>{statusText(r)}</span>
               </div>
               <div className="mono qmeta">
                 <span>{courses.find((c) => c.id === r.course_id)?.name ?? r.course_id}</span>
