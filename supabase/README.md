@@ -22,11 +22,13 @@ checked with stand-ins only. The first run of `npm run test:access` on a test pr
    Authentication > URL Configuration: Site URL `https://campus-atlas.vercel.app`, and under Redirect
    URLs `https://campus-atlas.vercel.app/upload/` and `http://localhost:3000/upload/`.
 4. **Sign-in, test project.** Leave **Email** on (the tests make throwaway accounts with passwords).
-5. **Run the access tests** against the test project. In `web/.env.test.local` (never committed):
+5. **Run the access tests** against the test project. Its keys are in Settings > API Keys: the
+   publishable key (`sb_publishable_…`) and a secret key (`sb_secret_…`, called the service key here;
+   older projects have `anon` and `service_role` instead). In `web/.env.test.local` (never committed):
    ```
    SUPABASE_TEST_URL=https://<test project>.supabase.co
    SUPABASE_TEST_ANON_KEY=<its publishable key>
-   SUPABASE_TEST_SERVICE_KEY=<its service key>
+   SUPABASE_TEST_SERVICE_KEY=<its secret key>
    ```
    then, in `web/`:
    ```bash
@@ -35,14 +37,15 @@ checked with stand-ins only. The first run of `npm run test:access` on a test pr
    Every test must pass before the live project gets its first real upload. They try what a
    signed-out visitor, another student and a banned account must not be able to do.
 6. **The website.** In `web/.env.local` and in the Vercel project (Settings > Environment Variables),
-   from the live project's Settings > API:
+   from the live project's Settings > API Keys:
    ```
    NEXT_PUBLIC_SUPABASE_URL=https://<live project>.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=<its publishable key>
    ```
    These two are public by design. Redeploy; `/send/` now leads to `/upload/`.
 7. **The laptop.** In the repository's `.env`: `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` (the live
-   project's **service** key). That key skips every rule: it never goes into `web/` or Vercel.
+   project's **secret** key, `sb_secret_…`). That key skips every rule: it never goes into `web/` or
+   Vercel.
 8. **Keep it awake.** GitHub > the repo > Settings > Secrets and variables > Actions, two repository
    secrets from the live project: `SUPABASE_URL` and `SUPABASE_ANON_KEY` (the same publishable key as
    step 6; never the service key). `.github/workflows/keep-supabase-awake.yml` then calls

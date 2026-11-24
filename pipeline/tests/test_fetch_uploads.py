@@ -52,6 +52,15 @@ class FakeApi:
             del self.store[p]
 
 
+class Keys(unittest.TestCase):
+    def test_a_new_secret_key_goes_in_apikey_only_a_legacy_one_also_as_bearer(self):
+        new = fetch_uploads.Api("https://x.supabase.co/", "sb_secret_abc123")
+        self.assertEqual(new.headers, {"apikey": "sb_secret_abc123"})
+        self.assertEqual(new.url, "https://x.supabase.co")
+        legacy = fetch_uploads.Api("https://x.supabase.co", "eyJhbGciOiJIUzI1NiJ9.e30.sig")
+        self.assertEqual(legacy.headers, {"apikey": "eyJhbGciOiJIUzI1NiJ9.e30.sig", "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.e30.sig"})
+
+
 class FolderNames(unittest.TestCase):
     def test_the_desk_reads_semester_exam_and_year_from_the_folder(self):
         cases = [

@@ -44,7 +44,9 @@ class Api:
 
     def __init__(self, url: str, key: str) -> None:
         self.url = url.rstrip("/")
-        self.headers = {"apikey": key, "Authorization": f"Bearer {key}"}
+        # A new secret key (sb_secret_...) is not a JWT: Supabase wants it in apikey only. A legacy
+        # service_role key is a JWT and goes in Authorization as well.
+        self.headers = {"apikey": key} if key.startswith("sb_") else {"apikey": key, "Authorization": f"Bearer {key}"}
 
     def call(self, method: str, path: str, body: dict | None = None, headers: dict | None = None) -> bytes:
         data = json.dumps(body).encode() if body is not None else None
