@@ -4,8 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export const REPO_URL = "https://github.com/veeviiiii/campus-atlas";
-
 /** A "← back" button and where you are, at the top of every inner page. */
 export function BackBar({ href, label, where }: { href: string; label: string; where: string }) {
   return (
