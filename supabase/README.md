@@ -7,7 +7,8 @@ is the review queue. Until the two website variables below are set, `/upload/` p
 Form and nothing else on the site changes.
 
 The rules are tried on a real project: `npm run test:access` passed all 17 tests on the test project on
-24 November 2026. The fetch script has not yet fetched a real upload.
+24 November 2026, and the same day a test upload on the live site was fetched, marked rejected and
+its file deleted from the bucket.
 
 ## One-time setup
 

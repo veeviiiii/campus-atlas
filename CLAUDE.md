@@ -45,7 +45,7 @@ to navigate.
    null, shown under "Year not printed" and never placed before or after another paper); collect
    older papers from seniors. <- current
 3. Community: sign-in, PYQ uploads into a review queue (an admin approves, then the pipeline runs),
-   notes exchange. Until then, papers come in through a Google Form owned by the maintainer (link in
+   notes exchange. Papers come in on /upload/ (piece A, below) or through a Google Form owned by the maintainer (link in
    web/src/lib/site.ts, shown on /send/); the maintainer runs the pipeline on the uploads
    (ADDING-PAPERS.md; pipeline/intake.py makes PDFs from photos and writes and checks the manifest;
    the intake desk, pipeline/desk, sorts a pile page by page and suggests each page's fields. Its
@@ -53,12 +53,12 @@ to navigate.
    (model, words only; never two names with a paper in one sitting), a subject that is not printed
    (model, from how the questions begin), and one paper photographed twice (no model). A year is
    never worked out). Stack: Supabase (Postgres + Storage + Auth, free plan) with the Next.js site on Vercel.
-   Piece A is built, not live yet: Google sign-in and the upload form on /upload/, "My uploads",
+   Piece A is live (24 Nov 2026): Google sign-in and the upload form on /upload/, "My uploads",
    the database rules (supabase/migrations/0001_uploads.sql; 0002_keep_alive.sql plus a daily GitHub
    Action keep the free project from being paused) and pipeline/fetch_uploads.py, which
    brings waiting uploads to data/inbox/ for the intake desk (the desk is the review queue; there is
-   no admin page). Both Supabase projects exist and `npm run test:access` passes (17 of 17, 24 Nov
-   2026); it goes live once the website's two variables are set (supabase/README.md, step 6).
+   no admin page). Two Supabase projects (live and test); `npm run test:access` passes on the test
+   one (17 of 17), and one test upload went the whole way: sent, fetched, marked rejected, photos deleted.
    Still to build: the notes exchange, which
    first needs topic ids that do not move when a subject is regrouped.
 4. Backtested prediction once there are 3+ years.
