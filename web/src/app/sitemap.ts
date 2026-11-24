@@ -16,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/",
     "/search/",
     "/send/",
+    "/privacy/",
     ...(uploadsConfigured ? ["/upload/"] : []), // without the upload service the page only repeats /send/
     ...courseCards(entries).map((c) => programmeHref(c.id)),
     ...entries.flatMap((e) => [courseHref(e.key), ...e.pack.subjects.map((s) => subjectHref(e.key, s.id))]),

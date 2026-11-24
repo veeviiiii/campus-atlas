@@ -83,6 +83,9 @@ export default function SendPage() {
               <li>Question papers only. No answer sheets, marks or result lists.</li>
               <li>Cover or crop out names, roll numbers and signatures before you upload.</li>
               <li>Every page we publish is shown as a photo, so check it is something you are happy to share.</li>
+              <li>
+                What we keep about you, and how to have it deleted: <Link href="/privacy/">Privacy</Link>.
+              </li>
             </ul>
           </section>
           <section className="q">

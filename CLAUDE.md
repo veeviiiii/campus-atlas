@@ -117,7 +117,8 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    tabs Papers, Likely topics, Marks by unit; #likely, #topic-<id>, #marks open a tab; "Print this
    paper"), /search/ (every question; matches in the browser on /search-index.json, built from the
    packs), /send/ (send us your papers), /upload/ (sign in, upload a paper, see what became of
-   it), /admin/ (the maintainer's analytics, password-locked; not in the sitemap). Also built: /sitemap.xml, /robots.txt, /og.png (link
+   it), /privacy/ (what the site collects and how to have it deleted; Google's sign-in screen links to it,
+   so it must match what the code does), /admin/ (the maintainer's analytics, password-locked; not in the sitemap). Also built: /sitemap.xml, /robots.txt, /og.png (link
    preview). Deploy: Vercel, project Root Directory web (Next.js
    preset; the build reads ../packs and ../catalog). Live: https://campus-atlas.vercel.app
    Design: keep the current look (dark theme, lime/violet palette, Space Grotesk / Inter / Plex Mono,
