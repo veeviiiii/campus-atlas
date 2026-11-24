@@ -302,16 +302,24 @@ export default function UploadView({ courses, formUrl }: Props) {
 
         <div className="field wide">
           <span>Pages, in order (photos or one PDF, {MAX_PAGES} at most)</span>
-          <input
-            type="file"
-            multiple
-            accept="image/jpeg,image/png,image/webp,application/pdf"
-            aria-label="Add pages"
-            onChange={(e) => {
-              setFiles((list) => [...list, ...Array.from(e.target.files ?? [])]);
-              e.target.value = "";
-            }}
-          />
+          {/* A button, with the real file input hidden inside it: the input is emptied after every pick (so
+              more pages can be added), and its own "No file chosen" would then contradict the list below. */}
+          <label className="pill sm file-pick">
+            <input
+              type="file"
+              className="sr-only"
+              multiple
+              accept="image/jpeg,image/png,image/webp,application/pdf"
+              onChange={(e) => {
+                // Copy the files out first: emptying the input also empties e.target.files, and React runs
+                // the setFiles function only after this handler.
+                const picked = Array.from(e.target.files ?? []);
+                setFiles((list) => [...list, ...picked]);
+                e.target.value = "";
+              }}
+            />
+            {files.length ? "+ Add more pages" : "+ Add pages"}
+          </label>
           {files.length > 0 && (
             <ol className="file-list">
               {files.map((f, i) => (
