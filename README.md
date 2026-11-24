@@ -244,6 +244,20 @@ Set up once:
 
 Without the token (CI, a laptop) the fetch step does nothing and the site builds as before.
 
+## Search engines (maintainer)
+
+Search results update only when a search engine reads the page again, which can take weeks. To ask
+Bing (and the other engines that use IndexNow) to come back now, after a change people should see in
+search results (new papers, a new title or icon), run in `web/`:
+
+```bash
+node scripts/indexnow.mjs
+```
+
+It sends the addresses in the live `/sitemap.xml` and nothing else. The key file in `web/public/`
+(32 hex characters, then `.txt`) is public by design: it shows the request comes from whoever runs the
+site. Google does not use IndexNow: use Google Search Console (URL inspection, Request indexing).
+
 ## Repo layout
 
 ```

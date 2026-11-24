@@ -121,7 +121,8 @@ C. web/ (Next.js 16 App Router, static export, TypeScript, Tailwind v4, KaTeX; p
    packs), /send/ (send us your papers), /upload/ (sign in, upload a paper, see what became of
    it), /privacy/ (what the site collects and how to have it deleted; Google's sign-in screen links to it,
    so it must match what the code does), /admin/ (the maintainer's analytics, password-locked; not in the sitemap). Also built: /sitemap.xml, /robots.txt, the site icon (app/icon.svg; node scripts/make-icons.mjs draws favicon.ico and
-   apple-icon.png from it), /og.png (link
+   apple-icon.png from it), the IndexNow key (public/<32 hex>.txt; node scripts/indexnow.mjs asks Bing to
+   re-read the sitemap's pages), /og.png (link
    preview). Deploy: Vercel, project Root Directory web (Next.js
    preset; the build reads ../packs and ../catalog). Live: https://campus-atlas.vercel.app
    Design: keep the current look (dark theme, lime/violet palette, Space Grotesk / Inter / Plex Mono,
