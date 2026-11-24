@@ -1191,9 +1191,20 @@ a.card:active {
   outline: 0;
   border-color: var(--accent);
 }
-.field input[type="file"] {
-  padding: 9px;
-  color: var(--muted);
+/* The upload form's file picker: a button, the real file input hidden inside it (.sr-only). */
+.file-pick {
+  position: relative;
+  align-self: flex-start;
+  cursor: pointer;
+}
+.file-pick:has(input:focus-visible) {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+.field .file-pick input {
+  width: 1px; /* stays hidden: not stretched or padded like the form's other inputs */
+  padding: 0;
+  border: 0;
 }
 .file-list,
 .upload-list {
