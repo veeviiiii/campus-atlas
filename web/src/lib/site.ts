@@ -7,5 +7,8 @@
  */
 export const SEND_PAPERS_FORM = "https://docs.google.com/forms/d/e/1FAIpQLSfKr1h-mxqs5jD4KJK3hhxCLtRWEUa29SlXgjdU9nhrFiNVYg/viewform";
 
+/** The code, on GitHub (open source). Here and not in a "use client" file, so server pages get the text. */
+export const REPO_URL = "https://github.com/veeviiiii/campus-atlas";
+
 /** Where the site is published; absolute links in metadata, the sitemap and robots.txt start here. */
 export const SITE_URL = "https://campus-atlas.vercel.app";

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { BackBar, BottomBar, REPO_URL, SiteNav } from "@/components/Chrome";
+import { BackBar, BottomBar, SiteNav } from "@/components/Chrome";
+import { REPO_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Privacy · Campus Atlas",

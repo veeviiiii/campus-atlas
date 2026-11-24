@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
-import { BackBar, REPO_URL, BottomBar, SiteNav } from "@/components/Chrome";
+import { BackBar, BottomBar, SiteNav } from "@/components/Chrome";
 import Link from "next/link";
 
-import { SEND_PAPERS_FORM } from "@/lib/site";
+import { REPO_URL, SEND_PAPERS_FORM } from "@/lib/site";
 import { uploadsConfigured } from "@/lib/supabase";
 
 export const metadata: Metadata = {
