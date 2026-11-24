@@ -1,7 +1,8 @@
-// Access rules of supabase/migrations/0001_uploads.sql, tried against a real (test) Supabase project:
-// every forbidden thing a signed-out visitor, another student or a banned account might try must fail.
+// Access rules of supabase/migrations/ (0001_uploads.sql, 0002_keep_alive.sql), tried against a real
+// (test) Supabase project: every forbidden thing a signed-out visitor, another student or a banned
+// account might try must fail.
 //
-// Run from web/ after the migration has been run on the TEST project (never the live one: this
+// Run from web/ after the migrations have been run on the TEST project (never the live one: this
 // creates and deletes accounts and uploads):
 //   npm run test:access
 // with these in web/.env.test.local (not committed) or in the shell:
@@ -193,5 +194,34 @@ describe("paper uploads: who may do what", { skip }, () => {
     for (let n = 1; n <= 5; n++) assert.equal((await add(db)).error, null, `upload ${n}`);
     const sixth = await add(db);
     assert.match(sixth.error?.message ?? "", /5 uploads waiting/);
+  });
+});
+
+describe("keep-alive: the daily ping and nothing more", { skip }, () => {
+  let admin;
+  let visitor;
+  const beat = async () => (await admin.from("heartbeat").select("pinged_at").eq("id", 1).maybeSingle()).data?.pinged_at ?? null;
+
+  before(() => {
+    admin = createClient(URL, SERVICE, options);
+    visitor = createClient(URL, ANON, options);
+  });
+
+  test("a signed-out caller can ping, and the ping is a write to the database", async () => {
+    const res = await visitor.rpc("keep_alive");
+    assert.equal(res.error, null, `keep_alive failed: ${res.error?.message} (was 0002_keep_alive.sql run?)`);
+    const at = await beat();
+    assert.ok(at && Date.now() - Date.parse(at) < 5 * 60 * 1000, `the heartbeat was not written now: ${at}`);
+  });
+
+  test("the heartbeat itself cannot be read or changed directly", async () => {
+    const was = await beat();
+    const read = await visitor.from("heartbeat").select("pinged_at");
+    assert.ok(read.error || read.data.length === 0, "a visitor read the heartbeat");
+    await visitor.from("heartbeat").update({ pinged_at: "2000-01-01T00:00:00Z" }).eq("id", 1);
+    await visitor.from("heartbeat").insert({ id: 2 });
+    await visitor.from("heartbeat").delete().eq("id", 1);
+    assert.equal(await beat(), was, "a visitor changed the heartbeat");
+    assert.equal((await admin.from("heartbeat").select("id")).data?.length, 1, "the heartbeat is no longer one row");
   });
 });

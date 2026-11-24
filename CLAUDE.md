@@ -54,10 +54,12 @@ to navigate.
    (model, from how the questions begin), and one paper photographed twice (no model). A year is
    never worked out). Stack: Supabase (Postgres + Storage + Auth, free plan) with the Next.js site on Vercel.
    Piece A is built, not live yet: Google sign-in and the upload form on /upload/, "My uploads",
-   the database rules (supabase/migrations/0001_uploads.sql) and pipeline/fetch_uploads.py, which
+   the database rules (supabase/migrations/0001_uploads.sql; 0002_keep_alive.sql plus a daily GitHub
+   Action keep the free project from being paused) and pipeline/fetch_uploads.py, which
    brings waiting uploads to data/inbox/ for the intake desk (the desk is the review queue; there is
-   no admin page). It goes live when the maintainer has made the Supabase projects and
-   `npm run test:access` passes (supabase/README.md). Still to build: the notes exchange, which
+   no admin page). Both Supabase projects exist and `npm run test:access` passes (17 of 17, 24 Nov
+   2026); it goes live once the website's two variables are set (supabase/README.md, step 6).
+   Still to build: the notes exchange, which
    first needs topic ids that do not move when a subject is regrouped.
 4. Backtested prediction once there are 3+ years.
 Ask before starting a new phase. Ask before adding a backend, auth or any paid service.

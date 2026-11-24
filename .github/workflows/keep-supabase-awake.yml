@@ -1,0 +1,29 @@
+name: keep-supabase-awake
+
+# A free Supabase project is paused after a week with too little database activity, and /upload/ then
+# stops working until it is restored by hand. Every morning this calls keep_alive()
+# (supabase/migrations/0002_keep_alive.sql): one small write. Needs the repository secrets SUPABASE_URL
+# and SUPABASE_ANON_KEY, the live project's URL and publishable key (both public by design; never the
+# service key). Without them this does nothing.
+on:
+  schedule:
+    - cron: "45 0 * * *" # 06:15 IST
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call keep_alive()
+        env:
+          URL: ${{ secrets.SUPABASE_URL }}
+          KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then echo "No SUPABASE_URL / SUPABASE_ANON_KEY secrets: nothing to do."; exit 0; fi
+          # A legacy anon key is a JWT and also goes in Authorization; a new publishable key (sb_...) only in apikey.
+          auth=()
+          case "$KEY" in sb_*) ;; *) auth=(-H "Authorization: Bearer $KEY") ;; esac
+          curl -fsS -X POST "${URL%/}/rest/v1/rpc/keep_alive" -H "apikey: $KEY" "${auth[@]}" -H "Content-Type: application/json" -d '{}' > /dev/null
+          echo "Supabase pinged."
