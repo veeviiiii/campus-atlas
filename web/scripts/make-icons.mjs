@@ -7,7 +7,7 @@ import sharp from "sharp";
 
 const app = new URL("../src/app/", import.meta.url);
 const svg = readFileSync(new URL("icon.svg", app));
-const VIOLET = "#7657ff"; // the tile's colour in icon.svg
+const TILE = "#13121a"; // the tile's colour in icon.svg (--surface)
 
 // Drawn large, then scaled down, for smooth edges at small sizes.
 const png = (size) => sharp(svg, { density: 72 * (size / 48) * 4 }).resize(size, size);
@@ -33,6 +33,6 @@ sizes.forEach((n, i) => {
 writeFileSync(new URL("favicon.ico", app), Buffer.concat([header, ...images]));
 
 // apple-icon.png: a full square (iOS rounds the corners itself and would show the see-through ones black).
-await png(180).flatten({ background: VIOLET }).png().toFile(fileURLToPath(new URL("apple-icon.png", app)));
+await png(180).flatten({ background: TILE }).png().toFile(fileURLToPath(new URL("apple-icon.png", app)));
 
 console.log("Wrote src/app/favicon.ico and src/app/apple-icon.png");

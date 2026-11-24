@@ -53,8 +53,8 @@ export function GET() {
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: 740 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 36 }}>
             <svg width="58" height="58" viewBox="0 0 30 30">
-              <circle cx="15" cy="15" r="12" fill="none" stroke="#7657FF" strokeWidth="3" />
               <path d="M3 15h24M15 3c-6 6-6 18 0 24" stroke="#C4B5FD" strokeWidth="2" fill="none" />
+              <circle cx="15" cy="15" r="12" fill="none" stroke="#7657FF" strokeWidth="3" />
               <rect x="21" y="5" width="5" height="5" fill="#D7FF52" />
             </svg>
             campus atlas
