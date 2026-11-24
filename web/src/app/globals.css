@@ -18,6 +18,7 @@
   --cyan: #54e4ff;
   --lav: #c4b5fd;
   --warning: #ff786d;
+  --good: #4ade80; /* an accepted upload in My uploads (/upload/) */
   --amber: #ffc24a;
   --pink: #f08bf0;
   --border: rgba(255, 255, 255, 0.1);
@@ -1021,6 +1022,22 @@ a.card:active {
 .chip.hot {
   border-color: color-mix(in srgb, var(--heat-repeat) 55%, transparent);
   color: var(--heat-repeat-soft);
+}
+/* My uploads (/upload/, lib/uploads.ts statusTone): accepted, rejected, waiting for the student's answer. */
+.chip.good {
+  border-color: color-mix(in srgb, var(--good) 60%, transparent);
+  background: color-mix(in srgb, var(--good) 14%, var(--card));
+  color: var(--good);
+}
+.chip.bad {
+  border-color: color-mix(in srgb, var(--heat-repeat) 60%, transparent);
+  background: color-mix(in srgb, var(--heat-repeat) 14%, var(--card));
+  color: var(--heat-repeat-soft);
+}
+.chip.ask {
+  border-color: color-mix(in srgb, var(--amber) 60%, transparent);
+  background: color-mix(in srgb, var(--amber) 12%, var(--card));
+  color: var(--amber);
 }
 .year-chips .chip {
   font: 500 14px var(--font-plex-mono), monospace;

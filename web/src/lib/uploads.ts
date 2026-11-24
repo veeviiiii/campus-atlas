@@ -85,8 +85,17 @@ export function statusText(row: Pick<UploadRow, "status" | "answer">): string {
     case "held":
       return row.answer ? "Answered: waiting to be checked again" : "We have a question for you";
     case "published":
-      return "On the site";
+      return "Accepted: on the site";
     case "rejected":
-      return "Not used";
+      return "Rejected";
   }
+}
+
+/** The colour of that status (a .chip class): green once it is on the site, red when it was rejected, amber
+ *  while we wait for the student to answer our question. The words say it too, never the colour alone. */
+export function statusTone(row: Pick<UploadRow, "status" | "answer">): "good" | "bad" | "ask" | "" {
+  if (row.status === "published") return "good";
+  if (row.status === "rejected") return "bad";
+  if (row.status === "held" && !row.answer) return "ask";
+  return "";
 }
