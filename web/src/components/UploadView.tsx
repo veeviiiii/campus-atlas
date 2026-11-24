@@ -132,7 +132,8 @@ export default function UploadView({ courses, formUrl }: Props) {
           </button>
           <span className="note">
             Signing in tells us your Google account&apos;s email address, so you can see what became of your papers and we can ask you about
-            them. We never publish it. Your photos stay private until we have checked them and blacked out any names.
+            them. We never publish it. Your photos stay private until we have checked them and blacked out any names.{" "}
+            <Link href="/privacy/">Privacy</Link>
           </span>
         </div>
         {formUrl && (
